@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Halaman Proses</title>
   <style>
     body {
@@ -10,10 +10,12 @@
       background: #f2f2f2;
       padding: 20px;
       font-size: 14px;
+      margin-bottom: 70px; /* space for FAB */
     }
     h2 {
       text-align: center;
       font-size: 18px;
+      margin-bottom: 15px;
     }
     .box {
       background: white;
@@ -21,6 +23,10 @@
       margin-bottom: 10px;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: box-shadow 0.3s ease;
+    }
+    .box:hover {
+      box-shadow: 0 6px 10px rgba(0,0,0,0.15);
     }
     .info {
       margin-bottom: 8px;
@@ -38,16 +44,10 @@
       border: 1px solid #ccc;
       padding: 6px;
       text-align: center;
-    
     }
     th {
       background-color: #007BFF;
       color: white;
-    }
-    .catatan {
-      margin-top: 6px;
-      font-style: italic;
-      color: #555;
     }
     .keterangan {
       font-weight: bold;
@@ -56,19 +56,231 @@
     .keterangan.GAGAL,
     .keterangan.KELUAR { color: red; }
     .keterangan.KERJA { color: green; }
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* FAB + */
+    #fabAdd {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #007BFF;
+      color: white;
+      font-size: 32px;
+      line-height: 56px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      user-select: none;
+      z-index: 1000;
+      transition: background-color 0.3s ease;
+    }
+    #fabAdd:hover {
+      background-color: #0056b3;
+    }
+
+    /* Modal form container */
+    #inputFormContainer {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+    }
+    #inputFormBox {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    #inputFormBox h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 20px;
+      text-align: center;
+      color: #007BFF;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 4px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    input[type="date"] {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 4px;
+    }
+    .form-row {
+      margin-bottom: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+    .form-buttons {
+      margin-top: 18px;
+      text-align: right;
+    }
+    button.save-btn {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.save-btn:hover {
+      background-color: #0056b3;
+    }
+    button.cancel-btn {
+      background: #ccc;
+      border: none;
+      padding: 10px 16px;
+      margin-right: 10px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.cancel-btn:hover {
+      background-color: #999;
+    }
   </style>
 </head>
 <body>
   <h2>Data Dalam Proses</h2>
   <div id="content"></div>
 
+  <!-- FAB + -->
+  <div id="fabAdd" title="Input Data">+</div>
+
+  <!-- Modal Input Form -->
+  <div id="inputFormContainer" aria-hidden="true">
+    <div id="inputFormBox" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <h3 id="formTitle">Input Data Proses</h3>
+      <form id="inputForm">
+        <div class="form-row">
+          <label for="perusahaan">Nama Perusahaan</label>
+          <input type="text" id="perusahaan" name="perusahaan" required />
+        </div>
+        <div class="form-row">
+          <label for="loker">Info Loker</label>
+          <input type="text" id="loker" name="loker" required />
+        </div>
+        <div class="form-row">
+          <label for="tanggal">Tanggal</label>
+          <input type="date" id="tanggal" name="tanggal" required />
+        </div>
+        <div class="form-row">
+          <label for="tahapan">Tahapan</label>
+          <input type="text" id="tahapan" name="tahapan" required />
+        </div>
+        <div class="form-row">
+          <label for="tempat">Tempat</label>
+          <input type="text" id="tempat" name="tempat" required />
+        </div>
+        <div class="form-row">
+          <label for="keterangan">Keterangan</label>
+          <select id="keterangan" name="keterangan" required>
+            <option value="">-- Pilih Keterangan --</option>
+            <option value="LULUS">Lulus</option>
+            <option value="GAGAL">Gagal</option>
+            <option value="KELUAR">Keluar</option>
+            <option value="KERJA">Kerja</option>
+            <option value="BATAL">Batal</option>
+          </select>
+        </div>
+        <div class="form-row hidden" id="catatanRow">
+          <label for="catatan">Catatan (hanya untuk Batal)</label>
+          <input type="text" id="catatan" name="catatan" />
+        </div>
+        <div class="form-buttons">
+          <button type="button" class="cancel-btn" id="btnCancel">Batal</button>
+          <button type="submit" class="save-btn" id="btnSave">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Audio click sound -->
+  <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
+
   <script>
-    function moveToRiwayat(key, item) {
-      let riwayat = JSON.parse(localStorage.getItem('riwayatData')) || {};
-      riwayat[key] = item;
-      localStorage.setItem('riwayatData', JSON.stringify(riwayat));
+    // Utility to format date yyyy-mm-dd to dd-mm-yy (2 digit year)
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const [year, month, day] = dateStr.split('-');
+      return `${day}-${month}-${year.slice(2)}`;
     }
 
+    // Show/hide catatan input based on keterangan value
+    const keteranganSelect = document.getElementById('keterangan');
+    const catatanRow = document.getElementById('catatanRow');
+    keteranganSelect.addEventListener('change', () => {
+      if (keteranganSelect.value.toUpperCase() === 'BATAL') {
+        catatanRow.classList.remove('hidden');
+      } else {
+        catatanRow.classList.add('hidden');
+        document.getElementById('catatan').value = '';
+      }
+    });
+
+    // Play click sound
+    const clickSound = document.getElementById('clickSound');
+    function playClick() {
+      clickSound.currentTime = 0;
+      clickSound.play();
+    }
+
+    // Toggle form modal visibility
+    const fabAdd = document.getElementById('fabAdd');
+    const inputFormContainer = document.getElementById('inputFormContainer');
+    const btnCancel = document.getElementById('btnCancel');
+    const inputForm = document.getElementById('inputForm');
+
+    fabAdd.addEventListener('click', () => {
+      inputFormContainer.style.display = 'flex';
+      inputFormContainer.setAttribute('aria-hidden', 'false');
+      inputForm.reset();
+      catatanRow.classList.add('hidden');
+      document.getElementById('perusahaan').focus();
+    });
+
+    btnCancel.addEventListener('click', () => {
+      playClick();
+      inputFormContainer.style.display = 'none';
+      inputFormContainer.setAttribute('aria-hidden', 'true');
+    });
+
+    // Load and render proses data
     function renderData() {
       let data = JSON.parse(localStorage.getItem('prosesData')) || {};
       const container = document.getElementById('content');
@@ -76,17 +288,17 @@
 
       Object.keys(data).forEach(key => {
         const item = data[key];
-        const selesai = item.tahapan.some(d => 
-          ['GAGAL','KELUAR','KERJA'].includes(d.keterangan.toUpperCase())
+        // Cek apakah sudah selesai
+        const selesai = item.tahapan.some(d =>
+          ['GAGAL', 'KELUAR', 'KERJA'].includes(d.keterangan.toUpperCase())
         );
-
+        // Jika sudah selesai pindah ke riwayat
         if (selesai) {
           moveToRiwayat(key, item);
           delete data[key];
           localStorage.setItem('prosesData', JSON.stringify(data));
           return;
         }
-
         const div = document.createElement('div');
         div.className = 'box';
         div.innerHTML = `
@@ -106,11 +318,12 @@
             <tbody>
               ${item.tahapan.map(row => `
                 <tr>
-                  <td>${row.tanggal}</td>
+                  <td>${formatDate(row.tanggal)}</td>
                   <td>${row.tahapan}</td>
                   <td>${row.tempat}</td>
                   <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                </tr>`).join('')}
+                </tr>
+              `).join('')}
             </tbody>
           </table>
         `;
@@ -118,7 +331,57 @@
       });
     }
 
-    renderData();
+    // Pindahkan data ke riwayat
+    function moveToRiwayat(key, item) {
+      let riwayat = JSON.parse(localStorage.getItem('riwayatData')) || {};
+      riwayat[key] = item;
+      localStorage.setItem('riwayatData', JSON.stringify(riwayat));
+    }
+
+    // Simpan data baru ke proses
+    inputForm.addEventListener('submit', e => {
+      e.preventDefault();
+      playClick();
+
+      let data = JSON.parse(localStorage.getItem('prosesData')) || {};
+      // Buat key unik berdasar timestamp dan random
+      const key = 'key_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+      // Ambil nilai form
+      const perusahaan = inputForm.perusahaan.value.trim();
+      const loker = inputForm.loker.value.trim();
+      const tanggalRaw = inputForm.tanggal.value; // yyyy-mm-dd
+      const tahapan = inputForm.tahapan.value.trim();
+      const tempat = inputForm.tempat.value.trim();
+      const keterangan = inputForm.keterangan.value.trim().toUpperCase();
+      const catatan = keterangan === 'BATAL' ? inputForm.catatan.value.trim() : '';
+
+      // Simpan data baru berbentuk objek dengan array tahapan
+      const newItem = {
+        perusahaan,
+        loker,
+        tahapan: [
+          {
+            tanggal: tanggalRaw,
+            tahapan,
+            tempat,
+            keterangan,
+            catatan
+          }
+        ]
+      };
+
+      data[key] = newItem;
+      localStorage.setItem('prosesData', JSON.stringify(data));
+      inputFormContainer.style.display = 'none';
+      inputFormContainer.setAttribute('aria-hidden', 'true');
+      renderData();
+    });
+
+    // Inisialisasi render data saat load
+    window.onload = () => {
+      renderData();
+    };
   </script>
 </body>
 </html>
