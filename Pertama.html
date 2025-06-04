@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Halaman Proses</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      font-size: 14px;
+      position: relative;
+      min-height: 100vh;
+      margin-bottom: 80px; /* space for FAB */
+    }
+    h2 {
+      text-align: center;
+      font-size: 18px;
+    }
+    .box {
+      background: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .info {
+      margin-bottom: 8px;
+    }
+    .label {
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    .keterangan {
+      font-weight: bold;
+    }
+    .keterangan.LULUS { color: goldenrod; }
+    .keterangan.GAGAL,
+    .keterangan.KELUAR { color: red; }
+    .keterangan.KERJA { color: green; }
+    .keterangan.BATAL { color: darkred; font-style: italic; }
+
+    /* FAB button */
+    #fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007BFF;
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      font-size: 36px;
+      line-height: 56px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      user-select: none;
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    #fab:hover {
+      background-color: #0056b3;
+    }
+
+    /* Modal Form */
+    #modalForm {
+      display: none;
+      position: fixed;
+      z-index: 1100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    #modalContent {
+      background-color: #fff;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      font-size: 14px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    #modalContent h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+    #modalContent label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+    #modalContent input[type="text"],
+    #modalContent input[type="date"],
+    #modalContent select,
+    #modalContent textarea {
+      width: 100%;
+      padding: 6px 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    #modalContent textarea {
+      resize: vertical;
+    }
+    #modalContent .btn-group {
+      margin-top: 16px;
+      text-align: right;
+    }
+    #modalContent button {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+      transition: background-color 0.3s ease;
+    }
+    #modalContent button:hover {
+      background-color: #0056b3;
+    }
+    #modalContent button.cancel {
+      background-color: #888;
+    }
+    #modalContent button.cancel:hover {
+      background-color: #555;
+    }
+
+  </style>
+</head>
+<body>
+  <h2>Data Dalam Proses</h2>
+  <div id="content"></div>
+
+  <!-- FAB Button -->
+  <div id="fab" title="Input Data">+</div>
+
+  <!-- Modal Form -->
+  <div id="modalForm">
+    <div id="modalContent">
+      <h3>Input Data Lengkap</h3>
+      <form id="inputForm">
+        <label for="perusahaan">Nama Perusahaan</label>
+        <input type="text" id="perusahaan" name="perusahaan" required />
+
+        <label for="loker">Info Loker</label>
+        <input type="text" id="loker" name="loker" required />
+
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal" name="tanggal" required />
+
+        <label for="tahapan">Tahapan</label>
+        <input type="text" id="tahapan" name="tahapan" required />
+
+        <label for="tempat">Tempat</label>
+        <input type="text" id="tempat" name="tempat" required />
+
+        <label for="keterangan">Keterangan</label>
+        <select id="keterangan" name="keterangan" required>
+          <option value="">-- Pilih Keterangan --</option>
+          <option value="LULUS">LULUS</option>
+          <option value="GAGAL">GAGAL</option>
+          <option value="KELUAR">KELUAR</option>
+          <option value="KERJA">KERJA</option>
+          <option value="BATAL">BATAL</option>
+        </select>
+
+        <label for="catatan" style="display:none;">Catatan</label>
+        <textarea id="catatan" name="catatan" rows="3" placeholder="Catatan (hanya muncul jika BATAL)"></textarea>
+
+        <div class="btn-group">
+          <button type="button" class="cancel">Batal</button>
+          <button type="submit">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
+
+  <script>
+    // Fungsi format tanggal dd-mm-yy dengan tahun 2 digit
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const d = new Date(dateString);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = String(d.getFullYear()).slice(-2);
+      return `${day}-${month}-${year}`;
+    }
+
+    // Pindah data ke riwayat
+    function moveToRiwayat(key, item) {
+      let riwayat = JSON.parse(localStorage.getItem('riwayatData')) || {};
+      riwayat[key] = item;
+      localStorage.setItem('riwayatData', JSON.stringify(riwayat));
+    }
+
+    // Render data proses
+    function renderData() {
+      let data = JSON.parse(localStorage.getItem('prosesData')) || {};
+      const container = document.getElementById('content');
+      container.innerHTML = '';
+
+      Object.keys(data).forEach(key => {
+        const item = data[key];
+        const lastTahapan = item.tahapan[item.tahapan.length - 1];
+        // pindahkan jika keterangan terakhir bukan LULUS
+        if (lastTahapan.keterangan.toUpperCase() !== 'LULUS') {
+          moveToRiwayat(key, item);
+          delete data[key];
+          localStorage.setItem('prosesData', JSON.stringify(data));
+          return;
+        }
+
+        // Render data yang masih proses
+        const div = document.createElement('div');
+        div.className = 'box';
+        div.innerHTML = `
+          <div class="info">
+            <div><span class="label">Info Loker:</span> ${item.loker}</div>
+            <div><span class="label">Perusahaan:</span> ${item.perusahaan}</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Tahapan</th>
+                <th>Tempat</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${item.tahapan.map(row => `
+                <tr>
+                  <td>${formatDate(row.tanggal)}</td>
+                  <td>${row.tahapan}</td>
+                  <td>${row.tempat}</td>
+                  <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Tombol FAB dan modal form
+    const fab = document.getElementById('fab');
+    const modal = document.getElementById('modalForm');
+    const form = document.getElementById('inputForm');
+    const clickSound = document.getElementById('clickSound');
+    const catatanLabel = form.querySelector('label[for="catatan"]');
+    const catatanTextarea = form.querySelector('textarea#catatan');
+
+    fab.addEventListener('click', () => {
+      form.reset();
+      catatanLabel.style.display = 'none';
+      catatanTextarea.style.display = 'none';
+      modal.style.display = 'block';
+    });
+
+    // Tampilkan kolom catatan hanya jika keterangan batal
+    form.keterangan.addEventListener('change', (e) => {
+      if (e.target.value.toUpperCase() === 'BATAL') {
+        catatanLabel.style.display = 'block';
+        catatanTextarea.style.display = 'block';
+        catatanTextarea.required = true;
+      } else {
+        catatanLabel.style.display = 'none';
+        catatanTextarea.style.display = 'none';
+        catatanTextarea.required = false;
+        catatanTextarea.value = '';
+      }
+    });
+
+    // Cancel tombol di form
+    form.querySelector('.cancel').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Simpan data form
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      // Ambil data form
+      const perusahaan = form.perusahaan.value.trim();
+      const loker = form.loker.value.trim();
+      const tanggal = form.tanggal.value;
+      const tahapan = form.tahapan.value.trim();
+      const tempat = form.tempat.value.trim();
+      const keterangan = form.keterangan.value.trim();
+      const catatan = form.catatan.value.trim();
+
+      // Validasi minimal sudah ada semua required oleh html
+
+      // Ambil data proses
+      let data = JSON.parse(localStorage.getItem('prosesData')) || {};
+
+      // Jika perusahaan dan loker sudah ada, tambahkan tahapan baru ke item yang sama
+      // Cek kunci unik bisa pakai perusahaan + loker sebagai ID sederhana
+      let key = perusahaan.toLowerCase() + '|' + loker.toLowerCase();
+
+      if (!data[key]) {
+        data[key] = {
+          perusahaan,
+          loker,
+          tahapan: []
+        };
+      }
+      data[key].perusahaan = perusahaan; // update jika perlu
+      data[key].loker = loker;
+
+      // Tambah tahapan baru
+      data[key].tahapan.push({
+        tanggal,
+        tahapan,
+        tempat,
+        keterangan,
+        catatan
+      });
+
+      // Simpan kembali
+      localStorage.setItem('prosesData', JSON.stringify(data));
+
+      // Bunyi klik
+      clickSound.currentTime = 0;
+      clickSound.play();
+
+      // Tutup modal dan render ulang
+      modal.style.display = 'none';
+      renderData();
+    });
+
+    // Tutup modal jika klik di luar modalContent
+    window.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Render saat mulai
+    renderData();
+  </script>
+</body>
+</html>
