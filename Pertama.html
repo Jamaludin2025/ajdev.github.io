@@ -86,50 +86,55 @@
     }
     .modal-content {
       background: white;
-      padding: 16px;
+      padding: 16px 20px;
       border-radius: 10px;
       max-width: 400px;
-      width: 90%;
+      width: 100%;
       box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      font-size: 14px;
     }
     label {
       display: block;
-      margin-top: 8px;
+      margin-top: 12px;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 14px;
     }
     input, select, textarea {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      margin-bottom: 12px;
+      padding: 8px 10px;
+      margin-top: 6px;
+      margin-bottom: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 13px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
-
-    /* Tombol Simpan & Batal sejajar horizontal & lebih kecil */
-    .button-row {
+    .form-buttons {
       display: flex;
-      justify-content: space-between;
-      gap: 8px;
+      justify-content: flex-start;
+      margin-top: 12px;
     }
-    .button-row button {
-      width: auto;
-      padding: 6px 12px;
-      font-size: 13px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    .button-row .close-btn {
-      background: #ccc;
-      color: black;
-    }
-    .button-row button[type="submit"] {
+    button {
+      padding: 6px 14px;
       background-color: #007BFF;
       color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      min-width: 80px;
+      transition: background-color 0.2s ease;
     }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .close-btn {
+      background: #ccc;
+      margin-left: 12px;
+      color: black;
+    }
+
   </style>
 </head>
 <body>
@@ -137,7 +142,7 @@
   <div id="content"></div>
 
   <!-- Floating Button -->
-  <button class="fab" onclick="playClickSound(); openModal()">+</button>
+  <button class="fab" onclick="handleClick()">+</button>
 
   <!-- Modal Form -->
   <div class="modal" id="modalForm">
@@ -173,18 +178,24 @@
           <textarea id="catatan" rows="2" placeholder="Hanya jika KELUAR"></textarea>
         </div>
 
-        <div class="button-row">
-          <button type="submit" onclick="playClickSound()">Simpan</button>
-          <button type="button" class="close-btn" onclick="playClickSound(); closeModal()">Batal</button>
+        <div class="form-buttons">
+          <button type="submit">Simpan</button>
+          <button type="button" class="close-btn" onclick="closeModal()">Batal</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Audio klik -->
-  <audio id="clickSound" src="https://res.cloudinary.com/akunanda/video/upload/v1234567890/klik.mp3"></audio>
+  <audio id="clickSound" src="https://res.cloudinary.com/dummyuser/video/upload/v1699000000/click.mp3" preload="auto"></audio>
 
   <script>
+    const clickSound = document.getElementById('clickSound');
+
+    function playClickSound() {
+      clickSound.currentTime = 0;
+      clickSound.play();
+    }
+
     function openModal() {
       document.getElementById('modalForm').style.display = 'flex';
     }
@@ -194,10 +205,15 @@
       document.getElementById('catatanContainer').style.display = 'none';
     }
 
+    function handleClick() {
+      playClickSound();
+      openModal();
+    }
+
     document.getElementById('keterangan').addEventListener('change', function() {
       const val = this.value.toUpperCase();
       const catatanBox = document.getElementById('catatanContainer');
-      // Hanya muncul jika KELUAR, selain itu sembunyikan
+      // hanya tampilkan jika KELUAR
       catatanBox.style.display = (val === 'KELUAR') ? 'block' : 'none';
     });
 
@@ -298,15 +314,6 @@
         `;
         container.appendChild(div);
       });
-    }
-
-    // Fungsi untuk mainkan suara klik
-    function playClickSound() {
-      const sound = document.getElementById('clickSound');
-      if (sound) {
-        sound.currentTime = 0;
-        sound.play();
-      }
     }
 
     renderData();
