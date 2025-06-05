@@ -11,7 +11,7 @@
     body {
       font-family: sans-serif;
       background: #f2f2f2;
-      padding: 12px;
+      padding: 20px;
       font-size: 14px;
       margin: 0;
     }
@@ -122,6 +122,7 @@
       border: none;
       border-radius: 8px;
       font-size: 14px;
+      margin-top: 15px;
     }
     .btn-simpan {
       background-color: #007BFF;
@@ -144,6 +145,16 @@
     .close:hover {
       color: #000;
     }
+    .reset-link {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .reset-link a {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -163,13 +174,13 @@
         <label>Info Loker</label>
         <input type="text" id="loker" required>
 
-        <label>Tanggal Tes</label>
+        <label>Tanggal Seleksi</label>
         <input type="date" id="tanggal" required>
 
-        <label>Tahapan</label>
+        <label>Tahap Seleksi</label>
         <input type="text" id="tahapan" required>
 
-        <label>Tempat</label>
+        <label>Tempat Seleksi</label>
         <input type="text" id="tempat" required>
 
         <label>Keterangan</label>
@@ -181,16 +192,15 @@
           <option value="KERJA">KERJA</option>
         </select>
 
-        <label>Catatan (opsional)</label>
-        <textarea id="catatan" rows="2"></textarea>
+        <label id="catatanLabel" style="display:none;">Alasan</label>
+        <textarea id="catatan" rows="2" style="display:none;"></textarea>
 
         <div class="button-row">
           <button type="button" class="btn-batal" onclick="closeModal()">Batal</button>
           <button type="submit" class="btn-simpan">Simpan Data</button>
         </div>
-
-        <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #555;">
-          Ingin menghapus semua data <a href="#" id="resetLink" style="color: #007BFF; text-decoration: underline; cursor: pointer;">klik di sini</a>
+        <div class="reset-link">
+          Ingin menghapus semua data? <a onclick="resetProses()">Klik di sini</a>
         </div>
       </form>
     </div>
@@ -206,6 +216,8 @@
     function closeModal() {
       document.getElementById('inputModal').style.display = 'none';
       document.getElementById('inputForm').reset();
+      document.getElementById('catatan').style.display = 'none';
+      document.getElementById('catatanLabel').style.display = 'none';
     }
 
     window.onclick = function(event) {
@@ -308,25 +320,39 @@
           tahapan: []
         };
       }
-      data[key].tahapan.push(newEntry);
-      localStorage.setItem('prosesData', JSON.stringify(data));
 
+      data[key].tahapan.push(newEntry);
+
+      if (["KELUAR", "KERJA"].includes(keterangan.toUpperCase()) && catatan) {
+        data[key].catatan = catatan;
+      }
+
+      localStorage.setItem('prosesData', JSON.stringify(data));
+      alert("Data berhasil disimpan!");
       closeModal();
       renderData();
     });
 
-    // Fitur reset data proses saja
-    function resetData() {
-      if (confirm('Yakin ingin menghapus semua data proses?')) {
+    function resetProses() {
+      if (confirm("Apakah Anda yakin ingin menghapus semua data proses?")) {
         localStorage.removeItem('prosesData');
-        alert('Data proses berhasil dihapus.');
-        location.reload();
+        renderData();
+        alert("Data proses berhasil dihapus.");
       }
     }
 
-    document.getElementById('resetLink').addEventListener('click', function(e) {
-      e.preventDefault();
-      resetData();
+    // Menampilkan/menyembunyikan kolom catatan
+    document.getElementById('keterangan').addEventListener('change', function () {
+      const catatan = document.getElementById('catatan');
+      const label = document.getElementById('catatanLabel');
+      if (this.value === 'KELUAR') {
+        catatan.style.display = 'block';
+        label.style.display = 'block';
+      } else {
+        catatan.style.display = 'none';
+        label.style.display = 'none';
+        catatan.value = '';
+      }
     });
 
     renderData();
