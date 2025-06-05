@@ -140,7 +140,7 @@
 <body>
   <h2>Riwayat Seleksi</h2>
   <div id="summaryBox" class="summary-box">Total Lamaran: 0</div>
-  
+
   <div class="filter-container">
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
@@ -154,7 +154,7 @@
       </select>
     </div>
   </div>
-  
+
   <div id="riwayatList"></div>
 
   <div id="toast" class="toast"></div>
@@ -165,7 +165,7 @@
     const container = document.getElementById('riwayatList');
     const clickSound = document.getElementById('clickSound');
     const summaryBox = document.getElementById('summaryBox');
-    
+
     const tahunSelect = document.getElementById('filterTahun');
     const perusahaanSelect = document.getElementById('filterPerusahaan');
     const lokerSelect = document.getElementById('filterLoker');
@@ -181,8 +181,7 @@
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
-    
-    // Ambil semua filter unik
+
     const tahunSet = new Set();
     const perusahaanSet = new Set();
     const lokerSet = new Set();
@@ -197,7 +196,7 @@
         }
       });
     });
-    
+
     tahunSelect.innerHTML = `<option value="">Tahun</option>`;
     perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
     lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
@@ -211,13 +210,13 @@
     [...tahunSet].sort().forEach(t => {
       tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
-    
+
     function renderRiwayat() {
       const tahun = tahunSelect.value;
       const perusahaan = perusahaanSelect.value;
       const loker = lokerSelect.value;
 
-      listContainer.innerHTML = '';
+      container.innerHTML = '';
       let count = 0;
 
       Object.entries(data).forEach(([key, item], index) => {
@@ -231,67 +230,61 @@
           wrapper.className = 'entry';
           const detailId = 'detail-' + index;
 
-    function hitungSelisihTanggal(tanggalStr) {
-      const tanggal = new Date(tanggalStr.split("/").reverse().join("-")); // Format: dd/mm/yyyy
-      const sekarang = new Date();
-      const selisihMs = sekarang - tanggal;
-      const selisihHari = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
+          function hitungSelisihTanggal(tanggalStr) {
+            const tanggal = new Date(tanggalStr.split("/").reverse().join("-"));
+            const sekarang = new Date();
+            const selisihMs = sekarang - tanggal;
+            const selisihHari = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
 
-      if (selisihHari === 0) return "Hari ini";
-      if (selisihHari === 1) return "1 hari yang lalu";
-      if (selisihHari < 30) return `${selisihHari} hari yang lalu`;
-      const selisihBulan = Math.floor(selisihHari / 30);
-      return `${selisihBulan} bulan yang lalu`;
+            if (selisihHari === 0) return "Hari ini";
+            if (selisihHari === 1) return "1 hari yang lalu";
+            if (selisihHari < 30) return `${selisihHari} hari yang lalu`;
+            const selisihBulan = Math.floor(selisihHari / 30);
+            return `${selisihBulan} bulan yang lalu`;
+          }
+
+          const lastStage = item.tahapan[item.tahapan.length - 1];
+          const jarakInterval = hitungSelisihTanggal(lastStage?.tanggal || "01/01/2000");
+
+          wrapper.innerHTML = `
+            <div class="title-bar">
+              <div>${item.loker}</div>
+              <div>
+                <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
+                <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
+              </div>
+            </div>
+            <div id="${detailId}" style="display:none; margin-top:8px;">
+              <div><strong>Jarak Interval:</strong> ${jarakInterval}</div>
+              <div><strong>Info Loker:</strong> ${item.perusahaan}</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Tahapan</th>
+                    <th>Tempat</th>
+                    <th>Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${item.tahapan.map(row => `
+                    <tr>
+                      <td>${row.tanggal}</td>
+                      <td>${row.tahapan}</td>
+                      <td>${row.tempat}</td>
+                      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+              ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
+            </div>
+          `;
+          container.appendChild(wrapper);
+        }
+      });
+
+      summaryBox.textContent = `Total Riwayat: ${count}`;
     }
-
-    const keys = Object.keys(data);
-    summaryBox.textContent = `Total Riwayat: ${keys.length}`;
-
-    keys.forEach((key, index) => {
-      const item = data[key];
-      const wrapper = document.createElement('div');
-      wrapper.className = 'entry';
-      const detailId = 'detail-' + index;
-
-      // Ambil tanggal terakhir
-      const lastStage = item.tahapan[item.tahapan.length - 1];
-      const jarakInterval = hitungSelisihTanggal(lastStage?.tanggal || "01/01/2000");
-
-      wrapper.innerHTML = `
-        <div class="title-bar">
-          <div>${item.loker}</div>
-          <div>
-            <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
-            <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
-          </div>
-        </div>
-        <div id="${detailId}" style="display:none; margin-top:8px;">
-          <div><strong>Jarak Interval:</strong> ${jarakInterval}</div>
-          <div><strong>Info Loker:</strong> ${item.perusahaan}</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Tahapan</th>
-                <th>Tempat</th>
-                <th>Keterangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${item.tahapan.map(row => `
-                <tr>
-                  <td>${row.tanggal}</td>
-                  <td>${row.tahapan}</td>
-                  <td>${row.tempat}</td>
-                  <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-          ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
-        </div>
-      `;
-      container.appendChild(wrapper);
-    });
 
     function toggleDetail(id) {
       const el = document.getElementById(id);
@@ -310,7 +303,6 @@
           setTimeout(() => entry.remove(), 500);
           showToast("✅ Data berhasil dihapus");
 
-          // Update jumlah total
           const newCount = Object.keys(data).length;
           summaryBox.textContent = `Total Riwayat: ${newCount}`;
         } else {
@@ -320,8 +312,7 @@
         showToast("❌ Penghapusan dibatalkan");
       }
     }
-    
-    // Inisialisasi
+
     renderRiwayat();
   </script>
 </body>
