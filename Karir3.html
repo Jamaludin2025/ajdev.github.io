@@ -17,12 +17,34 @@
     .summary-box {
       background: white;
       padding: 12px;
-      margin: 12px auto 20px auto;
+      margin: 12px auto 12px auto;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
       text-align: center;
       font-weight: bold;
+    }
+    .filter-container {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    select {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      width: 100%;
     }
     .entry {
       background: white;
@@ -61,6 +83,7 @@
       font-size: 12px;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
     table {
       width: 100%;
@@ -116,7 +139,23 @@
 </head>
 <body>
   <h2>Riwayat Seleksi</h2>
+
   <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
+
+  <div class="filter-container">
+    <div class="filter-bar">
+      <select id="filterPerusahaan" onchange="renderRiwayat()">
+      <option value="">Perusaan</option>
+      </select>
+      <select id="filterLoker" onchange="renderRiwayat()">
+      <option value="">Info Loker</option>
+      </select>
+      <select id="filterTahun" onchange="renderRiwayat()">
+      <option value="">Tahun</option>
+      </select>
+    </div>
+  </div>
+
   <div id="riwayatList"></div>
 
   <div id="toast" class="toast"></div>
@@ -124,9 +163,13 @@
 
   <script>
     const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
-    const container = document.getElementById('riwayatList');
     const clickSound = document.getElementById('clickSound');
     const summaryBox = document.getElementById('summaryBox');
+    const listContainer = document.getElementById('riwayatList');
+
+    const tahunSelect = document.getElementById('filterTahun');
+    const perusahaanSelect = document.getElementById('filterPerusahaan');
+    const lokerSelect = document.getElementById('filterLoker');
 
     function playClick() {
       clickSound.currentTime = 0;
@@ -140,50 +183,94 @@
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    const keys = Object.keys(data);
-    summaryBox.textContent = `Total Riwayat: ${keys.length}`;
+    // Ambil semua filter unik
+    const tahunSet = new Set();
+    const perusahaanSet = new Set();
+    const lokerSet = new Set();
 
-    keys.forEach((key, index) => {
-      const item = data[key];
-      const wrapper = document.createElement('div');
-      wrapper.className = 'entry';
-      const detailId = 'detail-' + index;
-
-      wrapper.innerHTML = `
-        <div class="title-bar">
-          <div>${item.perusahaan}</div>
-          <div>
-            <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
-            <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
-          </div>
-        </div>
-        <div id="${detailId}" style="display:none; margin-top:8px;">
-          <div><strong>Info Loker:</strong> ${item.loker}</div>
-          <div><strong>Perusahaan:</strong> ${item.perusahaan}</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Tahapan</th>
-                <th>Tempat</th>
-                <th>Keterangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${item.tahapan.map(row => `
-                <tr>
-                  <td>${row.tanggal}</td>
-                  <td>${row.tahapan}</td>
-                  <td>${row.tempat}</td>
-                  <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-          ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
-        </div>
-      `;
-      container.appendChild(wrapper);
+    Object.values(data).forEach(item => {
+      perusahaanSet.add(item.perusahaan);
+      lokerSet.add(item.loker);
+      item.tahapan.forEach(t => {
+        if (t.tanggal) {
+          const year = new Date(t.tanggal).getFullYear();
+          if (!isNaN(year)) tahunSet.add(year);
+        }
+      });
     });
+
+    tahunSelect.innerHTML = `<option value="">Tahun</option>`;
+    perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
+    lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
+
+    [...perusahaanSet].sort().forEach(p => {
+      perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+    [...lokerSet].sort().forEach(l => {
+      lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
+    });
+    [...tahunSet].sort().forEach(t => {
+      tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+
+    function renderRiwayat() {
+      const tahun = tahunSelect.value;
+      const perusahaan = perusahaanSelect.value;
+      const loker = lokerSelect.value;
+
+      listContainer.innerHTML = '';
+      let count = 0;
+
+      Object.entries(data).forEach(([key, item], index) => {
+        const matchesTahun = !tahun || item.tahapan.some(t => new Date(t.tanggal).getFullYear().toString() === tahun);
+        const matchesPerusahaan = !perusahaan || item.perusahaan === perusahaan;
+        const matchesLoker = !loker || item.loker === loker;
+
+        if (matchesTahun && matchesPerusahaan && matchesLoker) {
+          count++;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'entry';
+          const detailId = 'detail-' + index;
+
+          wrapper.innerHTML = `
+            <div class="title-bar">
+              <div>${item.perusahaan}</div>
+              <div>
+                <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
+                <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
+              </div>
+            </div>
+            <div id="${detailId}" style="display:none; margin-top:8px;">
+              <div><strong>Info Loker:</strong> ${item.loker}</div>
+              <div><strong>Perusahaan:</strong> ${item.perusahaan}</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Tahapan</th>
+                    <th>Tempat</th>
+                    <th>Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${item.tahapan.map(row => `
+                    <tr>
+                      <td>${row.tanggal}</td>
+                      <td>${row.tahapan}</td>
+                      <td>${row.tempat}</td>
+                      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+              ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
+            </div>
+          `;
+          listContainer.appendChild(wrapper);
+        }
+      });
+
+      summaryBox.textContent = `Total Riwayat: ${count}`;
+    }
 
     function toggleDetail(id) {
       const el = document.getElementById(id);
@@ -194,17 +281,12 @@
       playClick();
       if (confirm("Yakin ingin menghapus data ini?")) {
         if (confirm("Data akan dihapus permanen. Lanjutkan?")) {
-          const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
-          delete data[key];
-          localStorage.setItem('riwayatData', JSON.stringify(data));
-          const entry = button.closest('.entry');
-          entry.classList.add('fade-out');
-          setTimeout(() => entry.remove(), 500);
+          const newData = JSON.parse(localStorage.getItem('riwayatData')) || {};
+          delete newData[key];
+          localStorage.setItem('riwayatData', JSON.stringify(newData));
+          button.closest('.entry').classList.add('fade-out');
+          setTimeout(() => renderRiwayat(), 500);
           showToast("✅ Data berhasil dihapus");
-
-          // Update jumlah total
-          const newCount = Object.keys(data).length;
-          summaryBox.textContent = `Total Riwayat: ${newCount}`;
         } else {
           showToast("❌ Penghapusan dibatalkan");
         }
@@ -212,6 +294,9 @@
         showToast("❌ Penghapusan dibatalkan");
       }
     }
+
+    // Inisialisasi
+    renderRiwayat();
   </script>
 </body>
 </html>
