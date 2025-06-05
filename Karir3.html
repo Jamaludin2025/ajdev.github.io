@@ -14,6 +14,16 @@
     h2 {
       text-align: center;
     }
+    .summary-box {
+      background: white;
+      padding: 12px;
+      margin: 12px auto 20px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      text-align: center;
+      font-weight: bold;
+    }
     .entry {
       background: white;
       padding: 12px;
@@ -84,8 +94,6 @@
       opacity: 0;
       transform: translateY(-10px);
     }
-
-    /* Toast Style */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -108,16 +116,17 @@
 </head>
 <body>
   <h2>Riwayat Seleksi</h2>
+  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
   <div id="riwayatList"></div>
 
   <div id="toast" class="toast"></div>
-
   <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <script>
     const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
     const container = document.getElementById('riwayatList');
     const clickSound = document.getElementById('clickSound');
+    const summaryBox = document.getElementById('summaryBox');
 
     function playClick() {
       clickSound.currentTime = 0;
@@ -131,8 +140,10 @@
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    let index = 1;
-    Object.keys(data).forEach(key => {
+    const keys = Object.keys(data);
+    summaryBox.textContent = `Total Riwayat: ${keys.length}`;
+
+    keys.forEach((key, index) => {
       const item = data[key];
       const wrapper = document.createElement('div');
       wrapper.className = 'entry';
@@ -140,7 +151,7 @@
 
       wrapper.innerHTML = `
         <div class="title-bar">
-          <div>${index}. ${item.perusahaan}</div>
+          <div>${item.perusahaan}</div>
           <div>
             <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
             <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
@@ -172,7 +183,6 @@
         </div>
       `;
       container.appendChild(wrapper);
-      index++;
     });
 
     function toggleDetail(id) {
@@ -191,6 +201,10 @@
           entry.classList.add('fade-out');
           setTimeout(() => entry.remove(), 500);
           showToast("✅ Data berhasil dihapus");
+
+          // Update jumlah total
+          const newCount = Object.keys(data).length;
+          summaryBox.textContent = `Total Riwayat: ${newCount}`;
         } else {
           showToast("❌ Penghapusan dibatalkan");
         }
