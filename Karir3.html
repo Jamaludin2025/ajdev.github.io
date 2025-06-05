@@ -269,6 +269,39 @@
     });
 
     function renderRiwayat() {
+      const tahunSelect = document.getElementById('filterTahun');
+      const perusahaanSelect = document.getElementById('filterPerusahaan');
+      const lokerSelect = document.getElementById('filterLoker');
+
+      const tahunSet = new Set();
+      const perusahaanSet = new Set();
+      const lokerSet = new Set();
+
+      Object.values(data).forEach(item => {
+        perusahaanSet.add(item.perusahaan);
+        lokerSet.add(item.loker);
+        item.tahapan.forEach(t => {
+          if (t.tanggal) {
+            const year = new Date(t.tanggal).getFullYear();
+            if (!isNaN(year)) tahunSet.add(year);
+          }
+        });
+      });
+
+      tahunSelect.innerHTML = `<option value="">Tahun</option>`;
+      perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
+      lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
+
+      [...perusahaanSet].sort().forEach(p => {
+        perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
+      });
+      [...lokerSet].sort().forEach(l => {
+        lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
+      });
+      [...tahunSet].sort().forEach(t => {
+        tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
+      });
+
       const container = document.getElementById('riwayatList');
       const tahun = document.getElementById('filterTahun').value;
       const perusahaan = document.getElementById('filterPerusahaan').value;
@@ -374,5 +407,6 @@
 
     renderRiwayat();
   </script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>
