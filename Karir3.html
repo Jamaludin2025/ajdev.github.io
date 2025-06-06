@@ -140,21 +140,25 @@
 <body>
   <h2>Riwayat Seleksi</h2>
 
-  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
-
-  <div class="filter-container">
-    <div class="filter-bar">
-      <select id="filterPerusahaan" onchange="renderRiwayat()">
-      <option value="">Perusaan</option>
+  <div class="summary-box" id="summaryBox">
+    <div id="summaryText">Total Riwayat: 0</div>
+    <div class="filter-bar" style="margin-top: 10px;">
+      <select id="filterPerusahaan">
+        <option value="">Perusahaan</option>
       </select>
-      <select id="filterLoker" onchange="renderRiwayat()">
-      <option value="">Info Loker</option>
+      <select id="filterLoker">
+        <option value="">Info Loker</option>
       </select>
-      <select id="filterTahun" onchange="renderRiwayat()">
-      <option value="">Tahun</option>
+      <select id="filterTahun">
+        <option value="">Tahun</option>
       </select>
     </div>
   </div>
+
+  <div id="riwayatList"></div>
+
+  <div id="toast" class="toast"></div>
+  <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <div id="riwayatList"></div>
 
