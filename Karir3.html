@@ -13,6 +13,7 @@
     }
     h2 {
       text-align: center;
+      font-size: 18px;
     }
     .summary-box {
       background: white;
@@ -21,22 +22,15 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
-      text-align: center;
+      text-align: left;
       font-weight: bold;
-    }
-    .filter-container {
-      background: white;
-      padding: 12px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: 0 auto 20px auto;
     }
     .filter-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       justify-content: space-between;
+      margin-top: 10px;
     }
     select {
       flex: 1;
@@ -140,12 +134,12 @@
 <body>
   <h2>Riwayat Seleksi</h2>
 
-  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
+  <div id="summaryBox" class="summary-box">Total Riwayat: 0
 
   <div class="filter-container">
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
-      <option value="">Perusaan</option>
+      <option value="">Perusahaan</option>
       </select>
       <select id="filterLoker" onchange="renderRiwayat()">
       <option value="">Info Loker</option>
@@ -241,8 +235,8 @@
               </div>
             </div>
             <div id="${detailId}" style="display:none; margin-top:8px;">
-              <div><strong>Info Loker:</strong> ${getIntervalText(item.tahapan)}</div>
-              <div><strong>Perusahaan:</strong> ${item.perusahaan}</div>
+              <div><strong></strong> ${getIntervalText(item.tahapan)}</div>
+              <div><strong>Info Loker:</strong> ${item.loker}</div>
               <table>
                 <thead>
                   <tr>
@@ -291,12 +285,12 @@
           data = newData;
           button.closest('.entry').classList.add('fade-out');
           setTimeout(() => renderRiwayat(), 500);
-          showToast("✅ Data berhasil dihapus");
+          showToast("Data berhasil dihapus");
         } else {
-          showToast("❌ Penghapusan dibatalkan");
+          showToast("Penghapusan dibatalkan");
         }
       } else {
-        showToast("❌ Penghapusan dibatalkan");
+        showToast("Penghapusan dibatalkan");
       }
     }
 
