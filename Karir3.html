@@ -11,9 +11,6 @@
       padding: 20px;
       font-size: 14px;
     }
-    h2 {
-      text-align: center;
-    }
     .summary-box {
       background: white;
       padding: 12px;
@@ -23,6 +20,7 @@
       max-width: 600px;
       text-align: center;
       font-weight: bold;
+      font-size: 18px;
     }
     .filter-container {
       background: white;
@@ -105,7 +103,7 @@
     }
     .keterangan.LULUS { color: goldenrod; }
     .keterangan.GAGAL,
-    .keterangan.KELUAR { color: red; }
+    .keterangan.UNDUR { color: red; }
     .keterangan.KERJA { color: green; }
     .catatan {
       margin-top: 6px;
@@ -137,28 +135,22 @@
     }
   </style>
 </head>
-<body>
-  <h2>Riwayat Seleksi</h2>
+<body>  
+  <div id="summaryBox" class="summary-box">Riwayat Seleksi: 0</div>
 
-  <div class="summary-box" id="summaryBox">
-    <div id="summaryText">Total Riwayat: 0</div>
-    <div class="filter-bar" style="margin-top: 10px;">
-      <select id="filterPerusahaan">
-        <option value="">Perusahaan</option>
+  <div class="filter-container">
+    <div class="filter-bar">
+      <select id="filterPerusahaan" onchange="renderRiwayat()">
+      <option value="">Perusahaan</option>
       </select>
-      <select id="filterLoker">
-        <option value="">Info Loker</option>
+      <select id="filterLoker" onchange="renderRiwayat()">
+      <option value="">Info Loker</option>
       </select>
-      <select id="filterTahun">
-        <option value="">Tahun</option>
+      <select id="filterTahun" onchange="renderRiwayat()">
+      <option value="">Tahun</option>
       </select>
     </div>
   </div>
-
-  <div id="riwayatList"></div>
-
-  <div id="toast" class="toast"></div>
-  <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <div id="riwayatList"></div>
 
