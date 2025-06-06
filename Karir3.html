@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Riwayat dengan Toggle</title>
+  <title>Halaman Riwayat</title>
   <style>
     body {
       font-family: sans-serif;
@@ -14,57 +13,19 @@
     }
     h2 {
       text-align: center;
+      font-size: 18px;
     }
-    .summary-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .summary-box {
       background: white;
       padding: 12px;
       margin: 12px auto 20px auto;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
+      text-align: left;
       font-weight: bold;
     }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 28px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 28px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #4CAF50;
-    }
-    input:checked + .slider:before {
-      transform: translateX(22px);
-    }
     .filter-container {
-      display: none;
       background: white;
       padding: 12px;
       border-radius: 10px;
@@ -77,6 +38,7 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: space-between;
+      margin-top: 10px;
     }
     select {
       flex: 1;
@@ -179,16 +141,9 @@
 </head>
 <body>
   <h2>Riwayat Seleksi</h2>
-
-  <div class="summary-bar">
-    <div id="summaryBox">Total Riwayat: 0</div>
-    <label class="switch">
-      <input type="checkbox" id="toggleFilter" onchange="toggleFilterBox()">
-      <span class="slider"></span>
-    </label>
-  </div>
-
-  <div id="filterBox" class="filter-container">
+  <div id="summaryBox" class="summary-box">
+  <div class="summary-content">
+    <div class="summary-text">Total Lamaran: 0</div>
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
         <option value="">Perusahaan</option>
@@ -201,32 +156,23 @@
       </select>
     </div>
   </div>
+</div>
 
   <div id="riwayatList"></div>
 
+  <div id="toast" class="toast"></div>
+  <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
+
   <script>
-    function toggleFilterBox() {
-      const filterBox = document.getElementById('filterBox');
-      const filterTahun = document.getElementById('filterTahun');
-      const filterLoker = document.getElementById('filterLoker');
-      const filterPerusahaan = document.getElementById('filterPerusahaan');
-      const toggle = document.getElementById('toggleFilter');
-      
+    const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
+    const container = document.getElementById('riwayatList');
+    const clickSound = document.getElementById('clickSound');
+    const summaryBox = document.getElementById('summaryBox');
+
     const tahunSelect = document.getElementById('filterTahun');
     const perusahaanSelect = document.getElementById('filterPerusahaan');
     const lokerSelect = document.getElementById('filterLoker');
 
-      if (toggle.checked) {
-        filterBox.style.display = 'block';
-      } else {
-        filterBox.style.display = 'none';
-        filterTahun.value = '';
-        filterLoker.value = '';
-        filterPerusahaan.value = '';
-        renderRiwayat();
-      }
-    }
-    
     function playClick() {
       clickSound.currentTime = 0;
       clickSound.play();
@@ -269,44 +215,9 @@
     });
 
     function renderRiwayat() {
-      const tahunSelect = document.getElementById('filterTahun');
-      const perusahaanSelect = document.getElementById('filterPerusahaan');
-      const lokerSelect = document.getElementById('filterLoker');
-
-      const tahunSet = new Set();
-      const perusahaanSet = new Set();
-      const lokerSet = new Set();
-
-      Object.values(data).forEach(item => {
-        perusahaanSet.add(item.perusahaan);
-        lokerSet.add(item.loker);
-        item.tahapan.forEach(t => {
-          if (t.tanggal) {
-            const year = new Date(t.tanggal).getFullYear();
-            if (!isNaN(year)) tahunSet.add(year);
-          }
-        });
-      });
-
-      tahunSelect.innerHTML = `<option value="">Tahun</option>`;
-      perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
-      lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
-
-      [...perusahaanSet].sort().forEach(p => {
-        perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
-      });
-      [...lokerSet].sort().forEach(l => {
-        lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
-      });
-      [...tahunSet].sort().forEach(t => {
-        tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
-      });
-
-      const container = document.getElementById('riwayatList');
-      const tahun = document.getElementById('filterTahun').value;
-      const perusahaan = document.getElementById('filterPerusahaan').value;
-      const loker = document.getElementById('filterLoker').value;
-      const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
+      const tahun = tahunSelect.value;
+      const perusahaan = perusahaanSelect.value;
+      const loker = lokerSelect.value;
 
       container.innerHTML = '';
       let count = 0;
@@ -393,20 +304,19 @@
           const entry = button.closest('.entry');
           entry.classList.add('fade-out');
           setTimeout(() => entry.remove(), 500);
-          showToast("✅ Data berhasil dihapus");
+          showToast("Data berhasil dihapus");
 
           const newCount = Object.keys(data).length;
           summaryBox.textContent = `Total Riwayat: ${newCount}`;
         } else {
-          showToast("❌ Penghapusan dibatalkan");
+          showToast("Penghapusan dibatalkan");
         }
       } else {
-        showToast("❌ Penghapusan dibatalkan");
+        showToast("Penghapusan dibatalkan");
       }
     }
 
     renderRiwayat();
   </script>
-  <div id="toast" class="toast"></div>
 </body>
 </html>
