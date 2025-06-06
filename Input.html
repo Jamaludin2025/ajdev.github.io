@@ -250,7 +250,7 @@
       Object.keys(data).forEach(key => {
         const item = data[key];
         const selesai = item.tahapan.some(d => 
-          ['GAGAL','KELUAR','KERJA'].includes(d.keterangan.toUpperCase())
+          ['GAGAL','UNDUR','KERJA'].includes(d.keterangan.toUpperCase())
         );
 
         if (selesai) {
