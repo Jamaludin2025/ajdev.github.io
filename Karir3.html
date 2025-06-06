@@ -15,23 +15,13 @@
       text-align: center;
       font-size: 18px;
     }
-    .summary-box {
+    .summary-box, .filter-container {
       background: white;
       padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
       margin: 12px auto 20px auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      text-align: left;
-      font-weight: bold;
-    }
-    .filter-container {
-      background: white;
-      padding: 12px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: 0 auto 20px auto;
     }
     .filter-bar {
       display: flex;
@@ -142,7 +132,6 @@
 <body>
   <h2>Riwayat Seleksi</h2>
   <div id="summaryBox" class="summary-box">
-  <div class="summary-content">
     <div class="summary-text">Total Lamaran: 0</div>
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
@@ -156,19 +145,32 @@
       </select>
     </div>
   </div>
-</div>
 
   <div id="riwayatList"></div>
-
   <div id="toast" class="toast"></div>
   <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <script>
+    const dummyData = {
+      "1": {
+        perusahaan: "BKK Mandiri",
+        loker: "PT. Yamaha WJ",
+        tahapan: [
+          { tanggal: "2025-06-01", tahapan: "Psikotes", tempat: "Disnakertrans", keterangan: "LULUS" },
+          { tanggal: "2025-06-06", tahapan: "Interview", tempat: "Disnakertrans", keterangan: "UNDUR" }
+        ],
+        catatan: "Tidak hadir karena sakit"
+      }
+    };
+
+    if (!localStorage.getItem('riwayatData')) {
+      localStorage.setItem('riwayatData', JSON.stringify(dummyData));
+    }
+
     const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
     const container = document.getElementById('riwayatList');
     const clickSound = document.getElementById('clickSound');
     const summaryBox = document.getElementById('summaryBox');
-
     const tahunSelect = document.getElementById('filterTahun');
     const perusahaanSelect = document.getElementById('filterPerusahaan');
     const lokerSelect = document.getElementById('filterLoker');
@@ -205,13 +207,13 @@
     lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
 
     [...perusahaanSet].sort().forEach(p => {
-      perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
+      perusahaanSelect.innerHTML += `<option value="\${p}">\${p}</option>`;
     });
     [...lokerSet].sort().forEach(l => {
-      lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
+      lokerSelect.innerHTML += `<option value="\${l}">\${l}</option>`;
     });
     [...tahunSet].sort().forEach(t => {
-      tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
+      tahunSelect.innerHTML += `<option value="\${t}">\${t}</option>`;
     });
 
     function renderRiwayat() {
@@ -258,7 +260,7 @@
               </div>
             </div>
             <div id="${detailId}" style="display:none; margin-top:8px;">
-              <div> ${jarakInterval}</div>
+              <div><strong>Seleksi:</strong> ${jarakInterval}</div>
               <div><strong>Info Loker:</strong> ${item.perusahaan}</div>
               <table>
                 <thead>
@@ -286,7 +288,7 @@
         }
       });
 
-      summaryBox.textContent = `Total Riwayat: ${count}`;
+      summaryBox.querySelector(".summary-text").textContent = `Total Lamaran: ${count}`;
     }
 
     function toggleDetail(id) {
@@ -305,9 +307,7 @@
           entry.classList.add('fade-out');
           setTimeout(() => entry.remove(), 500);
           showToast("Data berhasil dihapus");
-
-          const newCount = Object.keys(data).length;
-          summaryBox.textContent = `Total Riwayat: ${newCount}`;
+          renderRiwayat();
         } else {
           showToast("Penghapusan dibatalkan");
         }
