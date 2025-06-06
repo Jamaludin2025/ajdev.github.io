@@ -162,7 +162,7 @@
   <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <script>
-    const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
+    let data = JSON.parse(localStorage.getItem('riwayatData')) || {};
     const clickSound = document.getElementById('clickSound');
     const summaryBox = document.getElementById('summaryBox');
     const listContainer = document.getElementById('riwayatList');
@@ -284,6 +284,7 @@
           const newData = JSON.parse(localStorage.getItem('riwayatData')) || {};
           delete newData[key];
           localStorage.setItem('riwayatData', JSON.stringify(newData));
+          data = newData;
           button.closest('.entry').classList.add('fade-out');
           setTimeout(() => renderRiwayat(), 500);
           showToast("✅ Data berhasil dihapus");
