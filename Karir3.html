@@ -241,7 +241,7 @@
               </div>
             </div>
             <div id="${detailId}" style="display:none; margin-top:8px;">
-              <div><strong>Info Loker:</strong> ${item.loker}</div>
+              <div><strong>Info Loker:</strong> ${getIntervalText(item.tahapan)}</div>
               <div><strong>Perusahaan:</strong> ${item.perusahaan}</div>
               <table>
                 <thead>
@@ -301,6 +301,41 @@
     }
 
     // Inisialisasi
+    
+       function getIntervalText(tahapan) {
+  if (!tahapan || !Array.isArray(tahapan) || tahapan.length === 0) return '-';
+
+  // Ambil tanggal terbesar (terakhir) dari tahapan
+  const tanggalTerakhir = tahapan
+    .map(t => new Date(t.tanggal))
+    .filter(d => !isNaN(d)) // pastikan valid
+    .sort((a, b) => b - a)[0];
+
+  if (!tanggalTerakhir) return '-';
+
+  const today = new Date();
+  let tahun = today.getFullYear() - tanggalTerakhir.getFullYear();
+  let bulan = today.getMonth() - tanggalTerakhir.getMonth();
+  let hari = today.getDate() - tanggalTerakhir.getDate();
+
+  if (hari < 0) {
+    bulan -= 1;
+    hari += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+  }
+
+  if (bulan < 0) {
+    tahun -= 1;
+    bulan += 12;
+  }
+
+  if (tahun > 0) {
+    return `${tahun} tahun ${bulan} bulan yang lalu`;
+  } else if (bulan > 0) {
+    return `${bulan} bulan ${hari} hari yang lalu`;
+  } else {
+    return `${hari} hari yang lalu`;
+  }
+}
     renderRiwayat();
   </script>
 </body>
