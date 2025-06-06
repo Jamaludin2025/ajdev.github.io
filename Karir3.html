@@ -22,6 +22,7 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
       margin: 12px auto 20px auto;
+      font-weight: bold;
     }
     .filter-bar {
       display: flex;
@@ -273,16 +274,16 @@
                 </thead>
                 <tbody>
                   ${item.tahapan.map(row => {
-  const [y, m, d] = row.tanggal.split("-");
-  const tanggalBaru = `${d}-${m}-${y}`;
-  return `
-    <tr>
-      <td>${tanggalBaru}</td>
-      <td>${row.tahapan}</td>
-      <td>${row.tempat}</td>
-      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-    </tr>`;
-}).join('')}
+                    const [y, m, d] = row.tanggal.split("-");
+                    const tanggalBaru = `${d}-${m}-${y}`;
+                     return `
+                        <tr>
+                            <td>${tanggalBaru}</td>
+                            <td>${row.tahapan}</td>
+                            <td>${row.tempat}</td>
+                            <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                       </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
               ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
