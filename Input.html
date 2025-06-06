@@ -54,7 +54,7 @@
     }
     .keterangan.LULUS { color: goldenrod; }
     .keterangan.GAGAL,
-    .keterangan.KELUAR { color: red; }
+    .keterangan.UNDUR { color: red; }
     .keterangan.KERJA { color: green; }
 
     .fab {
@@ -186,10 +186,10 @@
         <label>Keterangan</label>
         <select id="keterangan" required>
           <option value="">-- Pilih --</option>
-          <option value="MENGUNDURKAN DIRI">LULUS</option>
+          <option value="LULUS">LULUS</option>
           <option value="GAGAL">GAGAL</option>
-          <option value="KELUAR">KELUAR</option>
-          <option value="KERJA">KERJA</option>
+          <option value="UNDUR">MENGUNDURKAN DIRI</option>
+          <option value="KERJA">DITERIMA KERJA</option>
         </select>
 
         <label id="catatanLabel" style="display:none;">Alasan</label>
@@ -323,7 +323,7 @@
 
       data[key].tahapan.push(newEntry);
 
-      if (["KELUAR", "KERJA"].includes(keterangan.toUpperCase()) && catatan) {
+      if (["UNDUR", "KERJA"].includes(keterangan.toUpperCase()) && catatan) {
         data[key].catatan = catatan;
       }
 
@@ -345,7 +345,7 @@
     document.getElementById('keterangan').addEventListener('change', function () {
       const catatan = document.getElementById('catatan');
       const label = document.getElementById('catatanLabel');
-      if (this.value === 'KELUAR') {
+      if (this.value === 'UNDUR') {
         catatan.style.display = 'block';
         label.style.display = 'block';
       } else {
