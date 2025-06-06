@@ -207,13 +207,13 @@
     lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
 
     [...perusahaanSet].sort().forEach(p => {
-      perusahaanSelect.innerHTML += `<option value="\${p}">\${p}</option>`;
+      perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
     });
     [...lokerSet].sort().forEach(l => {
-      lokerSelect.innerHTML += `<option value="\${l}">\${l}</option>`;
+      lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
     });
     [...tahunSet].sort().forEach(t => {
-      tahunSelect.innerHTML += `<option value="\${t}">\${t}</option>`;
+      tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 
     function renderRiwayat() {
