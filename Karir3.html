@@ -13,23 +13,30 @@
     }
     h2 {
       text-align: center;
-      font-size: 18px;
     }
-    .summary-box, .filter-container {
+    .summary-box {
+      background: white;
+      padding: 12px;
+      margin: 12px auto 12px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .filter-container {
       background: white;
       padding: 12px;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
-      margin: 12px auto 20px auto;
-      font-weight: bold;
+      margin: 0 auto 20px auto;
     }
     .filter-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       justify-content: space-between;
-      margin-top: 10px;
     }
     select {
       flex: 1;
@@ -98,7 +105,7 @@
     }
     .keterangan.LULUS { color: goldenrod; }
     .keterangan.GAGAL,
-    .keterangan.UNDUR { color: red; }
+    .keterangan.KELUAR { color: red; }
     .keterangan.KERJA { color: green; }
     .catatan {
       margin-top: 6px;
@@ -132,8 +139,10 @@
 </head>
 <body>
   <h2>Riwayat Seleksi</h2>
-  <div id="summaryBox" class="summary-box">
-    <div class="summary-text">Total Lamaran: 0</div>
+
+  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
+
+  <div class="filter-container">
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
         <option value="">Perusahaan</option>
@@ -148,30 +157,16 @@
   </div>
 
   <div id="riwayatList"></div>
+
   <div id="toast" class="toast"></div>
   <audio id="clickSound" src="https://res.cloudinary.com/dz4w1sqiv/video/upload/v1748957534/Mouse_Click_-_Sound_Effect_HD_zimn5u.mp4" preload="auto"></audio>
 
   <script>
-    const dummyData = {
-      "1": {
-        perusahaan: "BKK Mandiri",
-        loker: "PT. Yamaha WJ",
-        tahapan: [
-          { tanggal: "2025-06-01", tahapan: "Psikotes", tempat: "Disnakertrans", keterangan: "LULUS" },
-          { tanggal: "2025-06-06", tahapan: "Interview", tempat: "Disnakertrans", keterangan: "UNDUR" }
-        ],
-        catatan: "Tidak hadir karena sakit"
-      }
-    };
-
-    if (!localStorage.getItem('riwayatData')) {
-      localStorage.setItem('riwayatData', JSON.stringify(dummyData));
-    }
-
     const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
-    const container = document.getElementById('riwayatList');
     const clickSound = document.getElementById('clickSound');
     const summaryBox = document.getElementById('summaryBox');
+    const listContainer = document.getElementById('riwayatList');
+
     const tahunSelect = document.getElementById('filterTahun');
     const perusahaanSelect = document.getElementById('filterPerusahaan');
     const lokerSelect = document.getElementById('filterLoker');
@@ -197,23 +192,19 @@
       lokerSet.add(item.loker);
       item.tahapan.forEach(t => {
         if (t.tanggal) {
-          const year = new Date(t.tanggal).getFullYear();
-          if (!isNaN(year)) tahunSet.add(year);
+          const parts = t.tanggal.split("/");
+          if (parts.length === 3) tahunSet.add(parts[2]);
         }
       });
     });
 
-    tahunSelect.innerHTML = `<option value="">Tahun</option>`;
-    perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
-    lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
-
-    [...perusahaanSet].sort().forEach(p => {
+    perusahaanSet.forEach(p => {
       perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
     });
-    [...lokerSet].sort().forEach(l => {
+    lokerSet.forEach(l => {
       lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
     });
-    [...tahunSet].sort().forEach(t => {
+    tahunSet.forEach(t => {
       tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 
@@ -222,11 +213,11 @@
       const perusahaan = perusahaanSelect.value;
       const loker = lokerSelect.value;
 
-      container.innerHTML = '';
+      listContainer.innerHTML = '';
       let count = 0;
 
       Object.entries(data).forEach(([key, item], index) => {
-        const matchesTahun = !tahun || item.tahapan.some(t => new Date(t.tanggal).getFullYear().toString() === tahun);
+        const matchesTahun = !tahun || item.tahapan.some(t => t.tanggal.endsWith(tahun));
         const matchesPerusahaan = !perusahaan || item.perusahaan === perusahaan;
         const matchesLoker = !loker || item.loker === loker;
 
@@ -236,21 +227,8 @@
           wrapper.className = 'entry';
           const detailId = 'detail-' + index;
 
-          function hitungSelisihTanggal(tanggalStr) {
-            const tanggal = new Date(tanggalStr.split("/").reverse().join("-"));
-            const sekarang = new Date();
-            const selisihMs = sekarang - tanggal;
-            const selisihHari = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
-
-            if (selisihHari === 0) return "Hari ini";
-            if (selisihHari === 1) return "1 hari yang lalu";
-            if (selisihHari < 30) return `${selisihHari} hari yang lalu`;
-            const selisihBulan = Math.floor(selisihHari / 30);
-            return `${selisihBulan} bulan yang lalu`;
-          }
-
           const lastStage = item.tahapan[item.tahapan.length - 1];
-          const jarakInterval = hitungSelisihTanggal(lastStage?.tanggal || "01/01/2000");
+          const selisih = hitungSelisihTanggal(lastStage?.tanggal || "01/01/2000");
 
           wrapper.innerHTML = `
             <div class="title-bar">
@@ -261,7 +239,7 @@
               </div>
             </div>
             <div id="${detailId}" style="display:none; margin-top:8px;">
-              <div><strong>Seleksi:</strong> ${jarakInterval}</div>
+              <div><strong>Jarak Interval:</strong> ${selisih}</div>
               <div><strong>Info Loker:</strong> ${item.perusahaan}</div>
               <table>
                 <thead>
@@ -273,27 +251,23 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${item.tahapan.map(row => {
-                    const [y, m, d] = row.tanggal.split("-");
-                    const tanggalBaru = `${d}-${m}-${y}`;
-                     return `
-                        <tr>
-                            <td>${tanggalBaru}</td>
-                            <td>${row.tahapan}</td>
-                            <td>${row.tempat}</td>
-                            <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                       </tr>`;
-                  }).join('')}
+                  ${item.tahapan.map(row => `
+                    <tr>
+                      <td>${row.tanggal}</td>
+                      <td>${row.tahapan}</td>
+                      <td>${row.tempat}</td>
+                      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                    </tr>`).join('')}
                 </tbody>
               </table>
               ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
             </div>
           `;
-          container.appendChild(wrapper);
+          listContainer.appendChild(wrapper);
         }
       });
 
-      summaryBox.querySelector(".summary-text").textContent = `Total Lamaran: ${count}`;
+      summaryBox.textContent = `Total Riwayat: ${count}`;
     }
 
     function toggleDetail(id) {
@@ -301,23 +275,33 @@
       el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
+    function hitungSelisihTanggal(tanggalStr) {
+      const tanggal = new Date(tanggalStr.split("/").reverse().join("-"));
+      const sekarang = new Date();
+      const selisihMs = sekarang - tanggal;
+      const selisihHari = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
+      if (selisihHari === 0) return "Hari ini";
+      if (selisihHari === 1) return "1 hari yang lalu";
+      if (selisihHari < 30) return `${selisihHari} hari yang lalu`;
+      const selisihBulan = Math.floor(selisihHari / 30);
+      return `${selisihBulan} bulan yang lalu`;
+    }
+
     function hapusRiwayat(key, button) {
       playClick();
       if (confirm("Yakin ingin menghapus data ini?")) {
         if (confirm("Data akan dihapus permanen. Lanjutkan?")) {
-          const data = JSON.parse(localStorage.getItem('riwayatData')) || {};
-          delete data[key];
-          localStorage.setItem('riwayatData', JSON.stringify(data));
-          const entry = button.closest('.entry');
-          entry.classList.add('fade-out');
-          setTimeout(() => entry.remove(), 500);
-          showToast("Data berhasil dihapus");
-          renderRiwayat();
+          const newData = JSON.parse(localStorage.getItem('riwayatData')) || {};
+          delete newData[key];
+          localStorage.setItem('riwayatData', JSON.stringify(newData));
+          button.closest('.entry').classList.add('fade-out');
+          setTimeout(() => renderRiwayat(), 500);
+          showToast("✅ Data berhasil dihapus");
         } else {
-          showToast("Penghapusan dibatalkan");
+          showToast("❌ Penghapusan dibatalkan");
         }
       } else {
-        showToast("Penghapusan dibatalkan");
+        showToast("❌ Penghapusan dibatalkan");
       }
     }
 
