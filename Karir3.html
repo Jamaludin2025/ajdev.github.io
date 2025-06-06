@@ -13,25 +13,28 @@
     }
     h2 {
       text-align: center;
-      font-size: 18px;
     }
     .summary-box {
-      background: white;
-      padding: 12px;
-      margin: 12px auto 12px auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      text-align: left;
-      font-weight: bold;
-    }
-    .filter-bar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
+  background: white;
+  padding: 16px;
+  margin: 12px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  max-width: 600px;
+  font-weight: bold;
+}
+
+.summary-box #summaryText {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
     select {
       flex: 1;
       padding: 8px;
@@ -134,21 +137,20 @@
 <body>
   <h2>Riwayat Seleksi</h2>
 
-  <div id="summaryBox" class="summary-box">Total Riwayat: 0
-
-  <div class="filter-container">
-    <div class="filter-bar">
-      <select id="filterPerusahaan" onchange="renderRiwayat()">
+  <div class="summary-box" id="summaryBox">
+  <div id="summaryText">Total Riwayat: 0</div>
+  <div class="filter-bar" style="margin-top: 10px;">
+    <select id="filterPerusahaan">
       <option value="">Perusahaan</option>
-      </select>
-      <select id="filterLoker" onchange="renderRiwayat()">
+    </select>
+    <select id="filterLoker">
       <option value="">Info Loker</option>
-      </select>
-      <select id="filterTahun" onchange="renderRiwayat()">
+    </select>
+    <select id="filterTahun">
       <option value="">Tahun</option>
-      </select>
-    </div>
+    </select>
   </div>
+</div>
 
   <div id="riwayatList"></div>
 
