@@ -253,13 +253,17 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${item.tahapan.map(row => `
-                    <tr>
-                      <td>${row.tanggal}</td>
-                      <td>${row.tahapan}</td>
-                      <td>${row.tempat}</td>
-                      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                    </tr>`).join('')}
+                  ${item.tahapan.map(row => {
+                    const [y, m, d] = row.tanggal.split("-");
+                    const tanggalBaru = `${d}-${m}-${y}`;
+                     return `
+                        <tr>
+                            <td>${tanggalBaru}</td>
+                            <td>${row.tahapan}</td>
+                            <td>${row.tempat}</td>
+                            <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                       </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
               ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
