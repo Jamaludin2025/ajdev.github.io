@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Riwayat Seleksi</title>
+  <title>Halaman Riwayat</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
+      font-family: sans-serif;
+      background: #f2f2f2;
       padding: 20px;
+      font-size: 14px;
     }
-
     h2 {
       text-align: center;
     }
-
     .summary-box {
       background: white;
       padding: 12px;
@@ -23,18 +21,23 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
-      text-align: left;
+      text-align: center;
       font-weight: bold;
     }
-
+    .filter-container {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+    }
     .filter-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       justify-content: space-between;
-      margin-top: 10px;
     }
-
     select {
       flex: 1;
       padding: 8px;
@@ -43,7 +46,6 @@
       font-size: 13px;
       width: 100%;
     }
-
     .entry {
       background: white;
       padding: 12px;
@@ -52,106 +54,104 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     }
-
     .title-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: bold;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-
-    .lihat-btn, .hapus-btn {
-      margin-left: 5px;
+    .title-bar > div:first-child {
+      flex: 1;
+      font-size: 14px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+    .lihat-btn {
+      color: #007BFF;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .hapus-btn {
+      background-color: red;
+      color: white;
+      border: none;
       padding: 4px 8px;
       font-size: 12px;
-      border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
-
-    .lihat-btn {
-      background-color: #3498db;
-      color: white;
-    }
-
-    .hapus-btn {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .toast {
-      visibility: hidden;
-      min-width: 250px;
-      margin: auto;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 2px;
-      padding: 16px;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      right: 0;
-      bottom: 30px;
-      font-size: 14px;
-    }
-
-    .toast.show {
-      visibility: visible;
-      animation: fadein 0.5s, fadeout 0.5s 2s;
-    }
-
-    @keyframes fadein {
-      from {bottom: 0; opacity: 0;}
-      to {bottom: 30px; opacity: 1;}
-    }
-
-    @keyframes fadeout {
-      from {bottom: 30px; opacity: 1;}
-      to {bottom: 0; opacity: 0;}
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
+      margin-top: 8px;
       font-size: 13px;
     }
-
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
     th {
-      background-color: #f2f2f2;
+      background-color: #007BFF;
+      color: white;
     }
-
+    .keterangan {
+      font-weight: bold;
+    }
+    .keterangan.LULUS { color: goldenrod; }
+    .keterangan.GAGAL,
+    .keterangan.KELUAR { color: red; }
+    .keterangan.KERJA { color: green; }
     .catatan {
-      margin-top: 10px;
+      margin-top: 6px;
       font-style: italic;
+      color: #555;
+      font-size: 13px;
     }
-
     .fade-out {
       opacity: 0;
-      transform: scale(0.98);
+      transform: translateY(-10px);
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 1000;
+    }
+    .toast.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <h2>Riwayat Seleksi</h2>
 
-  <div class="summary-box" id="summaryBox">
-    <div id="summaryText">Total Riwayat: 0</div>
-    <div class="filter-bar" style="margin-top: 10px;">
-      <select id="filterPerusahaan">
-        <option value="">Perusahaan</option>
+  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
+
+  <div class="filter-container">
+    <div class="filter-bar">
+      <select id="filterPerusahaan" onchange="renderRiwayat()">
+      <option value="">Perusaan</option>
       </select>
-      <select id="filterLoker">
-        <option value="">Info Loker</option>
+      <select id="filterLoker" onchange="renderRiwayat()">
+      <option value="">Info Loker</option>
       </select>
-      <select id="filterTahun">
-        <option value="">Tahun</option>
+      <select id="filterTahun" onchange="renderRiwayat()">
+      <option value="">Tahun</option>
       </select>
     </div>
   </div>
@@ -183,6 +183,7 @@
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
+    // Ambil semua filter unik
     const tahunSet = new Set();
     const perusahaanSet = new Set();
     const lokerSet = new Set();
@@ -203,13 +204,13 @@
     lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
 
     [...perusahaanSet].sort().forEach(p => {
-      perusahaanSelect.innerHTML += `<option value="\${p}">\${p}</option>`;
+      perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
     });
     [...lokerSet].sort().forEach(l => {
-      lokerSelect.innerHTML += `<option value="\${l}">\${l}</option>`;
+      lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
     });
     [...tahunSet].sort().forEach(t => {
-      tahunSelect.innerHTML += `<option value="\${t}">\${t}</option>`;
+      tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 
     function renderRiwayat() {
@@ -231,17 +232,17 @@
           wrapper.className = 'entry';
           const detailId = 'detail-' + index;
 
-          wrapper.innerHTML = \`
+          wrapper.innerHTML = `
             <div class="title-bar">
-              <div>\${item.perusahaan}</div>
+              <div>${item.perusahaan}</div>
               <div>
-                <button class="lihat-btn" onclick="toggleDetail('\${detailId}'); playClick();">Lihat Selengkapnya</button>
-                <button class="hapus-btn" onclick="hapusRiwayat('\${key}', this);">Hapus</button>
+                <button class="lihat-btn" onclick="toggleDetail('${detailId}'); playClick();">Lihat Selengkapnya</button>
+                <button class="hapus-btn" onclick="hapusRiwayat('${key}', this);">Hapus</button>
               </div>
             </div>
-            <div id="\${detailId}" style="display:none; margin-top:8px;">
-              <div><strong>Info Loker:</strong> \${item.loker}</div>
-              <div><strong>Perusahaan:</strong> \${item.perusahaan}</div>
+            <div id="${detailId}" style="display:none; margin-top:8px;">
+              <div><strong></strong> ${getIntervalText(item.tahapan)}</div>
+              <div><strong>Info Loker:</strong> ${item.loker}</div>
               <table>
                 <thead>
                   <tr>
@@ -252,27 +253,27 @@
                   </tr>
                 </thead>
                 <tbody>
-                  \${item.tahapan.map(row => {
+                  ${item.tahapan.map(row => {
                     const [y, m, d] = row.tanggal.split("-");
-                    const tanggalBaru = \`\${d}-\${m}-\${y}\`;
-                     return \`
+                    const tanggalBaru = `${d}-${m}-${y}`;
+                     return `
                         <tr>
-                            <td>\${tanggalBaru}</td>
-                            <td>\${row.tahapan}</td>
-                            <td>\${row.tempat}</td>
-                            <td class="keterangan \${row.keterangan.toUpperCase()}">\${row.keterangan}</td>
-                       </tr>\`;
+                            <td>${tanggalBaru}</td>
+                            <td>${row.tahapan}</td>
+                            <td>${row.tempat}</td>
+                            <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                       </tr>`;
                   }).join('')}
                 </tbody>
               </table>
-              \${item.catatan ? \`<div class="catatan">Catatan: \${item.catatan}</div>\` : ''}
+              ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
             </div>
-          \`;
+          `;
           listContainer.appendChild(wrapper);
         }
       });
 
-      document.getElementById('summaryText').textContent = `Total Riwayat: \${count}`;
+      summaryBox.textContent = `Total Riwayat: ${count}`;
     }
 
     function toggleDetail(id) {
@@ -299,6 +300,42 @@
       }
     }
 
+    // Inisialisasi
+    
+       function getIntervalText(tahapan) {
+  if (!tahapan || !Array.isArray(tahapan) || tahapan.length === 0) return '-';
+
+  // Ambil tanggal terbesar (terakhir) dari tahapan
+  const tanggalTerakhir = tahapan
+    .map(t => new Date(t.tanggal))
+    .filter(d => !isNaN(d)) // pastikan valid
+    .sort((a, b) => b - a)[0];
+
+  if (!tanggalTerakhir) return '-';
+
+  const today = new Date();
+  let tahun = today.getFullYear() - tanggalTerakhir.getFullYear();
+  let bulan = today.getMonth() - tanggalTerakhir.getMonth();
+  let hari = today.getDate() - tanggalTerakhir.getDate();
+
+  if (hari < 0) {
+    bulan -= 1;
+    hari += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+  }
+
+  if (bulan < 0) {
+    tahun -= 1;
+    bulan += 12;
+  }
+
+  if (tahun > 0) {
+    return `${tahun} tahun ${bulan} bulan yang lalu`;
+  } else if (bulan > 0) {
+    return `${bulan} bulan ${hari} hari yang lalu`;
+  } else {
+    return `${hari} hari yang lalu`;
+  }
+}
     renderRiwayat();
   </script>
 </body>
