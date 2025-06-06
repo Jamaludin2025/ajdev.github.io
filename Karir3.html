@@ -14,21 +14,29 @@
     h2 {
       text-align: center;
     }
-    .summary-box, .filter-container {
+    .summary-box {
+      background: white;
+      padding: 12px;
+      margin: 12px auto 12px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .filter-container {
       background: white;
       padding: 12px;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       max-width: 600px;
-      margin: 12px auto 20px auto;
-      font-weight: bold;
+      margin: 0 auto 20px auto;
     }
     .filter-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       justify-content: space-between;
-      margin-top: 10px;
     }
     select {
       flex: 1;
@@ -132,21 +140,22 @@
 <body>
   <h2>Riwayat Seleksi</h2>
 
-  <div id="summaryBox" class="summary-box">
-    <div class="summary-text">Total Lamaran: 0</div>
+  <div id="summaryBox" class="summary-box">Total Riwayat: 0</div>
+
+  <div class="filter-container">
     <div class="filter-bar">
       <select id="filterPerusahaan" onchange="renderRiwayat()">
-        <option value="">Perusahaan</option>
+      <option value="">Perusaan</option>
       </select>
       <select id="filterLoker" onchange="renderRiwayat()">
-        <option value="">Info Loker</option>
+      <option value="">Info Loker</option>
       </select>
       <select id="filterTahun" onchange="renderRiwayat()">
-        <option value="">Tahun</option>
+      <option value="">Tahun</option>
       </select>
     </div>
   </div>
-  
+
   <div id="riwayatList"></div>
 
   <div id="toast" class="toast"></div>
@@ -174,6 +183,7 @@
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
+    // Ambil semua filter unik
     const tahunSet = new Set();
     const perusahaanSet = new Set();
     const lokerSet = new Set();
@@ -183,19 +193,23 @@
       lokerSet.add(item.loker);
       item.tahapan.forEach(t => {
         if (t.tanggal) {
-          const parts = t.tanggal.split("/");
-          if (parts.length === 3) tahunSet.add(parts[2]);
+          const year = new Date(t.tanggal).getFullYear();
+          if (!isNaN(year)) tahunSet.add(year);
         }
       });
     });
 
-    perusahaanSet.forEach(p => {
+    tahunSelect.innerHTML = `<option value="">Tahun</option>`;
+    perusahaanSelect.innerHTML = `<option value="">Perusahaan</option>`;
+    lokerSelect.innerHTML = `<option value="">Info Loker</option>`;
+
+    [...perusahaanSet].sort().forEach(p => {
       perusahaanSelect.innerHTML += `<option value="${p}">${p}</option>`;
     });
-    lokerSet.forEach(l => {
+    [...lokerSet].sort().forEach(l => {
       lokerSelect.innerHTML += `<option value="${l}">${l}</option>`;
     });
-    tahunSet.forEach(t => {
+    [...tahunSet].sort().forEach(t => {
       tahunSelect.innerHTML += `<option value="${t}">${t}</option>`;
     });
 
@@ -208,7 +222,7 @@
       let count = 0;
 
       Object.entries(data).forEach(([key, item], index) => {
-        const matchesTahun = !tahun || item.tahapan.some(t => t.tanggal.endsWith(tahun));
+        const matchesTahun = !tahun || item.tahapan.some(t => new Date(t.tanggal).getFullYear().toString() === tahun);
         const matchesPerusahaan = !perusahaan || item.perusahaan === perusahaan;
         const matchesLoker = !loker || item.loker === loker;
 
@@ -217,9 +231,6 @@
           const wrapper = document.createElement('div');
           wrapper.className = 'entry';
           const detailId = 'detail-' + index;
-
-          const lastStage = item.tahapan[item.tahapan.length - 1];
-          const selisih = hitungSelisihTanggal(lastStage?.tanggal || "01/01/2000");
 
           wrapper.innerHTML = `
             <div class="title-bar">
@@ -230,8 +241,8 @@
               </div>
             </div>
             <div id="${detailId}" style="display:none; margin-top:8px;">
-              <div><strong>Jarak Interval:</strong> ${selisih}</div>
               <div><strong>Info Loker:</strong> ${item.loker}</div>
+              <div><strong>Perusahaan:</strong> ${item.perusahaan}</div>
               <table>
                 <thead>
                   <tr>
@@ -242,17 +253,13 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${item.tahapan.map(row => {
-                    const [y, m, d] = row.tanggal.split("-");
-                    const tanggalBaru = `${d}-${m}-${y}`;
-                     return `
-                        <tr>
-                            <td>${tanggalBaru}</td>
-                            <td>${row.tahapan}</td>
-                            <td>${row.tempat}</td>
-                            <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
-                       </tr>`;
-                  }).join('')}
+                  ${item.tahapan.map(row => `
+                    <tr>
+                      <td>${row.tanggal}</td>
+                      <td>${row.tahapan}</td>
+                      <td>${row.tempat}</td>
+                      <td class="keterangan ${row.keterangan.toUpperCase()}">${row.keterangan}</td>
+                    </tr>`).join('')}
                 </tbody>
               </table>
               ${item.catatan ? `<div class="catatan">Catatan: ${item.catatan}</div>` : ''}
@@ -270,18 +277,6 @@
       el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function hitungSelisihTanggal(tanggalStr) {
-      const tanggal = new Date(tanggalStr.split("/").reverse().join("-"));
-      const sekarang = new Date();
-      const selisihMs = sekarang - tanggal;
-      const selisihHari = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
-      if (selisihHari === 0) return "Hari ini";
-      if (selisihHari === 1) return "1 hari yang lalu";
-      if (selisihHari < 30) return `${selisihHari} hari yang lalu`;
-      const selisihBulan = Math.floor(selisihHari / 30);
-      return `${selisihBulan} bulan yang lalu`;
-    }
-
     function hapusRiwayat(key, button) {
       playClick();
       if (confirm("Yakin ingin menghapus data ini?")) {
@@ -291,15 +286,16 @@
           localStorage.setItem('riwayatData', JSON.stringify(newData));
           button.closest('.entry').classList.add('fade-out');
           setTimeout(() => renderRiwayat(), 500);
-          showToast("Data berhasil dihapus");
+          showToast("✅ Data berhasil dihapus");
         } else {
-          showToast("Penghapusan dibatalkan");
+          showToast("❌ Penghapusan dibatalkan");
         }
       } else {
-        showToast("Penghapusan dibatalkan");
+        showToast("❌ Penghapusan dibatalkan");
       }
     }
 
+    // Inisialisasi
     renderRiwayat();
   </script>
 </body>
