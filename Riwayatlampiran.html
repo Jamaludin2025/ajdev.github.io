@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Data Pernikahan</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 1rem;
+      background: #f3f3f3;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    h2 {
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .controls button {
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .controls .reload {
+      background-color: #6c757d;
+      color: white;
+    }
+    .controls .filter {
+      background-color: #f0f0f0;
+      color: black;
+    }
+    .controls .filter.active {
+      color: gray;
+    }
+    #filterBox {
+      display: none;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+    #filterBox select, #filterBox input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .jumlah-data {
+      font-weight: bold;
+    }
+    .data-item {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .detail {
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .detail div {
+      margin-bottom: 0.3rem;
+    }
+    .buttons {
+      margin-top: 0.5rem;
+    }
+    .buttons button {
+      margin-right: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+    .lihat-btn { background: none; color: blue; text-decoration: underline; }
+    .hapus-btn { background: red; color: white; }
+    .edit-btn { background: orange; color: black; }
+    .save-btn { background: green; color: white; }
+    .cancel-btn { background: gray; color: white; }
+    .edit-input input, .edit-input select {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      padding: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Riwayat Data Pernikahan</h2>
+    <div class="controls">
+      <div class="jumlah-data">Jumlah: <span id="jumlahData">0</span></div>
+      <div>
+        <button class="reload" onclick="resetFilter()">RELOAD</button>
+        <button class="filter" id="filterBtn" onclick="toggleFilter()">FILTER</button>
+      </div>
+    </div>
+
+    <div id="filterBox">
+      <label>Kategori:</label>
+      <select id="filterKategori">
+        <option value="kode">Kode</option>
+        <option value="tahun">Tahun</option>
+        <option value="kerabat">Nama Kerabat</option>
+        <option value="bapak">Nama Bapak</option>
+        <option value="desa">Desa</option>
+        <option value="kecamatan">Kecamatan</option>
+        <option value="kabupaten">Kabupaten</option>
+      </select>
+      <label>Kata Kunci:</label>
+      <input type="text" id="filterKeyword" placeholder="Masukkan kata kunci..."/>
+      <button onclick="applyFilter()">Terapkan</button>
+    </div>
+
+    <div id="dataContainer"></div>
+  </div>
+
+  <script>
+    const dataContainer = document.getElementById("dataContainer");
+    const jumlahData = document.getElementById("jumlahData");
+    const filterBox = document.getElementById("filterBox");
+    const filterBtn = document.getElementById("filterBtn");
+
+    let data = JSON.parse(localStorage.getItem("dataPernikahan") || "[]");
+    let filtered = false;
+
+    function renderData(list) {
+      dataContainer.innerHTML = "";
+      let total = list.length;
+      jumlahData.textContent = total;
+      list.forEach((item, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "data-item";
+        wrapper.style.display = "block";
+
+        const header = document.createElement("div");
+        header.innerHTML = `<strong>Kode:</strong> ${item.kode}`;
+
+        const buttons = document.createElement("div");
+        buttons.className = "buttons";
+        buttons.innerHTML = `
+          <button class="lihat-btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
+          <button class="hapus-btn" onclick="hapusData(${index})">HAPUS</button>
+        `;
+
+        const detail = document.createElement("div");
+        detail.className = "detail";
+        detail.id = "detail" + index;
+        detail.innerHTML = `
+          <div><b>Nama Kerabat:</b> ${item.kerabat}</div>
+          <div><b>Nama Bapak:</b> ${item.bapak}</div>
+          <div><b>Alamat:</b> ${item.desa}, ${item.kecamatan}, ${item.kabupaten}</div>
+          <div><b>Bingkisan:</b> ${item.bingkisan}${item.bingkisan === 'Kado' ? ' (' + item.namaBarang + ')' : ''}</div>
+          <div><b>Nominal:</b> ${item.nominal}</div>
+          <div><b>Tanggal:</b> ${item.tanggal}</div>
+          <div class="buttons">
+            <button class="edit-btn" onclick="editData(${index})">EDIT</button>
+          </div>
+        `;
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(buttons);
+        wrapper.appendChild(detail);
+        dataContainer.appendChild(wrapper);
+      });
+    }
+
+    function toggleDetail(index) {
+      const detail = document.getElementById("detail" + index);
+      detail.style.display = detail.style.display === "block" ? "none" : "block";
+    }
+
+    function hapusData(index) {
+      if (confirm("Hapus data ini?")) {
+        data.splice(index, 1);
+        localStorage.setItem("dataPernikahan", JSON.stringify(data));
+        loadData();
+      }
+    }
+
+    function editData(index) {
+      const detail = document.getElementById("detail" + index);
+      const item = data[index];
+      detail.innerHTML = `
+        <div class="edit-input">
+          <input type="text" id="editKerabat${index}" value="${item.kerabat}"/>
+          <input type="text" id="editBapak${index}" value="${item.bapak}"/>
+          <input type="text" id="editDesa${index}" value="${item.desa}"/>
+          <input type="text" id="editKecamatan${index}" value="${item.kecamatan}"/>
+          <input type="text" id="editKabupaten${index}" value="${item.kabupaten}"/>
+          <select id="editBingkisan${index}">
+            <option value="Uang" ${item.bingkisan === 'Uang' ? 'selected' : ''}>Uang</option>
+            <option value="Kado" ${item.bingkisan === 'Kado' ? 'selected' : ''}>Kado</option>
+          </select>
+          <input type="text" id="editBarang${index}" value="${item.namaBarang || ''}" placeholder="Nama Barang (jika Kado)"/>
+          <input type="text" id="editNominal${index}" value="${item.nominal}"/>
+          <div class="buttons">
+            <button class="save-btn" onclick="simpanEdit(${index})">SIMPAN</button>
+            <button class="cancel-btn" onclick="loadData()">BATAL</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function simpanEdit(index) {
+      data[index].kerabat = document.getElementById("editKerabat" + index).value;
+      data[index].bapak = document.getElementById("editBapak" + index).value;
+      data[index].desa = document.getElementById("editDesa" + index).value;
+      data[index].kecamatan = document.getElementById("editKecamatan" + index).value;
+      data[index].kabupaten = document.getElementById("editKabupaten" + index).value;
+      data[index].bingkisan = document.getElementById("editBingkisan" + index).value;
+      data[index].namaBarang = document.getElementById("editBarang" + index).value;
+      data[index].nominal = document.getElementById("editNominal" + index).value;
+      localStorage.setItem("dataPernikahan", JSON.stringify(data));
+      loadData();
+    }
+
+    function toggleFilter() {
+      filterBox.style.display = filterBox.style.display === "block" ? "none" : "block";
+      filtered = false;
+      filterBtn.classList.toggle("active");
+    }
+
+    function applyFilter() {
+      const kategori = document.getElementById("filterKategori").value;
+      const keyword = document.getElementById("filterKeyword").value.toLowerCase();
+      const hasil = data.filter(d => (d[kategori] || "").toLowerCase().includes(keyword));
+      renderData(hasil);
+      filtered = true;
+      filterBtn.classList.add("active");
+    }
+
+    function resetFilter() {
+      filterBox.style.display = "none";
+      filterBtn.classList.remove("active");
+      loadData();
+    }
+
+    function loadData() {
+      data = JSON.parse(localStorage.getItem("dataPernikahan") || "[]");
+      renderData(data);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
