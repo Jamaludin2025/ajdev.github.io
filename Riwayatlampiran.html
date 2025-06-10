@@ -1,268 +1,169 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Riwayat Data Pernikahan</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
     body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f0f0;
       margin: 0;
-      padding: 1rem;
-      background: #f3f3f3;
-      color: #333;
+      padding: 20px;
     }
     .container {
       max-width: 800px;
       margin: auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     h2 {
       text-align: center;
+      margin-bottom: 20px;
     }
-    .controls {
+    .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
     }
-    .controls button {
-      padding: 0.5rem 1rem;
+    .header-bar .jumlah {
       font-weight: bold;
-      border: none;
+    }
+    .header-bar .filter-icon {
       cursor: pointer;
-      border-radius: 6px;
+      font-size: 20px;
+      color: #555;
     }
-    .controls .reload {
-      background-color: #6c757d;
+    .riwayat-item {
+      background: #fff;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .riwayat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .riwayat-header h3 {
+      margin: 0;
+    }
+    .riwayat-buttons button {
+      margin-left: 8px;
+      background-color: #e74c3c;
       color: white;
-    }
-    .controls .filter {
-      background-color: #f0f0f0;
-      color: black;
-    }
-    .controls .filter.active {
-      color: gray;
-    }
-    #filterBox {
-      display: none;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-    #filterBox select, #filterBox input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
+      border: none;
+      padding: 6px 12px;
       border-radius: 6px;
-      font-size: 14px;
+      cursor: pointer;
     }
-    .jumlah-data {
-      font-weight: bold;
-    }
-    .data-item {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      display: none;
+    .riwayat-buttons button.edit {
+      background-color: #3498db;
     }
     .detail {
-      margin-top: 0.5rem;
+      margin-top: 10px;
       display: none;
+      font-size: 14px;
+      color: #333;
     }
-    .detail div {
-      margin-bottom: 0.3rem;
+    .show {
+      display: block;
     }
-    .buttons {
-      margin-top: 0.5rem;
-    }
-    .buttons button {
-      margin-right: 0.5rem;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.9rem;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-    }
-    .lihat-btn { background: none; color: blue; text-decoration: underline; }
-    .hapus-btn { background: red; color: white; }
-    .edit-btn { background: orange; color: black; }
-    .save-btn { background: green; color: white; }
-    .cancel-btn { background: gray; color: white; }
-    .edit-input input, .edit-input select {
-      width: 100%;
-      margin-bottom: 0.5rem;
-      padding: 0.4rem;
+    @media (max-width: 600px) {
+      .riwayat-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .riwayat-buttons {
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
 <body>
+<h2>Riwayat Data Pernikahan</h2>
   <div class="container">
-    <h2>Riwayat Data Pernikahan</h2>
-    <div class="controls">
-      <div class="jumlah-data">Jumlah: <span id="jumlahData">0</span></div>
-      <div>
-        <button class="reload" onclick="resetFilter()">RELOAD</button>
-        <button class="filter" id="filterBtn" onclick="toggleFilter()">FILTER</button>
-      </div>
+    <div class="header-bar">
+      <div class="jumlah" id="jumlahData">Jumlah: 0</div>
+      <i class="fas fa-filter filter-icon" title="Filter (belum aktif)"></i>
     </div>
-
-    <div id="filterBox">
-      <label>Kategori:</label>
-      <select id="filterKategori">
-        <option value="kode">Kode</option>
-        <option value="tahun">Tahun</option>
-        <option value="kerabat">Nama Kerabat</option>
-        <option value="bapak">Nama Bapak</option>
-        <option value="desa">Desa</option>
-        <option value="kecamatan">Kecamatan</option>
-        <option value="kabupaten">Kabupaten</option>
-      </select>
-      <label>Kata Kunci:</label>
-      <input type="text" id="filterKeyword" placeholder="Masukkan kata kunci..."/>
-      <button onclick="applyFilter()">Terapkan</button>
-    </div>
-
-    <div id="dataContainer"></div>
+    <div id="riwayatList"></div>
   </div>
 
   <script>
-    const dataContainer = document.getElementById("dataContainer");
-    const jumlahData = document.getElementById("jumlahData");
-    const filterBox = document.getElementById("filterBox");
-    const filterBtn = document.getElementById("filterBtn");
-
-    let data = JSON.parse(localStorage.getItem("dataPernikahan") || "[]");
-    let filtered = false;
-
-    function renderData(list) {
-      dataContainer.innerHTML = "";
-      let total = list.length;
-      jumlahData.textContent = total;
-      list.forEach((item, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "data-item";
-        wrapper.style.display = "block";
-
-        const header = document.createElement("div");
-        header.innerHTML = `<strong>Kode:</strong> ${item.kode}`;
-
-        const buttons = document.createElement("div");
-        buttons.className = "buttons";
-        buttons.innerHTML = `
-          <button class="lihat-btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
-          <button class="hapus-btn" onclick="hapusData(${index})">HAPUS</button>
-        `;
-
-        const detail = document.createElement("div");
-        detail.className = "detail";
-        detail.id = "detail" + index;
-        detail.innerHTML = `
-          <div><b>Nama Kerabat:</b> ${item.kerabat}</div>
-          <div><b>Nama Bapak:</b> ${item.bapak}</div>
-          <div><b>Alamat:</b> ${item.desa}, ${item.kecamatan}, ${item.kabupaten}</div>
-          <div><b>Bingkisan:</b> ${item.bingkisan}${item.bingkisan === 'Kado' ? ' (' + item.namaBarang + ')' : ''}</div>
-          <div><b>Nominal:</b> ${item.nominal}</div>
-          <div><b>Tanggal:</b> ${item.tanggal}</div>
-          <div class="buttons">
-            <button class="edit-btn" onclick="editData(${index})">EDIT</button>
-          </div>
-        `;
-
-        wrapper.appendChild(header);
-        wrapper.appendChild(buttons);
-        wrapper.appendChild(detail);
-        dataContainer.appendChild(wrapper);
-      });
+    function formatTanggalDanSelisih(tanggalStr) {
+      const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const tanggal = new Date(tanggalStr);
+      const sekarang = new Date();
+      const selisih = Math.floor((tanggal - sekarang) / (1000 * 60 * 60 * 24));
+      const tanggalFormatted = tanggal.getDate().toString().padStart(2, '0') + '-' +
+                               (tanggal.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                               tanggal.getFullYear();
+      let keterangan = '';
+      if (selisih > 0) keterangan = selisih + ' hari lagi';
+      else if (selisih < 0) keterangan = Math.abs(selisih) + ' hari yang lalu';
+      else keterangan = 'Hari ini';
+      return { tanggalFormatted, keterangan };
     }
+
+    const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+    const riwayatList = document.getElementById("riwayatList");
+    const jumlahData = document.getElementById("jumlahData");
+
+    const maxShow = 15;
+    const tampilkanData = [...data].reverse().slice(0, maxShow);
+
+    jumlahData.textContent = 'Jumlah: ' + data.length;
+
+    tampilkanData.forEach((item, index) => {
+      const { tanggalFormatted, keterangan } = formatTanggalDanSelisih(item.tanggal);
+      const div = document.createElement("div");
+      div.className = "riwayat-item";
+      div.innerHTML = `
+        <div class="riwayat-header">
+          <h3>${item.kode}</h3>
+          <div class="riwayat-buttons">
+            <button onclick="toggleDetail(${index})">Lihat selengkapnya</button>
+            <button onclick="hapusData('${item.kode}')">Hapus</button>
+          </div>
+        </div>
+        <div class="detail" id="detail-${index}">
+          <p><strong>Tanggal:</strong> ${tanggalFormatted} (${keterangan})</p>
+          <p><strong>Kerabat:</strong> ${item.kerabat} & ${item.pasangan}</p>
+          <p><strong>Orang Tua:</strong> Bpk. ${item.bapak} & Ibu ${item.ibu}</p>
+          <p><strong>Alamat:</strong> Kp. ${item.kampung}, RT ${item.rt}/RW ${item.rw}, Desa ${item.desa}, Kec. ${item.kecamatan}, Kab. ${item.kabupaten}</p>
+          <p><strong>Bingkisan:</strong> ${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</p>
+          <button class="edit" onclick="editData('${item.kode}')">Edit</button>
+        </div>
+      `;
+      riwayatList.appendChild(div);
+    });
 
     function toggleDetail(index) {
-      const detail = document.getElementById("detail" + index);
-      detail.style.display = detail.style.display === "block" ? "none" : "block";
+      const detail = document.getElementById("detail-" + index);
+      detail.classList.toggle("show");
     }
 
-    function hapusData(index) {
-      if (confirm("Hapus data ini?")) {
-        data.splice(index, 1);
+    function hapusData(kode) {
+      if (confirm("Yakin ingin menghapus data ini?")) {
+        let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+        data = data.filter(d => d.kode !== kode);
         localStorage.setItem("dataPernikahan", JSON.stringify(data));
-        loadData();
+        location.reload();
       }
     }
 
-    function editData(index) {
-      const detail = document.getElementById("detail" + index);
-      const item = data[index];
-      detail.innerHTML = `
-        <div class="edit-input">
-          <input type="text" id="editKerabat${index}" value="${item.kerabat}"/>
-          <input type="text" id="editBapak${index}" value="${item.bapak}"/>
-          <input type="text" id="editDesa${index}" value="${item.desa}"/>
-          <input type="text" id="editKecamatan${index}" value="${item.kecamatan}"/>
-          <input type="text" id="editKabupaten${index}" value="${item.kabupaten}"/>
-          <select id="editBingkisan${index}">
-            <option value="Uang" ${item.bingkisan === 'Uang' ? 'selected' : ''}>Uang</option>
-            <option value="Kado" ${item.bingkisan === 'Kado' ? 'selected' : ''}>Kado</option>
-          </select>
-          <input type="text" id="editBarang${index}" value="${item.namaBarang || ''}" placeholder="Nama Barang (jika Kado)"/>
-          <input type="text" id="editNominal${index}" value="${item.nominal}"/>
-          <div class="buttons">
-            <button class="save-btn" onclick="simpanEdit(${index})">SIMPAN</button>
-            <button class="cancel-btn" onclick="loadData()">BATAL</button>
-          </div>
-        </div>
-      `;
+    function editData(kode) {
+      localStorage.setItem("editKode", kode);
+      window.location.href = "input.html";
     }
-
-    function simpanEdit(index) {
-      data[index].kerabat = document.getElementById("editKerabat" + index).value;
-      data[index].bapak = document.getElementById("editBapak" + index).value;
-      data[index].desa = document.getElementById("editDesa" + index).value;
-      data[index].kecamatan = document.getElementById("editKecamatan" + index).value;
-      data[index].kabupaten = document.getElementById("editKabupaten" + index).value;
-      data[index].bingkisan = document.getElementById("editBingkisan" + index).value;
-      data[index].namaBarang = document.getElementById("editBarang" + index).value;
-      data[index].nominal = document.getElementById("editNominal" + index).value;
-      localStorage.setItem("dataPernikahan", JSON.stringify(data));
-      loadData();
-    }
-
-    function toggleFilter() {
-      filterBox.style.display = filterBox.style.display === "block" ? "none" : "block";
-      filtered = false;
-      filterBtn.classList.toggle("active");
-    }
-
-    function applyFilter() {
-      const kategori = document.getElementById("filterKategori").value;
-      const keyword = document.getElementById("filterKeyword").value.toLowerCase();
-      const hasil = data.filter(d => (d[kategori] || "").toLowerCase().includes(keyword));
-      renderData(hasil);
-      filtered = true;
-      filterBtn.classList.add("active");
-    }
-
-    function resetFilter() {
-      filterBox.style.display = "none";
-      filterBtn.classList.remove("active");
-      loadData();
-    }
-
-    function loadData() {
-      data = JSON.parse(localStorage.getItem("dataPernikahan") || "[]");
-      renderData(data);
-    }
-
-    loadData();
   </script>
 </body>
 </html>
