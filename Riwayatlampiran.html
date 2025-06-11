@@ -43,7 +43,6 @@
       color: #555;
     }
 
-    /* Gaya bar data seperti contoh.html */
     .entry {
       background: white;
       padding: 12px;
@@ -56,7 +55,7 @@
     .title-bar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 8px;
       flex-wrap: wrap;
     }
@@ -88,6 +87,18 @@
       font-weight: bold;
     }
 
+    .edit-btn {
+      background-color: gold;
+      color: black;
+      border: none;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
     .detail {
       margin-top: 10px;
       font-size: 14px;
@@ -117,9 +128,7 @@
       const tanggal = new Date(tanggalStr);
       const sekarang = new Date();
       const selisih = Math.floor((tanggal - sekarang) / (1000 * 60 * 60 * 24));
-      const tanggalFormatted = tanggal.getDate().toString().padStart(2, '0') + '-' +
-                               (tanggal.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                               tanggal.getFullYear();
+      const tanggalFormatted = `${tanggal.getDate()} ${bulan[tanggal.getMonth()]} ${tanggal.getFullYear()}`;
       let keterangan = '';
       if (selisih > 0) keterangan = selisih + ' hari lagi';
       else if (selisih < 0) keterangan = Math.abs(selisih) + ' hari yang lalu';
@@ -141,54 +150,54 @@
       const div = document.createElement("div");
       div.className = "entry";
       div.innerHTML = `
-        div.innerHTML = `
-  <div class="title-bar">
-    <div>${item.kode}</div>
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
-      <button class="edit-btn" style="margin-top: 4px; background-color: gold; border: none; padding: 4px 8px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">Edit</button>
-    </div>
-  </div>
-  <div class="detail" id="detail-${index}">
-    <div style="margin-top: 8px;">
-      <strong>${tanggalFormatted}</strong><br>
-      <small style="color: gray;">${keterangan}</small>
-    </div>
-    <hr style="margin: 10px 0;">
-    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-      <div style="display: flex;">
-        <div style="width: 120px;">Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.kerabat}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Pasangan</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.pasangan}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Bapak Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.bapak}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Ibu Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.ibu}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Alamat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.kampung}, RT ${item.rt}/${item.rw}<br>${item.desa}, ${item.kecamatan}, ${item.kabupaten}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Bingkisan</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
-      </div>
-    </div>
-  </div>
-`;
+        <div class="title-bar">
+          <div>${item.kode}</div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
+            <button class="edit-btn" onclick="editData('${item.kode}')">Edit</button>
+          </div>
+        </div>
+        <div class="detail" id="detail-${index}">
+          <div style="margin-top: 8px;">
+            <strong>${tanggalFormatted}</strong><br>
+            <small style="color: gray;">${keterangan}</small>
+          </div>
+          <hr style="margin: 10px 0;">
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+            <div style="display: flex;">
+              <div style="width: 120px;">Kerabat</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.kerabat}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Pasangan</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.pasangan}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Bapak Kerabat</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.bapak}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Ibu Kerabat</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.ibu}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Alamat</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.kampung}, RT ${item.rt}/${item.rw}<br>${item.desa}, ${item.kecamatan}, ${item.kabupaten}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Bingkisan</div>
+              <div style="width: 10px;">:</div>
+              <div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
+            </div>
+          </div>
+        </div>
+        <button class="lihat-btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
+      `;
       riwayatList.appendChild(div);
     });
 
@@ -204,6 +213,11 @@
         localStorage.setItem("dataPernikahan", JSON.stringify(data));
         location.reload();
       }
+    }
+
+    function editData(kode) {
+      alert("Fungsi edit untuk kode " + kode + " akan segera ditambahkan.");
+      // Di sini nanti akan kita tambahkan logika edit.
     }
   </script>
 </body>
