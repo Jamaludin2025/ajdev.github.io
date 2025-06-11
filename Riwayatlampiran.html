@@ -141,21 +141,54 @@
       const div = document.createElement("div");
       div.className = "entry";
       div.innerHTML = `
-        <div class="title-bar">
-          <div>${item.kode}</div>
-          <div>
-            <button class="lihat-btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
-            <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
-          </div>
-        </div>
-        <div class="detail" id="detail-${index}">
-          <p><strong>Tanggal:</strong> ${tanggalFormatted} (${keterangan})</p>
-          <p><strong>Kerabat:</strong> ${item.kerabat} & ${item.pasangan}</p>
-          <p><strong>Orang Tua:</strong> Bpk. ${item.bapak} & Ibu ${item.ibu}</p>
-          <p><strong>Alamat:</strong> Kp. ${item.kampung}, RT ${item.rt}/RW ${item.rw}, Desa ${item.desa}, Kec. ${item.kecamatan}, Kab. ${item.kabupaten}</p>
-          <p><strong>Bingkisan:</strong> ${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</p>
-        </div>
-      `;
+        div.innerHTML = `
+  <div class="title-bar">
+    <div>${item.kode}</div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
+      <button class="edit-btn" style="margin-top: 4px; background-color: gold; border: none; padding: 4px 8px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">Edit</button>
+    </div>
+  </div>
+  <div class="detail" id="detail-${index}">
+    <div style="margin-top: 8px;">
+      <strong>${tanggalFormatted}</strong><br>
+      <small style="color: gray;">${keterangan}</small>
+    </div>
+    <hr style="margin: 10px 0;">
+    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+      <div style="display: flex;">
+        <div style="width: 120px;">Kerabat</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.kerabat}</strong></div>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 120px;">Pasangan</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.pasangan}</strong></div>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 120px;">Bapak Kerabat</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.bapak}</strong></div>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 120px;">Ibu Kerabat</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.ibu}</strong></div>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 120px;">Alamat</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.kampung}, RT ${item.rt}/${item.rw}<br>${item.desa}, ${item.kecamatan}, ${item.kabupaten}</strong></div>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 120px;">Bingkisan</div>
+        <div style="width: 10px;">:</div>
+        <div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
+      </div>
+    </div>
+  </div>
+`;
       riwayatList.appendChild(div);
     });
 
