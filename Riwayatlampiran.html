@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riwayat Data Pernikahan</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
@@ -13,6 +12,7 @@
       margin: 0;
       padding: 20px;
     }
+
     .container {
       max-width: 800px;
       margin: auto;
@@ -21,73 +21,87 @@
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
     h2 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .header-bar .jumlah {
       font-weight: bold;
     }
+
     .header-bar .filter-icon {
       cursor: pointer;
       font-size: 20px;
       color: #555;
     }
-    .riwayat-item {
-      background: #fff;
-      margin: 10px 0;
-      border: 1px solid #ddd;
+
+    /* Gaya bar data seperti contoh.html */
+    .entry {
+      background: white;
+      padding: 12px;
+      margin-bottom: 10px;
       border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     }
-    .riwayat-header {
+
+    .title-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .riwayat-header h3 {
-      margin: 0;
+
+    .title-bar > div:first-child {
+      flex: 1;
+      font-size: 14px;
+      font-weight: bold;
+      word-break: break-word;
     }
-    .riwayat-buttons button {
-      margin-left: 8px;
-      background-color: #e74c3c;
+
+    .lihat-btn {
+      color: #007BFF;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .hapus-btn {
+      background-color: red;
       color: white;
       border: none;
-      padding: 6px 12px;
+      padding: 4px 8px;
+      font-size: 12px;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
-    .riwayat-buttons button.edit {
-      background-color: #3498db;
-    }
+
     .detail {
       margin-top: 10px;
-      display: none;
       font-size: 14px;
       color: #333;
+      display: none;
     }
+
     .show {
       display: block;
-    }
-    @media (max-width: 600px) {
-      .riwayat-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .riwayat-buttons {
-        margin-top: 10px;
-      }
     }
   </style>
 </head>
 <body>
-<h2>Riwayat Data Pernikahan</h2>
+  <h2>Riwayat Data Pernikahan</h2>
   <div class="container">
     <div class="header-bar">
       <div class="jumlah" id="jumlahData">Jumlah: 0</div>
@@ -125,13 +139,13 @@
     tampilkanData.forEach((item, index) => {
       const { tanggalFormatted, keterangan } = formatTanggalDanSelisih(item.tanggal);
       const div = document.createElement("div");
-      div.className = "riwayat-item";
+      div.className = "entry";
       div.innerHTML = `
-        <div class="riwayat-header">
-          <h3>${item.kode}</h3>
-          <div class="riwayat-buttons">
-            <button onclick="toggleDetail(${index})">Lihat selengkapnya</button>
-            <button onclick="hapusData('${item.kode}')">Hapus</button>
+        <div class="title-bar">
+          <div>${item.kode}</div>
+          <div>
+            <button class="lihat-btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
+            <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
           </div>
         </div>
         <div class="detail" id="detail-${index}">
@@ -140,7 +154,6 @@
           <p><strong>Orang Tua:</strong> Bpk. ${item.bapak} & Ibu ${item.ibu}</p>
           <p><strong>Alamat:</strong> Kp. ${item.kampung}, RT ${item.rt}/RW ${item.rw}, Desa ${item.desa}, Kec. ${item.kecamatan}, Kab. ${item.kabupaten}</p>
           <p><strong>Bingkisan:</strong> ${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</p>
-          <button class="edit" onclick="editData('${item.kode}')">Edit</button>
         </div>
       `;
       riwayatList.appendChild(div);
@@ -158,11 +171,6 @@
         localStorage.setItem("dataPernikahan", JSON.stringify(data));
         location.reload();
       }
-    }
-
-    function editData(kode) {
-      localStorage.setItem("editKode", kode);
-      window.location.href = "input.html";
     }
   </script>
 </body>
