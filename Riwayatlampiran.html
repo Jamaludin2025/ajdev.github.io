@@ -136,7 +136,45 @@
       <i class="fas fa-filter filter-icon" title="Filter (belum aktif)"></i>
     </div>
   </div>
+    
   <div id="riwayatList"></div>
+  
+  <!-- Modal Edit -->
+<div id="modalEdit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; position:relative;">
+    <h3>Edit Data Pernikahan</h3>
+    <form id="formEdit">
+      <input type="hidden" id="editKode">
+      <label>Tanggal: <input type="date" id="editTanggal" required></label><br><br>
+      <label>Nama Kerabat: <input type="text" id="editKerabat" required></label><br><br>
+      <label>Nama Pasangan: <input type="text" id="editPasangan" required></label><br><br>
+      <label>Bapak Kerabat: <input type="text" id="editBapak" required></label><br><br>
+      <label>Ibu Kerabat: <input type="text" id="editIbu" required></label><br><br>
+      <label>Alamat (Kampung): <input type="text" id="editKampung" required></label><br><br>
+      <label>RT: <input type="text" id="editRT" required> RW: <input type="text" id="editRW" required></label><br><br>
+      <label>Desa: <input type="text" id="editDesa" required></label><br><br>
+      <label>Kecamatan: <input type="text" id="editKecamatan" required></label><br><br>
+      <label>Kabupaten: <input type="text" id="editKabupaten" required></label><br><br>
+      <label>Bingkisan:
+        <select id="editBingkisan" onchange="toggleBingkisanEdit()">
+          <option value="Uang">Uang</option>
+          <option value="Kado">Kado</option>
+        </select>
+      </label><br><br>
+      <div id="editUangGroup">
+        <label>Nominal: <input type="text" id="editNominal"></label><br><br>
+      </div>
+      <div id="editKadoGroup" style="display:none;">
+        <label>Nama Barang: <input type="text" id="editNamaBarang"></label><br><br>
+        <label>Nominal Barang: <input type="text" id="editNominalBarang"></label><br><br>
+      </div>
+      <div style="text-align:right;">
+        <button type="button" onclick="closeModal()">Batal</button>
+        <button type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
 
   <script>
     function formatTanggalDanSelisih(tanggalStr) {
@@ -283,8 +321,82 @@
     }
 
     function editData(kode) {
-      alert("Fungsi edit untuk kode " + kode + " akan segera ditambahkan.");
-    }
+  const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+  const item = data.find(d => d.kode === kode);
+  if (!item) return;
+
+  document.getElementById("editKode").value = item.kode;
+  document.getElementById("editTanggal").value = item.tanggal;
+  document.getElementById("editKerabat").value = item.kerabat;
+  document.getElementById("editPasangan").value = item.pasangan;
+  document.getElementById("editBapak").value = item.bapak;
+  document.getElementById("editIbu").value = item.ibu;
+  document.getElementById("editKampung").value = item.kampung;
+  document.getElementById("editRT").value = item.rt;
+  document.getElementById("editRW").value = item.rw;
+  document.getElementById("editDesa").value = item.desa;
+  document.getElementById("editKecamatan").value = item.kecamatan;
+  document.getElementById("editKabupaten").value = item.kabupaten;
+  document.getElementById("editBingkisan").value = item.bingkisan;
+
+  if (item.bingkisan === "Kado") {
+    document.getElementById("editNamaBarang").value = item.namaBarang || '';
+    document.getElementById("editNominalBarang").value = item.nominal || '';
+    toggleBingkisanEdit();
+  } else {
+    document.getElementById("editNominal").value = item.nominal || '';
+    toggleBingkisanEdit();
+  }
+
+  document.getElementById("modalEdit").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modalEdit").style.display = "none";
+}
+
+function toggleBingkisanEdit() {
+  const jenis = document.getElementById("editBingkisan").value;
+  document.getElementById("editUangGroup").style.display = jenis === "Uang" ? "block" : "none";
+  document.getElementById("editKadoGroup").style.display = jenis === "Kado" ? "block" : "none";
+}
+
+document.getElementById("formEdit").addEventListener("submit", function(e) {
+  e.preventDefault();
+  let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+  const kode = document.getElementById("editKode").value;
+  const index = data.findIndex(d => d.kode === kode);
+  if (index === -1) return;
+
+  const item = {
+    kode,
+    tanggal: document.getElementById("editTanggal").value,
+    kerabat: document.getElementById("editKerabat").value,
+    pasangan: document.getElementById("editPasangan").value,
+    bapak: document.getElementById("editBapak").value,
+    ibu: document.getElementById("editIbu").value,
+    kampung: document.getElementById("editKampung").value,
+    rt: document.getElementById("editRT").value,
+    rw: document.getElementById("editRW").value,
+    desa: document.getElementById("editDesa").value,
+    kecamatan: document.getElementById("editKecamatan").value,
+    kabupaten: document.getElementById("editKabupaten").value,
+    bingkisan: document.getElementById("editBingkisan").value
+  };
+
+  if (item.bingkisan === "Kado") {
+    item.namaBarang = document.getElementById("editNamaBarang").value;
+    item.nominal = document.getElementById("editNominalBarang").value;
+  } else {
+    item.namaBarang = '';
+    item.nominal = document.getElementById("editNominal").value;
+  }
+
+  data[index] = item;
+  localStorage.setItem("dataPernikahan", JSON.stringify(data));
+  closeModal();
+  location.reload();
+});
   </script>
 </body>
 </html>
