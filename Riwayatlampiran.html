@@ -1,394 +1,174 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Riwayat Data Pernikahan</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Riwayat Pernikahan</title>
   <style>
+    /* (CSS tetap seperti sebelumnya, tidak diubah) */
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background: #f2f2f2;
     }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-bar .jumlah {
-      font-weight: bold;
-    }
-
-    .header-bar .filter-icon {
-      cursor: pointer;
-      font-size: 20px;
-      color: #555;
-    }
-
-    .entry {
-      background: white;
-      padding: 12px;
+    .riwayat-bar {
+      background: #fff;
       margin-bottom: 10px;
+      padding: 10px;
       border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    .title-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .lihat-btn {
-      color: #007BFF;
-      cursor: pointer;
+    .btn {
+      padding: 5px 10px;
+      margin: 5px;
       border: none;
-      background: none;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .edit-btn {
-      background-color: gold;
-      color: black;
-      border: none;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
-      font-weight: bold;
-      min-width: 60px;
     }
-
-    .hapus-btn {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      min-width: 60px;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .tanggal-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
-    .tanggal-bar strong {
-      font-size: 14px;
-    }
-
-    .tanggal-bar small {
-      color: gray;
-    }
-
     .detail {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #333;
       display: none;
+      margin-top: 10px;
     }
-
-    .show {
+    .detail.show {
       display: block;
     }
-    
-    .input-box {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.input-box:focus {
-  outline: none;
-  border-color: #007BFF;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-}
-
-label span {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-/* Modal posisi bawah */
-#modalEdit {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: white;
-  max-height: 90%;
-  overflow-y: auto;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
-  z-index: 999;
-  padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
-}
-    
+    #modalEdit {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    #formEdit {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+    }
   </style>
 </head>
 <body>
-  <h2>Riwayat Data Pernikahan</h2>
-  <div class="container">
-    <div class="header-bar">
-      <div class="jumlah" id="jumlahData">Jumlah: 0</div>
-      <i class="fas fa-filter filter-icon" title="Filter (belum aktif)"></i>
+
+<div id="riwayatList"></div>
+
+<!-- Modal Edit -->
+<div id="modalEdit">
+  <form id="formEdit">
+    <h3>Edit Data</h3>
+    <input type="hidden" id="editKode" />
+    <label>Tanggal: <input type="date" id="editTanggal" required></label><br>
+    <label>Kerabat: <input type="text" id="editKerabat" required></label><br>
+    <label>Pasangan: <input type="text" id="editPasangan" required></label><br>
+    <label>Nama Ayah: <input type="text" id="editBapak"></label><br>
+    <label>Nama Ibu: <input type="text" id="editIbu"></label><br>
+    <label>Kampung: <input type="text" id="editKampung"></label><br>
+    <label>RT: <input type="text" id="editRT"></label><br>
+    <label>RW: <input type="text" id="editRW"></label><br>
+    <label>Kabupaten:
+      <select id="editKabupaten" onchange="isiDropdownKecamatan()"></select>
+    </label><br>
+    <label>Kecamatan:
+      <select id="editKecamatan" onchange="isiDropdownDesa()"></select>
+    </label><br>
+    <label>Desa:
+      <select id="editDesa"></select>
+    </label><br>
+    <label>Bingkisan:
+      <select id="editBingkisan" onchange="toggleBingkisanEdit()">
+        <option value="Uang">Uang</option>
+        <option value="Kado">Kado</option>
+      </select>
+    </label><br>
+    <div id="editUangGroup">
+      <label>Nominal Uang: <input type="number" id="editNominal"></label><br>
     </div>
-  </div>
-    
-  <div id="riwayatList"></div>
-  
-  <!-- Modal Edit (Tampilan Baru) -->
-<div id="modalEdit" 
-  <div style="background:#fff; padding:24px 20px; border-radius:12px; width:95%; max-width:500px; box-shadow:0 8px 16px rgba(0,0,0,0.2); position:relative; font-family:'Segoe UI', sans-serif;">
-    <h3 style="margin-top:0; margin-bottom:20px; text-align:center;">Edit Data Pernikahan</h3>
-    <form id="formEdit" style="display:flex; flex-direction:column; gap:14px;">
-      <input type="hidden" id="editKode">
-
-      <label><span>Tanggal</span>
-        <input type="date" id="editTanggal" required class="input-box">
-      </label>
-
-      <label><span>Nama Kerabat</span>
-        <input type="text" id="editKerabat" required class="input-box">
-      </label>
-
-      <label><span>Nama Pasangan</span>
-        <input type="text" id="editPasangan" required class="input-box">
-      </label>
-
-      <label><span>Bapak Kerabat</span>
-        <input type="text" id="editBapak" required class="input-box">
-      </label>
-
-      <label><span>Ibu Kerabat</span>
-        <input type="text" id="editIbu" required class="input-box">
-      </label>
-
-      <label><span>Alamat (Kampung)</span>
-        <input type="text" id="editKampung" required class="input-box">
-      </label>
-
-      <div style="display:flex; gap:10px;">
-        <label style="flex:1;"><span>RT</span>
-          <input type="text" id="editRT" required class="input-box">
-        </label>
-        <label style="flex:1;"><span>RW</span>
-          <input type="text" id="editRW" required class="input-box">
-        </label>
-      </div>
-
-      <label><span>Kabupaten</span>
-  <select id="editKabupaten" onchange="isiDropdownKecamatan()" class="input-box"></select>
-</label>
-
-<label><span>Kecamatan</span>
-  <select id="editKecamatan" onchange="isiDropdownDesa()" class="input-box"></select>
-</label>
-
-<label><span>Desa</span>
-  <select id="editDesa" class="input-box"></select>
-</label>
-
-      <label><span>Bingkisan</span>
-        <select id="editBingkisan" onchange="toggleBingkisanEdit()" class="input-box">
-          <option value="Uang">Uang</option>
-          <option value="Kado">Kado</option>
-        </select>
-      </label>
-
-      <div id="editUangGroup">
-        <label><span>Nominal</span>
-          <input type="text" id="editNominal" class="input-box">
-        </label>
-      </div>
-
-      <div id="editKadoGroup" style="display:none;">
-        <label><span>Nama Barang</span>
-          <input type="text" id="editNamaBarang" class="input-box">
-        </label>
-        <label><span>Nominal Barang</span>
-          <input type="text" id="editNominalBarang" class="input-box">
-        </label>
-      </div>
-
-      <div style="text-align:right; margin-top:10px;">
-        <button type="button" onclick="closeModal()" style="padding:6px 12px; border:none; background:#aaa; color:white; border-radius:6px; margin-right:8px; cursor:pointer;">Batal</button>
-        <button type="submit" style="padding:6px 14px; border:none; background:#007BFF; color:white; border-radius:6px; font-weight:bold; cursor:pointer;">Simpan</button>
-      </div>
-    </form>
-  </div>
+    <div id="editKadoGroup" style="display:none;">
+      <label>Nama Barang: <input type="text" id="editNamaBarang"></label><br>
+      <label>Nominal Barang: <input type="number" id="editNominalBarang"></label><br>
+    </div>
+    <button type="submit" class="btn">Simpan</button>
+    <button type="button" class="btn" onclick="closeModal()">Batal</button>
+  </form>
 </div>
 
-  <script>
-    function formatTanggalDanSelisih(tanggalStr) {
-  const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-  const tanggal = new Date(tanggalStr);
-  const sekarang = new Date();
+<script>
+  // Ambil data dari localStorage
+  const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
 
-  const tanggalFormatted = `${tanggal.getDate()} ${bulanList[tanggal.getMonth()]} ${tanggal.getFullYear()}`;
-  let keterangan = '';
+  const riwayatList = document.getElementById("riwayatList");
 
-  if (tanggal > sekarang) {
-    const selisihHari = Math.floor((tanggal - sekarang) / (1000 * 60 * 60 * 24));
-    keterangan = `${selisihHari} hari lagi`;
-  } else if (tanggal.toDateString() === sekarang.toDateString()) {
-    keterangan = 'Hari ini';
-  } else {
-    let tahun = sekarang.getFullYear() - tanggal.getFullYear();
-    let bulan = sekarang.getMonth() - tanggal.getMonth();
-    let hari = sekarang.getDate() - tanggal.getDate();
+  data.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "riwayat-bar";
+    div.innerHTML = `
+      <strong>${item.kerabat}</strong> - ${item.pasangan} (${item.tanggal})<br>
+      <button class="btn" onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
+      <button class="btn" onclick="editData('${item.kode}')">Edit</button>
+      <button class="btn" onclick="hapusData('${item.kode}')">Hapus</button>
+      <div class="detail" id="detail-${index}">
+        <p>Nama Ayah: ${item.bapak || '-'}</p>
+        <p>Nama Ibu: ${item.ibu || '-'}</p>
+        <p>Alamat: ${item.kampung || '-'}, RT ${item.rt || '-'} / RW ${item.rw || '-'}, ${item.desa || '-'}, ${item.kecamatan || '-'}, ${item.kabupaten || '-'}</p>
+        <p>Bingkisan: ${item.bingkisan}</p>
+        ${item.bingkisan === "Kado"
+          ? `<p>Nama Barang: ${item.namaBarang || '-'}</p><p>Nominal Barang: Rp${item.nominal || '0'}</p>`
+          : `<p>Nominal Uang: Rp${item.nominal || '0'}</p>`
+        }
+      </div>
+    `;
+    riwayatList.appendChild(div);
+  });
 
-    if (hari < 0) {
-      bulan -= 1;
-      hari += new Date(sekarang.getFullYear(), sekarang.getMonth(), 0).getDate();
-    }
-
-    if (bulan < 0) {
-      tahun -= 1;
-      bulan += 12;
-    }
-
-    if (tahun > 0) {
-      keterangan = `${tahun} tahun${bulan > 0 ? ' ' + bulan + ' bulan' : ''} yang lalu`;
-    } else if (bulan > 0) {
-      keterangan = `${bulan} bulan${hari > 0 ? ' ' + hari + ' hari' : ''} yang lalu`;
-    } else {
-      keterangan = `${hari} hari yang lalu`;
-    }
+  function toggleDetail(index) {
+    const detail = document.getElementById("detail-" + index);
+    detail.classList.toggle("show");
   }
 
-  return { tanggalFormatted, keterangan };
-}
+  function hapusData(kode) {
+    if (confirm("Yakin ingin menghapus data ini?")) {
+      let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+      data = data.filter(d => d.kode !== kode);
+      localStorage.setItem("dataPernikahan", JSON.stringify(data));
+      location.reload();
+    }
+  }
+</script>
 
-    const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+  <script>
+    // Tampilkan data dari localStorage
     const riwayatList = document.getElementById("riwayatList");
-    const jumlahData = document.getElementById("jumlahData");
+    const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
 
-    const maxShow = 15;
-    const tampilkanData = [...data].reverse().slice(0, maxShow);
-
-    jumlahData.textContent = 'Jumlah: ' + data.length;
-
-    tampilkanData.forEach((item, index) => {
-      const { tanggalFormatted, keterangan } = formatTanggalDanSelisih(item.tanggal);
+    data.forEach((item, index) => {
       const div = document.createElement("div");
-      div.className = "entry";
+      div.className = "riwayat-bar";
+
       div.innerHTML = `
-        <div class="title-bar">
-          <div class="lihat-btn" onclick="toggleDetail(${index})">${item.kode}</div>
-          <div class="button-group">
-            <button class="edit-btn" onclick="editData('${item.kode}')">Edit</button>
-            <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
-          </div>
+        <div class="info">
+          <h3>${item.kerabat}</h3>
+          <p>${item.pasangan}</p>
+          <p>${item.tanggal}</p>
+        </div>
+        <div class="actions">
+          <button onclick="toggleDetail(${index})">Lihat Selengkapnya</button>
+          <button onclick="editData('${item.kode}')">Edit</button>
+          <button onclick="hapusData('${item.kode}')">Hapus</button>
         </div>
         <div class="detail" id="detail-${index}">
-          <div class="tanggal-bar">
-            <strong>${tanggalFormatted}</strong>
-            <small>${keterangan}</small>
-          </div>
-          <hr style="margin: 10px 0;">
-          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-            <div style="display: flex;">
-              <div style="width: 120px; font-weight: bold; color: #888;">Data Pengantin</div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Nama Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.kerabat}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Nama Pasangan</div><div style="width: 10px;">:</div><div><strong>${item.pasangan}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;"></div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px; font-weight: bold; color: #888;">Data Orang Tua</div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Bapak Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.bapak}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Ibu Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.ibu}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;"></div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px; font-weight: bold; color: #888;">Lokasi Acara</div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Alamat</div><div style="width: 10px;">:</div><div><strong>${item.kampung}, ${item.rt}/${item.rw}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Desa</div><div style="width: 10px;">:</div><div><strong>${item.desa}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Kecamatan</div><div style="width: 10px;">:</div><div><strong>${item.kecamatan}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">Kabupaten</div><div style="width: 10px;">:</div><div><strong>${item.kabupaten}</strong></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;"></div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px; font-weight: bold; color: #888;">Bingkisan</div><div style="width: 10px;"></div>
-            </div>
-            <div style="display: flex;">
-              <div style="width: 120px;">${item.bingkisan === 'Kado' ? 'Kado' : 'Uang'}</div>
-              <div style="width: 10px;">:</div>
-        <div>
-        <strong>
-            ${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}
-          </strong>
+          <p><span>Nama Ayah</span><span>: ${item.bapak}</span></p>
+          <p><span>Nama Ibu</span><span>: ${item.ibu}</span></p>
+          <p><span>Alamat</span><span>: ${item.kampung}, RT ${item.rt}/RW ${item.rw}, ${item.desa}, ${item.kecamatan}, ${item.kabupaten}</span></p>
+          <p><span>Bingkisan</span><span>: ${item.bingkisan}</span></p>
+          ${
+            item.bingkisan === "Uang"
+              ? `<p><span>Nominal Uang</span><span>: Rp ${item.nominal}</span></p>`
+              : `<p><span>Nama Barang</span><span>: ${item.namaBarang}</span></p>
+                 <p><span>Nominal Barang</span><span>: Rp ${item.nominal}</span></p>`
+          }
         </div>
-      </div>
-    </div>
-  </div>
-`;
+      `;
+
       riwayatList.appendChild(div);
     });
 
@@ -396,7 +176,6 @@ label span {
       const detail = document.getElementById("detail-" + index);
       detail.classList.toggle("show");
     }
-
     function hapusData(kode) {
       if (confirm("Yakin ingin menghapus data ini?")) {
         let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
@@ -407,143 +186,62 @@ label span {
     }
 
     function editData(kode) {
-  const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
-  const item = data.find(d => d.kode === kode);
-  if (!item) return;
+      const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+      const item = data.find(d => d.kode === kode);
+      if (!item) return;
 
-  document.getElementById("editKode").value = item.kode;
-  document.getElementById("editTanggal").value = item.tanggal;
-  document.getElementById("editKerabat").value = item.kerabat;
-  document.getElementById("editPasangan").value = item.pasangan;
-  document.getElementById("editBapak").value = item.bapak;
-  document.getElementById("editIbu").value = item.ibu;
-  document.getElementById("editKampung").value = item.kampung;
-  document.getElementById("editRT").value = item.rt;
-  document.getElementById("editRW").value = item.rw;
-  document.getElementById("editDesa").value = item.desa;
-  document.getElementById("editKecamatan").value = item.kecamatan;
-  document.getElementById("editKabupaten").value = item.kabupaten;
-  isiDropdownKabupaten();
-document.getElementById("editKabupaten").value = item.kabupaten;
-isiDropdownKecamatan();
-document.getElementById("editKecamatan").value = item.kecamatan;
-isiDropdownDesa();
-document.getElementById("editDesa").value = item.desa;
-  document.getElementById("editBingkisan").value = item.bingkisan;
+      document.getElementById("editKode").value = item.kode;
+      document.getElementById("editTanggal").value = item.tanggal;
+      document.getElementById("editKerabat").value = item.kerabat;
+      document.getElementById("editPasangan").value = item.pasangan;
+      document.getElementById("editBapak").value = item.bapak;
+      document.getElementById("editIbu").value = item.ibu;
+      document.getElementById("editKampung").value = item.kampung;
+      document.getElementById("editRT").value = item.rt;
+      document.getElementById("editRW").value = item.rw;
 
-  if (item.bingkisan === "Kado") {
-    document.getElementById("editNamaBarang").value = item.namaBarang || '';
-    document.getElementById("editNominalBarang").value = item.nominal || '';
-    toggleBingkisanEdit();
-  } else {
-    document.getElementById("editNominal").value = item.nominal || '';
-    toggleBingkisanEdit();
-  }
+      isiDropdownKabupaten();
+      document.getElementById("editKabupaten").value = item.kabupaten;
+      isiDropdownKecamatan();
+      document.getElementById("editKecamatan").value = item.kecamatan;
+      isiDropdownDesa();
+      document.getElementById("editDesa").value = item.desa;
 
-  document.getElementById("modalEdit").style.display = "flex";
-}
+      document.getElementById("editBingkisan").value = item.bingkisan;
 
-function closeModal() {
-  document.getElementById("modalEdit").style.display = "none";
-}
+      if (item.bingkisan === "Kado") {
+        document.getElementById("editNamaBarang").value = item.namaBarang || '';
+        document.getElementById("editNominalBarang").value = item.nominal || '';
+        toggleBingkisanEdit();
+      } else {
+        document.getElementById("editNominal").value = item.nominal || '';
+        toggleBingkisanEdit();
+      }
 
-function toggleBingkisanEdit() {
-  const lokasiData = {
-  "Kabupaten A": {
-    "Kecamatan A1": ["Desa A1-1", "Desa A1-2"],
-    "Kecamatan A2": ["Desa A2-1", "Desa A2-2"]
-  },
-  "Kabupaten B": {
-    "Kecamatan B1": ["Desa B1-1", "Desa B1-2"],
-    "Kecamatan B2": ["Desa B2-1", "Desa B2-2"]
-  }
-};
+      document.getElementById("modalEdit").style.display = "flex";
+    }
 
-function isiDropdownKabupaten() {
-  const kabupatenSelect = document.getElementById("editKabupaten");
-  kabupatenSelect.innerHTML = `<option value="">-- Pilih Kabupaten --</option>`;
-  Object.keys(lokasiData).forEach(kab => {
-    const opt = document.createElement("option");
-    opt.value = kab;
-    opt.textContent = kab;
-    kabupatenSelect.appendChild(opt);
-  });
-}
-
-function isiDropdownKecamatan() {
-  const kab = document.getElementById("editKabupaten").value;
-  const kecSelect = document.getElementById("editKecamatan");
-  kecSelect.innerHTML = `<option value="">-- Pilih Kecamatan --</option>`;
-  document.getElementById("editDesa").innerHTML = `<option value="">-- Pilih Desa --</option>`;
-  if (!kab || !lokasiData[kab]) return;
-
-  Object.keys(lokasiData[kab]).forEach(kec => {
-    const opt = document.createElement("option");
-    opt.value = kec;
-    opt.textContent = kec;
-    kecSelect.appendChild(opt);
-  });
-}
-
-function isiDropdownDesa() {
-  const kab = document.getElementById("editKabupaten").value;
-  const kec = document.getElementById("editKecamatan").value;
-  const desaSelect = document.getElementById("editDesa");
-  desaSelect.innerHTML = `<option value="">-- Pilih Desa --</option>`;
-  if (!kab || !kec || !lokasiData[kab] || !lokasiData[kab][kec]) return;
-
-  lokasiData[kab][kec].forEach(desa => {
-    const opt = document.createElement("option");
-    opt.value = desa;
-    opt.textContent = desa;
-    desaSelect.appendChild(opt);
-  });
-}
-
-  const jenis = document.getElementById("editBingkisan").value;
-  document.getElementById("editUangGroup").style.display = jenis === "Uang" ? "block" : "none";
-  document.getElementById("editKadoGroup").style.display = jenis === "Kado" ? "block" : "none";
-}
-
-document.getElementById("formEdit").addEventListener("submit", function(e) {
-  e.preventDefault();
-  let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
-  const kode = document.getElementById("editKode").value;
-  const index = data.findIndex(d => d.kode === kode);
-  if (index === -1) return;
-
-  const item = {
-    kode,
-    tanggal: document.getElementById("editTanggal").value,
-    kerabat: document.getElementById("editKerabat").value,
-    pasangan: document.getElementById("editPasangan").value,
-    bapak: document.getElementById("editBapak").value,
-    ibu: document.getElementById("editIbu").value,
-    kampung: document.getElementById("editKampung").value,
-    rt: document.getElementById("editRT").value,
-    rw: document.getElementById("editRW").value,
-    desa: document.getElementById("editDesa").value,
-    kecamatan: document.getElementById("editKecamatan").value,
-    kabupaten: document.getElementById("editKabupaten").value,
-    bingkisan: document.getElementById("editBingkisan").value
-  };
-
-  if (item.bingkisan === "Kado") {
-    item.namaBarang = document.getElementById("editNamaBarang").value;
-    item.nominal = document.getElementById("editNominalBarang").value;
-  } else {
-    item.namaBarang = '';
-    item.nominal = document.getElementById("editNominal").value;
-  }
-
-  data[index] = item;
-  localStorage.setItem("dataPernikahan", JSON.stringify(data));
-  closeModal();
-  location.reload();
-  
+    function closeModal() {
+      document.getElementById("modalEdit").style.display = "none";
+    }
   document.addEventListener("DOMContentLoaded", () => {
-  isiDropdownKabupaten();
-});
-  </script>
+    isiDropdownKabupaten();
+
+    // Update dropdown berantai saat user ubah pilihan
+    document.getElementById("editKabupaten").addEventListener("change", () => {
+      isiDropdownKecamatan();
+      isiDropdownDesa();
+    });
+
+    document.getElementById("editKecamatan").addEventListener("change", () => {
+      isiDropdownDesa();
+    });
+
+    // Tampilkan kolom sesuai pilihan Bingkisan
+    document.getElementById("editBingkisan").addEventListener("change", () => {
+      toggleBingkisanEdit();
+    });
+  });
+</script>
 </body>
 </html>
