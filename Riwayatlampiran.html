@@ -126,6 +126,29 @@
     .show {
       display: block;
     }
+    
+    .input-box {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-box:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+}
+
+label span {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+    
   </style>
 </head>
 <body>
@@ -139,38 +162,83 @@
     
   <div id="riwayatList"></div>
   
-  <!-- Modal Edit -->
-<div id="modalEdit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-  <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; position:relative;">
-    <h3>Edit Data Pernikahan</h3>
-    <form id="formEdit">
+  <!-- Modal Edit (Tampilan Baru) -->
+<div id="modalEdit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.3); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:24px 20px; border-radius:12px; width:95%; max-width:500px; box-shadow:0 8px 16px rgba(0,0,0,0.2); position:relative; font-family:'Segoe UI', sans-serif;">
+    <h3 style="margin-top:0; margin-bottom:20px; text-align:center;">Edit Data Pernikahan</h3>
+    <form id="formEdit" style="display:flex; flex-direction:column; gap:14px;">
       <input type="hidden" id="editKode">
-      <label>Tanggal: <input type="date" id="editTanggal" required></label><br><br>
-      <label>Nama Kerabat: <input type="text" id="editKerabat" required></label><br><br>
-      <label>Nama Pasangan: <input type="text" id="editPasangan" required></label><br><br>
-      <label>Bapak Kerabat: <input type="text" id="editBapak" required></label><br><br>
-      <label>Ibu Kerabat: <input type="text" id="editIbu" required></label><br><br>
-      <label>Alamat (Kampung): <input type="text" id="editKampung" required></label><br><br>
-      <label>RT: <input type="text" id="editRT" required> RW: <input type="text" id="editRW" required></label><br><br>
-      <label>Desa: <input type="text" id="editDesa" required></label><br><br>
-      <label>Kecamatan: <input type="text" id="editKecamatan" required></label><br><br>
-      <label>Kabupaten: <input type="text" id="editKabupaten" required></label><br><br>
-      <label>Bingkisan:
-        <select id="editBingkisan" onchange="toggleBingkisanEdit()">
+
+      <label><span>Tanggal</span>
+        <input type="date" id="editTanggal" required class="input-box">
+      </label>
+
+      <label><span>Nama Kerabat</span>
+        <input type="text" id="editKerabat" required class="input-box">
+      </label>
+
+      <label><span>Nama Pasangan</span>
+        <input type="text" id="editPasangan" required class="input-box">
+      </label>
+
+      <label><span>Bapak Kerabat</span>
+        <input type="text" id="editBapak" required class="input-box">
+      </label>
+
+      <label><span>Ibu Kerabat</span>
+        <input type="text" id="editIbu" required class="input-box">
+      </label>
+
+      <label><span>Alamat (Kampung)</span>
+        <input type="text" id="editKampung" required class="input-box">
+      </label>
+
+      <div style="display:flex; gap:10px;">
+        <label style="flex:1;"><span>RT</span>
+          <input type="text" id="editRT" required class="input-box">
+        </label>
+        <label style="flex:1;"><span>RW</span>
+          <input type="text" id="editRW" required class="input-box">
+        </label>
+      </div>
+
+      <label><span>Desa</span>
+        <input type="text" id="editDesa" required class="input-box">
+      </label>
+
+      <label><span>Kecamatan</span>
+        <input type="text" id="editKecamatan" required class="input-box">
+      </label>
+
+      <label><span>Kabupaten</span>
+        <input type="text" id="editKabupaten" required class="input-box">
+      </label>
+
+      <label><span>Bingkisan</span>
+        <select id="editBingkisan" onchange="toggleBingkisanEdit()" class="input-box">
           <option value="Uang">Uang</option>
           <option value="Kado">Kado</option>
         </select>
-      </label><br><br>
+      </label>
+
       <div id="editUangGroup">
-        <label>Nominal: <input type="text" id="editNominal"></label><br><br>
+        <label><span>Nominal</span>
+          <input type="text" id="editNominal" class="input-box">
+        </label>
       </div>
+
       <div id="editKadoGroup" style="display:none;">
-        <label>Nama Barang: <input type="text" id="editNamaBarang"></label><br><br>
-        <label>Nominal Barang: <input type="text" id="editNominalBarang"></label><br><br>
+        <label><span>Nama Barang</span>
+          <input type="text" id="editNamaBarang" class="input-box">
+        </label>
+        <label><span>Nominal Barang</span>
+          <input type="text" id="editNominalBarang" class="input-box">
+        </label>
       </div>
-      <div style="text-align:right;">
-        <button type="button" onclick="closeModal()">Batal</button>
-        <button type="submit">Simpan</button>
+
+      <div style="text-align:right; margin-top:10px;">
+        <button type="button" onclick="closeModal()" style="padding:6px 12px; border:none; background:#aaa; color:white; border-radius:6px; margin-right:8px; cursor:pointer;">Batal</button>
+        <button type="submit" style="padding:6px 14px; border:none; background:#007BFF; color:white; border-radius:6px; font-weight:bold; cursor:pointer;">Simpan</button>
       </div>
     </form>
   </div>
