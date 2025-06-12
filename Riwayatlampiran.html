@@ -2,10 +2,6 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riwayat Data Pernikahan</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -65,28 +61,16 @@
       flex-wrap: wrap;
     }
 
-    .title-bar > div:first-child {
-      flex: 1;
-      font-size: 14px;
-      font-weight: bold;
-      word-break: break-word;
-    }
-
-    /* Perbaikan utama: mencegah pergeseran kode */
-    .title-bar > div:last-child {
-      min-height: 48px;
-    }
-
     .lihat-btn {
       color: #007BFF;
       cursor: pointer;
       border: none;
       background: none;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 14px;
     }
 
-    .hapus-btn {
+    .hapus-btn, .edit-btn {
       background-color: red;
       color: white;
       border: none;
@@ -95,18 +79,21 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      min-width: 60px;
     }
 
-    .edit-btn {
-      background-color: gold;
-      color: black;
-      border: none;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 4px;
+    .button-group {
+      display: flex;
+      gap: 4px;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    @media (min-width: 480px) {
+      .button-group {
+        flex-direction: row;
+        align-items: center;
+      }
     }
 
     .detail {
@@ -118,6 +105,21 @@
 
     .show {
       display: block;
+    }
+
+    .tanggal-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .tanggal-bar strong {
+      font-size: 14px;
+    }
+
+    .tanggal-bar small {
+      color: gray;
     }
   </style>
 </head>
@@ -160,65 +162,47 @@
       const div = document.createElement("div");
       div.className = "entry";
       div.innerHTML = `
-  <div class="title-bar">
-    <div>${item.kode}</div>
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <div style="display: flex; gap: 4px;">
-        <button class="edit-btn" id="edit-${index}" onclick="editData('${item.kode}')" style="display: none; width: 60px;">Edit</button>
-        <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
-      </div>
-      <button class="lihat-btn" onclick="toggleDetail(${index})" style="margin-top: 4px;">Lihat Selengkapnya</button>
-    </div>
-  </div>
-  <div class="detail" id="detail-${index}">
-    <div style="margin-top: 8px;">
-      <strong>${tanggalFormatted}</strong><br>
-      <small style="color: gray;">${keterangan}</small>
-    </div>
-    <hr style="margin: 10px 0;">
-    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-      <div style="display: flex;">
-        <div style="width: 120px;">Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.kerabat}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Pasangan</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.pasangan}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Bapak Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.bapak}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Ibu Kerabat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.ibu}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Alamat</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.kampung}, RT. ${item.rt} RW. ${item.rw}<br>${item.desa}, ${item.kecamatan}, ${item.kabupaten}</strong></div>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 120px;">Bingkisan</div>
-        <div style="width: 10px;">:</div>
-        <div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
-      </div>
-    </div>
-  </div>
-`;
-
+        <div class="title-bar">
+          <div class="lihat-btn" onclick="toggleDetail(${index})">${item.kode}</div>
+          <div class="button-group">
+            <button class="edit-btn" onclick="editData('${item.kode}')">Edit</button>
+            <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
+          </div>
+        </div>
+        <div class="detail" id="detail-${index}">
+          <div class="tanggal-bar">
+            <strong>${tanggalFormatted}</strong>
+            <small>${keterangan}</small>
+          </div>
+          <hr style="margin: 10px 0;">
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+            <div style="display: flex;">
+              <div style="width: 120px;">Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.kerabat}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Pasangan</div><div style="width: 10px;">:</div><div><strong>${item.pasangan}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Bapak Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.bapak}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Ibu Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.ibu}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Alamat</div><div style="width: 10px;">:</div><div><strong>${item.kampung}, RT. ${item.rt} RW. ${item.rw}<br>${item.desa}, ${item.kecamatan}, ${item.kabupaten}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Bingkisan</div><div style="width: 10px;">:</div><div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
+            </div>
+          </div>
+        </div>
+      `;
       riwayatList.appendChild(div);
     });
 
     function toggleDetail(index) {
       const detail = document.getElementById("detail-" + index);
-      const editBtn = document.getElementById("edit-" + index);
       detail.classList.toggle("show");
-      editBtn.style.display = detail.classList.contains("show") ? "block" : "none";
     }
 
     function hapusData(kode) {
