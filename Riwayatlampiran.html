@@ -148,6 +148,24 @@ label span {
   margin-bottom: 4px;
   font-weight: 500;
 }
+
+/* Modal posisi bawah */
+#modalEdit {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  max-height: 90%;
+  overflow-y: auto;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  z-index: 999;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
     
   </style>
 </head>
@@ -163,7 +181,7 @@ label span {
   <div id="riwayatList"></div>
   
   <!-- Modal Edit (Tampilan Baru) -->
-<div id="modalEdit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.3); z-index:999; justify-content:center; align-items:center;">
+<div id="modalEdit" 
   <div style="background:#fff; padding:24px 20px; border-radius:12px; width:95%; max-width:500px; box-shadow:0 8px 16px rgba(0,0,0,0.2); position:relative; font-family:'Segoe UI', sans-serif;">
     <h3 style="margin-top:0; margin-bottom:20px; text-align:center;">Edit Data Pernikahan</h3>
     <form id="formEdit" style="display:flex; flex-direction:column; gap:14px;">
@@ -202,17 +220,17 @@ label span {
         </label>
       </div>
 
-      <label><span>Desa</span>
-        <input type="text" id="editDesa" required class="input-box">
-      </label>
-
-      <label><span>Kecamatan</span>
-        <input type="text" id="editKecamatan" required class="input-box">
-      </label>
-
       <label><span>Kabupaten</span>
-        <input type="text" id="editKabupaten" required class="input-box">
-      </label>
+  <select id="editKabupaten" onchange="isiDropdownKecamatan()" class="input-box"></select>
+</label>
+
+<label><span>Kecamatan</span>
+  <select id="editKecamatan" onchange="isiDropdownDesa()" class="input-box"></select>
+</label>
+
+<label><span>Desa</span>
+  <select id="editDesa" class="input-box"></select>
+</label>
 
       <label><span>Bingkisan</span>
         <select id="editBingkisan" onchange="toggleBingkisanEdit()" class="input-box">
@@ -405,6 +423,12 @@ label span {
   document.getElementById("editDesa").value = item.desa;
   document.getElementById("editKecamatan").value = item.kecamatan;
   document.getElementById("editKabupaten").value = item.kabupaten;
+  isiDropdownKabupaten();
+document.getElementById("editKabupaten").value = item.kabupaten;
+isiDropdownKecamatan();
+document.getElementById("editKecamatan").value = item.kecamatan;
+isiDropdownDesa();
+document.getElementById("editDesa").value = item.desa;
   document.getElementById("editBingkisan").value = item.bingkisan;
 
   if (item.bingkisan === "Kado") {
@@ -424,6 +448,58 @@ function closeModal() {
 }
 
 function toggleBingkisanEdit() {
+  const lokasiData = {
+  "Kabupaten A": {
+    "Kecamatan A1": ["Desa A1-1", "Desa A1-2"],
+    "Kecamatan A2": ["Desa A2-1", "Desa A2-2"]
+  },
+  "Kabupaten B": {
+    "Kecamatan B1": ["Desa B1-1", "Desa B1-2"],
+    "Kecamatan B2": ["Desa B2-1", "Desa B2-2"]
+  }
+};
+
+function isiDropdownKabupaten() {
+  const kabupatenSelect = document.getElementById("editKabupaten");
+  kabupatenSelect.innerHTML = `<option value="">-- Pilih Kabupaten --</option>`;
+  Object.keys(lokasiData).forEach(kab => {
+    const opt = document.createElement("option");
+    opt.value = kab;
+    opt.textContent = kab;
+    kabupatenSelect.appendChild(opt);
+  });
+}
+
+function isiDropdownKecamatan() {
+  const kab = document.getElementById("editKabupaten").value;
+  const kecSelect = document.getElementById("editKecamatan");
+  kecSelect.innerHTML = `<option value="">-- Pilih Kecamatan --</option>`;
+  document.getElementById("editDesa").innerHTML = `<option value="">-- Pilih Desa --</option>`;
+  if (!kab || !lokasiData[kab]) return;
+
+  Object.keys(lokasiData[kab]).forEach(kec => {
+    const opt = document.createElement("option");
+    opt.value = kec;
+    opt.textContent = kec;
+    kecSelect.appendChild(opt);
+  });
+}
+
+function isiDropdownDesa() {
+  const kab = document.getElementById("editKabupaten").value;
+  const kec = document.getElementById("editKecamatan").value;
+  const desaSelect = document.getElementById("editDesa");
+  desaSelect.innerHTML = `<option value="">-- Pilih Desa --</option>`;
+  if (!kab || !kec || !lokasiData[kab] || !lokasiData[kab][kec]) return;
+
+  lokasiData[kab][kec].forEach(desa => {
+    const opt = document.createElement("option");
+    opt.value = desa;
+    opt.textContent = desa;
+    desaSelect.appendChild(opt);
+  });
+}
+
   const jenis = document.getElementById("editBingkisan").value;
   document.getElementById("editUangGroup").style.display = jenis === "Uang" ? "block" : "none";
   document.getElementById("editKadoGroup").style.display = jenis === "Kado" ? "block" : "none";
@@ -464,6 +540,9 @@ document.getElementById("formEdit").addEventListener("submit", function(e) {
   localStorage.setItem("dataPernikahan", JSON.stringify(data));
   closeModal();
   location.reload();
+  
+  document.addEventListener("DOMContentLoaded", () => {
+  isiDropdownKabupaten();
 });
   </script>
 </body>
