@@ -140,16 +140,43 @@
 
   <script>
     function formatTanggalDanSelisih(tanggalStr) {
-  const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const tanggal = new Date(tanggalStr);
   const sekarang = new Date();
-  const selisih = Math.floor((tanggal - sekarang) / (1000 * 60 * 60 * 24));
-  const tanggalFormatted = `${tanggal.getDate()} ${bulan[tanggal.getMonth()]} ${tanggal.getFullYear()}`;
+
+  const tanggalFormatted = `${tanggal.getDate()} ${bulanList[tanggal.getMonth()]} ${tanggal.getFullYear()}`;
   let keterangan = '';
-  if (selisih > 0) keterangan = selisih + ' hari lagi';
-  else if (selisih < 0) keterangan = Math.abs(selisih) + ' hari yang lalu';
-  else keterangan = 'Hari ini';
+
+  if (tanggal > sekarang) {
+    const selisihHari = Math.floor((tanggal - sekarang) / (1000 * 60 * 60 * 24));
+    keterangan = `${selisihHari} hari lagi`;
+  } else if (tanggal.toDateString() === sekarang.toDateString()) {
+    keterangan = 'Hari ini';
+  } else {
+    let tahun = sekarang.getFullYear() - tanggal.getFullYear();
+    let bulan = sekarang.getMonth() - tanggal.getMonth();
+    let hari = sekarang.getDate() - tanggal.getDate();
+
+    if (hari < 0) {
+      bulan -= 1;
+      hari += new Date(sekarang.getFullYear(), sekarang.getMonth(), 0).getDate();
+    }
+
+    if (bulan < 0) {
+      tahun -= 1;
+      bulan += 12;
+    }
+
+    if (tahun > 0) {
+      keterangan = `${tahun} tahun${bulan > 0 ? ' ' + bulan + ' bulan' : ''} yang lalu`;
+    } else if (bulan > 0) {
+      keterangan = `${bulan} bulan${hari > 0 ? ' ' + hari + ' hari' : ''} yang lalu`;
+    } else {
+      keterangan = `${hari} hari yang lalu`;
+    }
+  }
+
   return { tanggalFormatted, keterangan };
 }
 
