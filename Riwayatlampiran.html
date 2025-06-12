@@ -206,70 +206,62 @@
             <strong>${tanggalFormatted}</strong>
             <small>${keterangan}</small>
           </div>
-<hr style="margin: 10px 0;">
-<div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-  <!-- Bagian: Data Pengantin -->
-  <div style="display: flex;">
-    <div style="width: 120px; font-weight: bold; color: #888;">Data Pengantin</div><div style="width: 10px;"></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Nama Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.kerabat}</strong></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Nama Pasangan</div><div style="width: 10px;">:</div><div><strong>${item.pasangan}</strong></div>
-  </div>
-
-  <!-- Spacer -->
-  <div style="display: flex;">
-    <div style="width: 120px;"></div><div style="width: 10px;"></div>
-  </div>
-
-  <!-- Bagian: Data Orang Tua -->
-  <div style="display: flex;">
-    <div style="width: 120px; font-weight: bold; color: #888;">Data Orang Tua</div><div style="width: 10px;"></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Bapak Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.bapak}</strong></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Ibu Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.ibu}</strong></div>
-  </div>
-
-  <!-- Spacer -->
-  <div style="display: flex;">
-    <div style="width: 120px;"></div><div style="width: 10px;"></div>
-  </div>
-
-  <!-- Bagian: Lokasi Acara -->
-  <div style="display: flex;">
-    <div style="width: 120px; font-weight: bold; color: #888;">Lokasi Acara</div><div style="width: 10px;"></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Alamat</div><div style="width: 10px;">:</div><div><strong>${item.kampung}, ${item.rt}/${item.rw}</strong></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Desa</div><div style="width: 10px;">:</div><div><strong>${item.desa}</strong></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Kecamatan</div><div style="width: 10px;">:</div><div><strong>${item.kecamatan}</strong></div>
-  </div>
-  <div style="display: flex;">
-    <div style="width: 120px;">Kabupaten</div><div style="width: 10px;">:</div><div><strong>${item.kabupaten}</strong></div>
-  </div>
-
-  <!-- Spacer -->
-  <div style="display: flex;">
-    <div style="width: 120px;"></div><div style="width: 10px;"></div>
-  </div>
-
-  <!-- Bagian: Bingkisan -->
-  <div style="display: flex;">
-    <div style="width: 120px;">Bingkisan</div><div style="width: 10px;">:</div>
-    <div><strong>${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}</strong></div>
+          <hr style="margin: 10px 0;">
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+            <div style="display: flex;">
+              <div style="width: 120px;">Data Pengantin</div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Nama Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.kerabat}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Nama Pasangan</div><div style="width: 10px;">:</div><div><strong>${item.pasangan}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;"></div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Data Orang Tua</div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Bapak Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.bapak}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Ibu Kerabat</div><div style="width: 10px;">:</div><div><strong>${item.ibu}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;"></div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Lokasi Acara</div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Alamat</div><div style="width: 10px;">:</div><div><strong>${item.kampung}, ${item.rt}/${item.rw}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Desa</div><div style="width: 10px;">:</div><div><strong>${item.desa}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Kecamatan</div><div style="width: 10px;">:</div><div><strong>${item.kecamatan}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;">Kabupaten</div><div style="width: 10px;">:</div><div><strong>${item.kabupaten}</strong></div>
+            </div>
+            <div style="display: flex;">
+              <div style="width: 120px;"></div><div style="width: 10px;"></div>
+            </div>
+            <div style="display: flex;">
+  <div style="width: 120px;">${item.bingkisan}</div>
+  <div style="width: 10px;">:</div>
+  <div>
+    <strong>
+      ${item.bingkisan === 'Kado' ? item.namaBarang + ' - ' + item.nominal : item.nominal}
+    </strong>
   </div>
 </div>
-</div>
-`;
+          </div>
+        </div>
+      `;
       riwayatList.appendChild(div);
     });
 
