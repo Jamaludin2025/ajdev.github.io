@@ -164,18 +164,16 @@
     <div>${item.kode}</div>
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
       <div style="display: flex; gap: 4px;">
-        <button class="lihat-btn" onclick="toggleDetail(${index})" style="margin: 0;">Lihat Selengkapnya</button>
+        <button class="edit-btn" id="edit-${index}" onclick="editData('${item.kode}')" style="display: none; width: 60px;">Edit</button>
         <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
       </div>
+      <button class="lihat-btn" onclick="toggleDetail(${index})" style="margin-top: 4px;">Lihat Selengkapnya</button>
     </div>
   </div>
   <div class="detail" id="detail-${index}">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-      <div>
-        <strong>${tanggalFormatted}</strong><br>
-        <small style="color: gray;">${keterangan}</small>
-      </div>
-      <button class="edit-btn" id="edit-${index}" onclick="editData('${item.kode}')" style="display: none;">Edit</button>
+    <div style="margin-top: 8px;">
+      <strong>${tanggalFormatted}</strong><br>
+      <small style="color: gray;">${keterangan}</small>
     </div>
     <hr style="margin: 10px 0;">
     <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
