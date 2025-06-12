@@ -100,12 +100,20 @@
       align-items: center;
     }
 
-    .info-bar {
+    .tanggal-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 8px;
       font-size: 13px;
-      margin-top: 6px;
+    }
+
+    .tanggal-bar strong {
+      font-size: 14px;
+    }
+
+    .tanggal-bar small {
+      color: gray;
     }
 
     .detail {
@@ -162,14 +170,14 @@
         <div class="title-bar">
           <div class="lihat-btn" onclick="toggleDetail(${index})">${item.kode}</div>
           <div class="button-group">
-            <small style="color: gray;">${keterangan}</small>
             <button class="edit-btn" onclick="editData('${item.kode}')">Edit</button>
             <button class="hapus-btn" onclick="hapusData('${item.kode}')">Hapus</button>
           </div>
         </div>
         <div class="detail" id="detail-${index}">
-          <div class="info-bar">
+          <div class="tanggal-bar">
             <strong>${tanggalFormatted}</strong>
+            <small>${keterangan}</small>
           </div>
           <hr style="margin: 10px 0;">
           <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
