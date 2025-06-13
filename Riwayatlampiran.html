@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -282,136 +282,9 @@
       }
     }
 
-    
-
-<script>
-const dataWilayah = {
-  "Karawang": {
-    "Lemahabang": ["Pasirjaya", "Sukaraya"],
-    "Cikampek": ["Cikampek Timur", "Cikampek Barat"]
-  },
-  "Bekasi": {
-    "Tambun Selatan": ["Jatimulya", "Tambun"],
-    "Cikarang": ["Cikarang Utara", "Cikarang Selatan"]
-  }
-};
-
-function editData(kode) {
-  const data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
-  const item = data.find(d => d.kode === kode);
-  if (!item) return alert("Data tidak ditemukan.");
-
-  const index = data.findIndex(d => d.kode === kode);
-  const detailDiv = document.getElementById("detail-" + index);
-
-  if (document.getElementById("formEdit")) {
-    document.getElementById("formEdit").remove();
-  }
-
-  const formDiv = document.createElement("div");
-  formDiv.id = "formEdit";
-  formDiv.innerHTML = `
-    <hr><h4>Edit Data</h4>
-    <form onsubmit="submitEdit(event, '${kode}')" style="display: flex; flex-direction: column; gap: 10px; background: #fefefe; padding: 10px; border-radius: 8px;">
-      <input type="text" id="editKerabat" placeholder="Nama Kerabat" value="${item.kerabat}" required>
-      <input type="text" id="editPasangan" placeholder="Nama Pasangan" value="${item.pasangan}" required>
-      <input type="text" id="editBapak" placeholder="Nama Bapak" value="${item.bapak}" required>
-      <input type="text" id="editIbu" placeholder="Nama Ibu" value="${item.ibu}" required>
-      <input type="text" id="editKampung" placeholder="Kampung" value="${item.kampung}" required>
-      <input type="text" id="editRT" placeholder="RT" value="${item.rt}" required>
-      <input type="text" id="editRW" placeholder="RW" value="${item.rw}" required>
-
-      <select id="editKabupaten" required>
-        <option value="">-- Pilih Kabupaten --</option>
-      </select>
-      <select id="editKecamatan" required>
-        <option value="">-- Pilih Kecamatan --</option>
-      </select>
-      <select id="editDesa" required>
-        <option value="">-- Pilih Desa --</option>
-      </select>
-
-      <select id="editBingkisan" required onchange="toggleBarangInput()">
-        <option value="">-- Pilih Bingkisan --</option>
-        <option value="Uang" ${item.bingkisan === 'Uang' ? 'selected' : ''}>Uang</option>
-        <option value="Kado" ${item.bingkisan === 'Kado' ? 'selected' : ''}>Kado</option>
-      </select>
-      <input type="text" id="editNominal" placeholder="Nominal" value="${item.nominal}" required>
-      <input type="text" id="editNamaBarang" placeholder="Nama Barang" value="${item.namaBarang || ''}" style="display:${item.bingkisan === 'Kado' ? 'block' : 'none'}">
-      <button type="submit" style="padding: 10px; font-weight: bold; background-color: #28a745; color: white; border: none; border-radius: 6px;">Simpan Perubahan</button>
-    </form>
-  `;
-  detailDiv.appendChild(formDiv);
-
-  const kabupatenEl = document.getElementById("editKabupaten");
-  const kecamatanEl = document.getElementById("editKecamatan");
-  const desaEl = document.getElementById("editDesa");
-
-  for (const kab in dataWilayah) {
-    kabupatenEl.innerHTML += `<option value="${kab}" ${kab === item.kabupaten ? 'selected' : ''}>${kab}</option>`;
-  }
-
-  kabupatenEl.addEventListener("change", function () {
-    const kecamatanList = dataWilayah[this.value] || {};
-    kecamatanEl.innerHTML = `<option value="">-- Pilih Kecamatan --</option>`;
-    desaEl.innerHTML = `<option value="">-- Pilih Desa --</option>`;
-    for (const kec in kecamatanList) {
-      kecamatanEl.innerHTML += `<option value="${kec}">${kec}</option>`;
+    function editData(kode) {
+      alert("Fungsi edit untuk kode " + kode + " akan segera ditambahkan.");
     }
-  });
-
-  kecamatanEl.addEventListener("change", function () {
-    const desaList = dataWilayah[kabupatenEl.value]?.[this.value] || [];
-    desaEl.innerHTML = `<option value="">-- Pilih Desa --</option>`;
-    desaList.forEach(desa => {
-      desaEl.innerHTML += `<option value="${desa}">${desa}</option>`;
-    });
-  });
-
-  // Set nilai kecamatan dan desa setelah kabupaten tersedia
-  setTimeout(() => {
-    kabupatenEl.dispatchEvent(new Event('change'));
-    setTimeout(() => {
-      kecamatanEl.value = item.kecamatan;
-      kecamatanEl.dispatchEvent(new Event('change'));
-      setTimeout(() => {
-        desaEl.value = item.desa;
-      }, 100);
-    }, 100);
-  }, 100);
-}
-
-function toggleBarangInput() {
-  const b = document.getElementById("editBingkisan").value;
-  document.getElementById("editNamaBarang").style.display = b === "Kado" ? "block" : "none";
-  if (b !== "Kado") document.getElementById("editNamaBarang").value = "";
-}
-
-function submitEdit(event, kode) {
-  event.preventDefault();
-  let data = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
-  const index = data.findIndex(d => d.kode === kode);
-  if (index === -1) return alert("Data tidak ditemukan");
-
-  data[index].kerabat = document.getElementById("editKerabat").value;
-  data[index].pasangan = document.getElementById("editPasangan").value;
-  data[index].bapak = document.getElementById("editBapak").value;
-  data[index].ibu = document.getElementById("editIbu").value;
-  data[index].kampung = document.getElementById("editKampung").value;
-  data[index].rt = document.getElementById("editRT").value;
-  data[index].rw = document.getElementById("editRW").value;
-  data[index].kabupaten = document.getElementById("editKabupaten").value;
-  data[index].kecamatan = document.getElementById("editKecamatan").value;
-  data[index].desa = document.getElementById("editDesa").value;
-  data[index].bingkisan = document.getElementById("editBingkisan").value;
-  data[index].nominal = document.getElementById("editNominal").value;
-  data[index].namaBarang = document.getElementById("editNamaBarang").value;
-
-  localStorage.setItem("dataPernikahan", JSON.stringify(data));
-  alert("Data berhasil diperbarui.");
-  location.reload();
-}
-</script>
-
+  </script>
 </body>
 </html>
