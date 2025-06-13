@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riwayat Data Pernikahan</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    /* ==== GAYA DARI RIWAYAT ==== */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-bar .jumlah {
+      font-weight: bold;
+    }
+    .header-bar .actions {
+      display: flex;
+      gap: 15px;
+    }
+    .header-bar .actions i {
+      cursor: pointer;
+      font-size: 24px;
+      color: black;
+    }
+
+    /* ==== GAYA FORM DARI INPUT ==== */
+    #formSection {
+      display: none;
+    }
+    .form-container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+    h2, h4 {
+      color: #333;
+    }
+    .form-group { margin-bottom: 10px; }
+    .row { display: flex; gap: 20px; }
+    .row > .form-group { flex: 1; }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .buttons button {
+      flex: 1;
+      padding: 12px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .hapus { background-color: #e74c3c; }
+    .tambah { background-color: #3498db; }
+
+    .entry {
+      background: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .title-bar, .tanggal-bar, .detail { display: flex; flex-direction: column; }
+    .lihat-btn { color: #007BFF; cursor: pointer; font-weight: bold; }
+    .edit-btn, .hapus-btn {
+      padding: 4px 8px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;
+    }
+    .edit-btn { background-color: gold; color: black; }
+    .hapus-btn { background-color: red; color: white; }
+    .button-group { display: flex; gap: 4px; }
+    .show { display: block; }
+  </style>
+</head>
+<body>
+  <h2>Riwayat Data Pernikahan</h2>
+
+  <div class="container">
+    <div class="header-bar">
+      <div class="jumlah" id="jumlahData">Jumlah: 0</div>
+      <div class="actions">
+        <i class="ri-sticky-note-add-fill" title="Tambah Data" onclick="toggleForm()"></i>
+        <i class="ri-filter-fill" title="Filter (belum aktif)"></i>
+      </div>
+    </div>
+  </div>
+
+  <div id="formSection">
+    <div class="form-container">
+      <form id="formData">
+        <div class="row">
+          <div class="form-group">
+            <label for="kode">Kode</label>
+            <input type="text" id="kode" required>
+          </div>
+          <div class="form-group">
+            <label for="tanggal">Tanggal</label>
+            <input type="date" id="tanggal" required>
+          </div>
+        </div>
+
+        <h4>Pengantin</h4>
+        <div class="form-group"><label for="kerabat">Nama Kerabat</label><input type="text" id="kerabat" required></div>
+        <div class="form-group"><label for="pasangan">Nama Pasangan</label><input type="text" id="pasangan" required></div>
+
+        <h4>Orang Tua Kerabat</h4>
+        <div class="form-group"><label for="bapak">Nama Bapak</label><input type="text" id="bapak" required></div>
+        <div class="form-group"><label for="ibu">Nama Ibu</label><input type="text" id="ibu" required></div>
+
+        <h4>Alamat Pernikahan</h4>
+        <div class="form-group"><label for="kampung">Kampung</label><input type="text" id="kampung" required></div>
+        <div class="row">
+          <div class="form-group"><label for="rt">RT</label><input type="text" id="rt" required></div>
+          <div class="form-group"><label for="rw">RW</label><input type="text" id="rw" required></div>
+        </div>
+        <div class="form-group"><label for="kabupaten">Kabupaten</label><select id="kabupaten" required><option value="">-- Pilih --</option></select></div>
+        <div class="form-group"><label for="kecamatan">Kecamatan</label><select id="kecamatan" required><option value="">-- Pilih --</option></select></div>
+        <div class="form-group"><label for="desa">Desa</label><select id="desa" required><option value="">-- Pilih --</option></select></div>
+        <div class="row">
+          <div class="form-group"><label for="bingkisan">Bingkisan</label><select id="bingkisan" required><option value="">-- Pilih --</option><option value="Uang">Uang</option><option value="Kado">Kado</option></select></div>
+          <div class="form-group"><label for="nominal">Nominal</label><input type="text" id="nominal" placeholder="Rp 0" inputmode="numeric"></div>
+        </div>
+        <div class="form-group" id="namaBarangGroup" style="display:none;"><label for="namaBarang">Nama Barang</label><input type="text" id="namaBarang"></div>
+
+        <div class="buttons">
+          <button type="button" class="hapus" onclick="toggleForm()">Batal</button>
+          <button type="submit" class="tambah">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="riwayatList"></div>
+
+  <script>
+    function toggleForm() {
+      const form = document.getElementById("formSection");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    const dataWilayah = {
+      "Karawang": {
+        "Lemahabang": ["Pasirjaya", "Sukaraya"],
+        "Cikampek": ["Cikampek Timur", "Cikampek Barat"]
+      },
+      "Bekasi": {
+        "Tambun Selatan": ["Jatimulya", "Tambun"],
+        "Cikarang": ["Cikarang Utara", "Cikarang Selatan"]
+      }
+    };
+
+    const kabupatenEl = document.getElementById("kabupaten");
+    const kecamatanEl = document.getElementById("kecamatan");
+    const desaEl = document.getElementById("desa");
+    const bingkisanEl = document.getElementById("bingkisan");
+    const namaBarangGroup = document.getElementById("namaBarangGroup");
+    const namaBarangEl = document.getElementById("namaBarang");
+
+    for (const kab in dataWilayah) {
+      kabupatenEl.innerHTML += `<option value="${kab}">${kab}</option>`;
+    }
+
+    kabupatenEl.addEventListener("change", () => {
+      const kecamatanList = dataWilayah[kabupatenEl.value] || {};
+      kecamatanEl.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+      desaEl.innerHTML = '<option value="">-- Pilih Desa --</option>';
+      for (const kec in kecamatanList) {
+        kecamatanEl.innerHTML += `<option value="${kec}">${kec}</option>`;
+      }
+    });
+
+    kecamatanEl.addEventListener("change", () => {
+      const desaList = dataWilayah[kabupatenEl.value]?.[kecamatanEl.value] || [];
+      desaEl.innerHTML = '<option value="">-- Pilih Desa --</option>';
+      desaList.forEach(desa => desaEl.innerHTML += `<option value="${desa}">${desa}</option>`);
+    });
+
+    bingkisanEl.addEventListener("change", () => {
+      if (bingkisanEl.value === "Kado") {
+        namaBarangGroup.style.display = "block";
+        namaBarangEl.required = true;
+      } else {
+        namaBarangGroup.style.display = "none";
+        namaBarangEl.required = false;
+        namaBarangEl.value = "";
+      }
+    });
+
+    document.getElementById("formData").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const data = {
+        kode: document.getElementById("kode").value.toUpperCase(),
+        tanggal: document.getElementById("tanggal").value,
+        kerabat: document.getElementById("kerabat").value,
+        pasangan: document.getElementById("pasangan").value,
+        bapak: document.getElementById("bapak").value,
+        ibu: document.getElementById("ibu").value,
+        kampung: document.getElementById("kampung").value,
+        rt: document.getElementById("rt").value,
+        rw: document.getElementById("rw").value,
+        kabupaten: kabupatenEl.value,
+        kecamatan: kecamatanEl.value,
+        desa: desaEl.value,
+        bingkisan: bingkisanEl.value,
+        nominal: document.getElementById("nominal").value,
+        namaBarang: namaBarangEl.value
+      };
+      const dataPernikahan = JSON.parse(localStorage.getItem("dataPernikahan")) || [];
+      dataPernikahan.push(data);
+      localStorage.setItem("dataPernikahan", JSON.stringify(dataPernikahan));
+      alert("Data berhasil ditambahkan!");
+      this.reset();
+      namaBarangGroup.style.display = "none";
+      location.reload();
+    });
+  </script>
+</body>
+</html>
