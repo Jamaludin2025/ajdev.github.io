@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -282,7 +282,9 @@
       }
     }
 
-    <script>
+    
+
+<script>
 const dataWilayah = {
   "Karawang": {
     "Lemahabang": ["Pasirjaya", "Sukaraya"],
@@ -407,16 +409,9 @@ function submitEdit(event, kode) {
 
   localStorage.setItem("dataPernikahan", JSON.stringify(data));
   alert("Data berhasil diperbarui.");
-
-  // perbarui tampilan tanpa reload
-  document.getElementById("formEdit").remove();
-  document.getElementById("riwayatList").innerHTML = "";
-  jumlahData.textContent = 'Jumlah: ' + data.length;
-  tampilkanData.length = 0;
-  tampilkanData.push(...[...data].reverse().slice(0, maxShow));
-  tampilkanData.forEach((_, i) => toggleDetail(i));
-  location.reload(); // fallback update visual cepat
+  location.reload();
 }
 </script>
+
 </body>
 </html>
