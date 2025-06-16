@@ -2,50 +2,47 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Riwayat Data Pernikahan</title>
-  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet"/>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f0f0;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
     }
 
     .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
     }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .header-bar {
+    .summary {
+      background-color: #f9f9f9;
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .header-bar .jumlah {
+    .summary .jumlah {
+      font-size: 16px;
       font-weight: bold;
     }
 
-    .header-bar .actions {
+    .summary .actions {
       display: flex;
-      gap: 15px;
+      gap: 10px;
     }
-    
-    .header-bar .actions i {
+
+    .summary .actions i {
       cursor: pointer;
-      font-size: 24px;
+      font-size: 20px;
       color: black;
     }
 
@@ -141,13 +138,14 @@
   <h2>Riwayat Data Pernikahan</h2>
   <div class="container">
     <div class="header-bar">
-  <div class="jumlah" id="jumlahData">Jumlah: 0</div>
-  <div class="actions">
-    <i class="ri-sticky-note-add-fill" title="Tambah Data" onclick="window.location.href='https://jamaludin2025.github.io/ajdev.github.io/Inputlampiran.html'"></i>
-    <i class="ri-filter-fill" title="Filter (belum aktif)"></i>
-  </div>
-</div>
+      <div class="jumlah" id="jumlahData">Jumlah: 0</div>
+        <i class="ri-sticky-note-add-fill" title="Tambah Data" onclick="window.location.href='https://jamaludin2025.github.io/ajdev.github.io/Inputlampiran.html'"></i>
+        <i class="ri-filter-fill" title="Filter (belum aktif)"></i>
+    </div>
+  </div> 
+  
   <div id="riwayatList"></div>
+  </div>
 
   <script>
     function formatTanggalDanSelisih(tanggalStr) {
