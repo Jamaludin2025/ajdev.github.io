@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -98,12 +98,12 @@
    color: black;
  }
  .status-value {
-   font-weight: bold;
-   text-transform: none;
+   font-weight: 600;
+   text-transform: uppercase;
  }
     .info-blok {
       display: grid;
-      grid-template-columns: 80px 10px 1fr;
+      grid-template-columns: 70px 10px 1fr;
       column-gap: 3px;
       margin-top: 8px;
       align-items: start;
@@ -189,65 +189,44 @@
     background-color: #0056b3;
   }
   
-  #kondisi,
   #statuspinjam {
-     font-weight: bold;
+     text-transform: uppercase;
   }
-  
-  .popup-container {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 999;
-}
-
-.popup-box {
-  background: #fff;
-  width: 100%;
-  max-height: 50%;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  padding: 15px;
-  overflow-y: auto;
-}
-
-.popup-box h4 {
-  margin-top: 0;
-}
-
-.checkbox-list label {
+ .checkbox-item {
   display: flex;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.checkbox-list input {
-  margin-right: 10px;
-}
-
-.popup-btns {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-  gap: 10px;
-}
-
-.popup-btns button {
-  padding: 6px 14px;
-  border: none;
+  margin-bottom: 6px;
+  padding: 6px 8px;
   border-radius: 6px;
-  background: #2563eb;
-  color: #fff;
-  font-weight: bold;
+  background-color: #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.popup-btns button:first-child {
-  background: #ccc;
-  color: #000;
+.checkbox-item:hover {
+  background-color: #e5e7eb;
+}
+
+.checkbox-item input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.checkbox-item .kode-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+#pilihanBarang {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 5px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
 }
 
   </style>
@@ -265,7 +244,16 @@
       <div class="barcode-box">
         <div id="kodeBarangText" class="kode-bold"></div>
         <canvas id="barcodeCanvas"></canvas>
-        
+        <div class="status">
+  <div class="status-item">
+    <span class="status-label">KONDISI:</span>
+    <span id="kondisi" class="status-value" style="color:orange;">-</span>
+  </div>
+  <div class="status-item">
+    <span class="status-label">STATUS:</span>
+    <span id="statuspinjam" class="status-value" style="color:green;">-</span>
+  </div>
+</div>
     <div class="detail-barang">    	
   <h4 class="heading-top">Informasi Barang</h4>
   <div class="info-blok">
@@ -288,11 +276,6 @@
     <span class="separator">:</span>
     <span class="value" id="kategori"></span>
   </div>
-  <div class="info-blok">
-  <span class="label">Kondisi</span>
-  <span class="separator">:</span>
-  <span class="value" id="kondisi">-</span>
-</div>
 
   <h4>Informasi Pembelian</h4>
   <div class="info-blok">
@@ -315,35 +298,11 @@
     <span class="separator">:</span>
     <a id="link" href="#" target="_blank" class="value">-</a>
   </div>
-  
-  <div id="peminjamanSection" class="hidden">
-  <h4>Informasi Peminjaman</h4>
-  <div class="info-blok">
-    <span class="label">Status</span>
-    <span class="separator">:</span>
-    <span class="value" id="statuspinjam">-</span>
-  </div>
-  <div class="info-blok">
-    <span class="label">Peminjam</span>
-    <span class="separator">:</span>
-    <span class="value" id="dataPeminjam">-</span>
-  </div>
-  <div class="info-blok">
-    <span class="label">No. HP</span>
-    <span class="separator">:</span>
-    <span class="value" id="dataHP">-</span>
-  </div>
-  <div class="info-blok">
-    <span class="label">Kembali</span>
-    <span class="separator">:</span>
-    <span class="value" id="dataKembali">-</span>
-  </div>
-</div>
 </div>
 
 <div class="btns">
   <button onclick="unduhDetail()">UNDUH</button>
-  <button onclick="muatUlangDetail()">REFRESH</button>
+  <button onclick="cetakDetail()">CETAK</button>
   <button onclick="bukaFormPinjam()">PINJAM</button>
 </div>
 
@@ -362,27 +321,19 @@
         </select>
       </div>
       <div class="form-group">
-  <label>Kuantitas</label>
-  <select id="kuantitas" required>
-  <option value="Satuan" selected>Satuan</option>
-  <option value="Sebagian">Sebagian</option>
-  <option value="Keseluruhan">Keseluruhan</option>
-</select>
+  <label for="kuantitas">Kuantitas</label>
+  <select id="kuantitas" onchange="handleKuantitasChange()">
+    <option value="satuan">Satuan</option>
+    <option value="sebagian">Sebagian</option>
+    <option value="keseluruhan">Keseluruhan</option>
+  </select>
 </div>
+<div class="form-group" id="pilihanBarang" style="display: none;"></div>
       <div style="margin-top:10px; display:flex; justify-content:space-between;">
-        <button type="button" class="btn" onclick="tutupFormPinjam()">BATAL</button>
-        <button type="submit" class="btn">KIRIM</button>
+        <button type="button" class="btn" onclick="tutupFormPinjam()">Batal</button>
+        <button type="submit" class="btn">Kirim</button>
       </div>
     </form>
-  </div>
-<div id="popupBarang" class="popup-container hidden">
-  <div class="popup-box">
-    <h4>Pilih Barang Serupa</h4>
-    <div id="daftarCheckbox" class="checkbox-list"></div>
-    <div class="popup-btns">
-      <button onclick="tutupPopup()">Batal</button>
-      <button onclick="konfirmasiCheckbox()">OK</button>
-    </div>
   </div>
 </div>
 
@@ -439,6 +390,38 @@ function cariBarang(kode) {
   });
 }
 
+function handleKuantitasChange() {
+  const kuantitas = document.getElementById("kuantitas").value;
+  const container = document.getElementById("pilihanBarang");
+  container.innerHTML = "";
+  container.style.display = "none";
+
+  if (kuantitas === "satuan") return;
+
+  const kodeAktif = document.getElementById("kodeBarangText").innerText;
+  const prefix = kodeAktif.split("-")[0]; // Contoh: AKB001 dari AKB001-01-001
+
+  firebase.database().ref("inventaris_kode").once("value", snapshot => {
+    const data = snapshot.val();
+    let checkboxHTML = "";
+
+    for (let key in data) {
+      const kode = data[key].kode;
+      if (kode.startsWith(prefix)) {
+        checkboxHTML += `
+  <div class="checkbox-item">
+    <input type="checkbox" name="kodeDipilih" value="${kode}" ${kuantitas === "keseluruhan" ? "checked" : ""}>
+    <div class="kode-label">${kode}</div>
+  </div>
+`;
+      }
+    }
+
+    container.innerHTML = checkboxHTML;
+    container.style.display = "block";
+  });
+}
+
 document.getElementById("formPinjam").addEventListener("submit", function(e) {
   e.preventDefault();
 
@@ -447,85 +430,43 @@ document.getElementById("formPinjam").addEventListener("submit", function(e) {
   const hp = document.getElementById("nomorHP").value;
   const tanggal = document.getElementById("tanggalPinjam").value;
   const durasi = document.getElementById("batasPinjam").value;
+  const kuantitas = document.getElementById("kuantitas").value;
+let kodeDipinjam = [];
+
+if (kuantitas === "satuan") {
+  kodeDipinjam = [kode];
+} else {
+  kodeDipinjam = [...document.querySelectorAll('input[name="kodeDipilih"]:checked')].map(cb => cb.value);
+}
+
 
   const dataPinjam = {
-    kodeBarang: barangTerpilih.length ? barangTerpilih : [kode],
-    namaPeminjam: nama,
-    nomorHP: hp,
-    tanggalPinjam: tanggal,
-    batasPinjam: durasi,
-    status: "Menunggu Persetujuan"
-  };
+  kodeBarang: kodeDipinjam,
+  namaPeminjam: nama,
+  nomorHP: hp,
+  tanggalPinjam: tanggal,
+  batasPinjam: durasi,
+  kuantitas: kuantitas,
+  status: "Dipinjam"
+};
 
   // Simpan ke Firebase di /peminjaman_barang
   firebase.database().ref("peminjaman_barang").push(dataPinjam);
 
-  // Update status barang di /inventaris_kode
-  firebase.database().ref("inventaris_kode").once("value", snapshot => {
+// Update status semua barang yang dipinjam (termasuk sebagian/keseluruhan)
+firebase.database().ref("inventaris_kode").once("value", snapshot => {
   const data = snapshot.val();
   for (let key in data) {
-    if (data[key].kode === kode) {
-      const ref = firebase.database().ref("inventaris_kode/" + key);
-      ref.update({
-        statuspinjam: "Menunggu Persetujuan",
+    const kodeData = data[key].kode;
+    if (kodeDipinjam.includes(kodeData)) {
+      firebase.database().ref("inventaris_kode/" + key).update({
+        statuspinjam: "Dipinjam",
         namaPeminjam: nama,
-        nomorHP: hp,
-        tanggalPinjam: tanggal,
         batasPinjam: durasi
       });
-      break;
     }
   }
 });
-
-let semuaBarangSerupa = [];  // dari Firebase
-let barangTerpilih = [];
-
-document.getElementById("kuantitas").addEventListener("change", function () {
-  const pilihan = this.value;
-
-  if (pilihan === "Sebagian") {
-    tampilkanPopup();
-  } else if (pilihan === "Keseluruhan") {
-    barangTerpilih = semuaBarangSerupa.filter(b => b.statuspinjam !== "Dipinjam").map(b => b.kode);
-    alert("Semua barang tersedia otomatis dipilih.");
-  } else {
-    barangTerpilih = []; // Satuan
-  }
-});
-
-function tampilkanPopup() {
-  const container = document.getElementById("daftarCheckbox");
-  container.innerHTML = "";
-
-  semuaBarangSerupa.forEach(barang => {
-    const cek = document.createElement("input");
-    cek.type = "checkbox";
-    cek.value = barang.kode;
-    cek.id = "kode-" + barang.kode;
-    cek.disabled = barang.statuspinjam === "Dipinjam";
-
-    const label = document.createElement("label");
-    label.htmlFor = cek.id;
-    label.appendChild(cek);
-    label.appendChild(document.createTextNode(" " + barang.kode));
-
-    container.appendChild(label);
-  });
-
-  document.getElementById("popupBarang").classList.remove("hidden");
-}
-
-function tutupPopup() {
-  document.getElementById("popupBarang").classList.add("hidden");
-}
-
-function konfirmasiCheckbox() {
-  barangTerpilih = Array.from(document.querySelectorAll("#daftarCheckbox input:checked")).map(cb => cb.value);
-  tutupPopup();
-  alert("Dipilih: " + barangTerpilih.join(", "));
-}
-
   
   // Hitung tanggal batas pengembalian
 const tglPinjam = new Date(tanggal);
@@ -539,11 +480,10 @@ const batasTanggal = `${dd}-${mm}-${yyyy}`;
 // Tampilkan notifikasi
 alert(`Barang berhasil dipinjam. Mohon untuk mengembalikan barang sesuai dengan batas waktu yang telah disepakati yaitu pada ${batasTanggal}.`);
 
-  document.getElementById("statuspinjam").innerText = "Menunggu Persetujuan";
-document.getElementById("statuspinjam").style.color = "#2563eb";
+  document.getElementById("statuspinjam").innerText = "Dipinjam";
+  document.getElementById("statuspinjam").style.color = "red";
 
   tutupFormPinjam();
-  muatUlangDetail();
 });
 
 
@@ -575,97 +515,29 @@ function tampilkanDetail(item) {
   linkSpan.innerText = linkValue;
   linkSpan.href = (linkValue.startsWith("http") ? linkValue : "#");
 
-  const kondisiEl = document.getElementById("kondisi");
-const kondisi = (item.kondisi || "-").toLowerCase();
-kondisiEl.innerText = item.kondisi || "-";
+  document.getElementById("kondisi").innerText = item.kondisi || "-";
 
-// Atur warna berdasarkan nilai kondisi
-switch (kondisi) {
-  case "baik":
-    kondisiEl.style.color = "green";
-    break;
-  case "cukup baik":
-    kondisiEl.style.color = "goldenrod"; // kuning gelap agar terbaca
-    break;
-  case "rusak ringan":
-    kondisiEl.style.color = "orange";
-    break;
-  case "rusak berat":
-    kondisiEl.style.color = "red";
-    break;
-  default:
-    kondisiEl.style.color = "#374151"; // abu default
-}
-  
-  // Informasi Peminjaman
-const status = item.statuspinjam || "-";
-document.getElementById("statuspinjam").innerText = status;
-
-const blokPeminjaman = document.getElementById("peminjamanSection");
-if (["Dipinjam", "Menunggu Persetujuan", "Disetujui", "Ditolak"].includes(status)) {
-  blokPeminjaman.classList.remove("hidden");
-
-  document.getElementById("dataPeminjam").innerText = item.namaPeminjam || "-";
-  document.getElementById("dataHP").innerText = item.nomorHP || "-";
-
-  const tgl = new Date(item.tanggalPinjam);
-  tgl.setDate(tgl.getDate() + parseInt(item.batasPinjam || 0));
-
-  const dd = String(tgl.getDate()).padStart(2, '0');
-  const mm = String(tgl.getMonth() + 1).padStart(2, '0');
-  const yyyy = tgl.getFullYear();
-
-  document.getElementById("dataKembali").innerText = `${dd}-${mm}-${yyyy}`;
-} else {
-  blokPeminjaman.classList.add("hidden");
-}
-
-switch (status) {
-  case "Menunggu Persetujuan":
-    document.getElementById("statuspinjam").style.color = "#2563eb"; // biru
-    break;
-  case "Disetujui":
-    document.getElementById("statuspinjam").style.color = "green";
-    break;
-  case "Ditolak":
+  if (item.statuspinjam === "Dipinjam") {
+    document.getElementById("statuspinjam").innerText = "Dipinjam";
     document.getElementById("statuspinjam").style.color = "red";
-    break;
-  default:
-    document.getElementById("statuspinjam").style.color = "#6b7280"; // abu
-    break;
-}
-
-firebase.database().ref("inventaris_kode").once("value", snapshot => {
-  const semua = snapshot.val();
-  semuaBarangSerupa = [];
-
-  const kodeAwal = item.kode.split("-")[0]; // Misalnya: AKB001
-
-  for (let id in semua) {
-    if (semua[id].kode.startsWith(kodeAwal)) {
-      semuaBarangSerupa.push(semua[id]);
-    }
+  } else {
+    document.getElementById("statuspinjam").innerText = "Tersedia";
+    document.getElementById("statuspinjam").style.color = "green";
   }
-});
-
-
     window.statusPinjamSekarang = item.statuspinjam;
     window.namaPeminjamAktif = item.namaPeminjam || "-";
     window.batasPinjamAktif = item.batasPinjam || "-";
   }
 
      function bukaFormPinjam() {
-  if (["Menunggu Persetujuan", "Disetujui"].includes(window.statusPinjamSekarang)) {
-    alert(`Mohon maaf, barang ini sedang dalam proses atau sudah dipinjam oleh ${window.namaPeminjamAktif}.`);
+  if (window.statusPinjamSekarang === "Dipinjam") {
+    alert(`Mohon maaf, barang ini sedang dipinjam oleh ${window.namaPeminjamAktif}. Anda dapat meminjamnya setelah batas pinjam selesai.`);
     return;
   }
 
   document.getElementById("formPinjamModal").classList.remove("hidden");
   document.body.classList.add("modal-open");
   document.getElementById("reader").style.display = "none";
-
-  // ⬇️ Tambahkan baris ini untuk reset agar tidak auto popup
-  document.getElementById("kuantitas").value = "Satuan";
 }
 
 function tutupFormPinjam() {
@@ -693,23 +565,61 @@ function unduhDetail() {
   });
 }
 
-function muatUlangDetail() {
-  const kode = document.getElementById("kodeBarangText").innerText;
-  if (!kode) {
-    alert("Kode barang tidak ditemukan.");
+function cetakDetail() {
+  const detail = document.querySelector(".container"); // Ganti sesuai kebutuhan
+
+  if (!detail) {
+    alert("Elemen yang ingin dicetak tidak ditemukan!");
     return;
   }
 
-  firebase.database().ref("inventaris_kode").once("value", snapshot => {
-    const data = snapshot.val();
-    for (let key in data) {
-      if (data[key].kode === kode) {
-        tampilkanDetail(data[key]);
-        return;
+  const printWindow = window.open('', '', 'width=800,height=1000');
+  printWindow.document.write('<html><head><title>Cetak Detail Barang</title>');
+
+  printWindow.document.write(`
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
       }
-    }
-    alert("Data barang tidak ditemukan.");
-  });
+      .detail-barang {
+        border: 1px dashed #9ca3af;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .info-blok {
+        display: grid;
+        grid-template-columns: 100px 10px 1fr;
+        column-gap: 5px;
+        margin-top: 8px;
+        align-items: start;
+      }
+      .label { font-weight: bold; }
+      .foto-barang {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        display: block;
+        margin: auto;
+      }
+      h2, h4 {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    </style>
+  `);
+
+  printWindow.document.write('</head><body>');
+  printWindow.document.write(detail.innerHTML);
+  printWindow.document.write('</body></html>');
+  printWindow.document.close();
+
+  printWindow.onload = function () {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
 }
 
 </script>
