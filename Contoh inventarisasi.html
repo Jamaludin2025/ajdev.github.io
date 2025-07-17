@@ -364,10 +364,10 @@
       <div class="form-group">
   <label>Kuantitas</label>
   <select id="kuantitas" required>
-    <option value="Satuan">Satuan</option>
-    <option value="Sebagian">Sebagian</option>
-    <option value="Keseluruhan">Keseluruhan</option>
-  </select>
+  <option value="Satuan" selected>Satuan</option>
+  <option value="Sebagian">Sebagian</option>
+  <option value="Keseluruhan">Keseluruhan</option>
+</select>
 </div>
       <div style="margin-top:10px; display:flex; justify-content:space-between;">
         <button type="button" class="btn" onclick="tutupFormPinjam()">BATAL</button>
@@ -656,13 +656,16 @@ firebase.database().ref("inventaris_kode").once("value", snapshot => {
 
      function bukaFormPinjam() {
   if (["Menunggu Persetujuan", "Disetujui"].includes(window.statusPinjamSekarang)) {
-  alert(`Mohon maaf, barang ini sedang dalam proses atau sudah dipinjam oleh ${window.namaPeminjamAktif}.`);
-  return;
-}
+    alert(`Mohon maaf, barang ini sedang dalam proses atau sudah dipinjam oleh ${window.namaPeminjamAktif}.`);
+    return;
+  }
 
   document.getElementById("formPinjamModal").classList.remove("hidden");
   document.body.classList.add("modal-open");
   document.getElementById("reader").style.display = "none";
+
+  // ⬇️ Tambahkan baris ini untuk reset agar tidak auto popup
+  document.getElementById("kuantitas").value = "Satuan";
 }
 
 function tutupFormPinjam() {
