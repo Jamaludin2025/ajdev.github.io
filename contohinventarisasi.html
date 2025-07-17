@@ -194,35 +194,7 @@
      font-weight: bold;
   }
   
-  .checkbox-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background-color: #f3f4f6;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.checkbox-item:hover {
-  background-color: #e5e7eb;
-}
-
-.checkbox-item input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.1);
-  cursor: pointer;
-}
-
-.checkbox-item .kode-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f2937;
-  white-space: nowrap;
-}
-
-#pilihanBarang {
+  #pilihanBarang {
   max-height: 200px;
   overflow-y: auto;
   padding: 5px 10px;
@@ -479,38 +451,36 @@ document.getElementById("kuantitas").addEventListener("change", function () {
   }
 });
 
-function handleKuantitasChange() {
-  const kuantitas = document.getElementById("kuantitas").value;
-  const dropdownGroup = document.getElementById("groupDropdownBarang");
-  const dropdown = document.getElementById("dropdownBarang");
-  const label = document.getElementById("labelDropdownBarang");
-  
-  dropdown.innerHTML = "";
-  dropdownGroup.style.display = "none";
+function tampilkanPopup() {
+  const container = document.getElementById("daftarCheckbox");
+  container.innerHTML = "";
 
-  if (kuantitas === "satuan") return;
+  semuaBarangSerupa.forEach(barang => {
+    const cek = document.createElement("input");
+    cek.type = "checkbox";
+    cek.value = barang.kode;
+    cek.id = "kode-" + barang.kode;
+    cek.disabled = barang.statuspinjam === "Dipinjam";
 
-  const kodeAktif = document.getElementById("kodeBarangText").innerText;
-  const prefix = kodeAktif.split("-")[0]; // AKB001 dari AKB001-01-001
-  label.innerText = `Barang yang serupa (${prefix})`;
+    const label = document.createElement("label");
+    label.htmlFor = cek.id;
+    label.appendChild(cek);
+    label.appendChild(document.createTextNode(" " + barang.kode));
 
-  firebase.database().ref("inventaris_kode").once("value", snapshot => {
-    const data = snapshot.val();
-    
-    for (let key in data) {
-      const kode = data[key].kode;
-      if (kode.startsWith(prefix)) {
-        const option = document.createElement("option");
-        option.value = kode;
-        option.text = kode;
-        if (kuantitas === "keseluruhan") {
-          option.selected = true;
-        }
-        dropdown.appendChild(option);
-      }
-    }
-    dropdownGroup.style.display = "block";
+    container.appendChild(label);
   });
+
+  document.getElementById("popupBarang").classList.remove("hidden");
+}
+
+function tutupPopup() {
+  document.getElementById("popupBarang").classList.add("hidden");
+}
+
+function konfirmasiCheckbox() {
+  barangTerpilih = Array.from(document.querySelectorAll("#daftarCheckbox input:checked")).map(cb => cb.value);
+  tutupPopup();
+  alert("Dipilih: " + barangTerpilih.join(", "));
 }
 
   
@@ -650,6 +620,10 @@ firebase.database().ref("inventaris_kode").once("value", snapshot => {
   document.getElementById("formPinjamModal").classList.remove("hidden");
   document.body.classList.add("modal-open");
   document.getElementById("reader").style.display = "none";
+
+  // ⬇️ Tambahkan baris ini untuk reset agar tidak auto popup
+  document.getElementById("kuantitas").value = "Satuan";
+}
 
 function tutupFormPinjam() {
   document.getElementById("formPinjamModal").classList.add("hidden");
