@@ -99,7 +99,7 @@
  }
  .status-value {
    font-weight: 600;
-   text-transform: uppercase;
+   text-transform: none;
  }
     .info-blok {
       display: grid;
@@ -189,9 +189,10 @@
     background-color: #0056b3;
   }
   
+  #kondisi,
   #statuspinjam {
-     text-transform: uppercase;
-  }
+    font-weight: bold;
+}
  .checkbox-item {
   display: flex;
   align-items: center;
@@ -596,7 +597,6 @@ switch (kondisi.toLowerCase()) {
   const batasTanggal = `${dd}-${mm}-${yyyy}`;
 
   document.getElementById("dataKembali").innerText = batasTanggal;
-}
 
   } else {
     document.getElementById("statuspinjam").innerText = "Tersedia";
