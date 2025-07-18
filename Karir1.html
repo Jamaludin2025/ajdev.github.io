@@ -103,7 +103,7 @@
  }
     .info-blok {
       display: grid;
-      grid-template-columns: 80px 10px 1fr;
+      grid-template-columns: 70px 10px 1fr;
       column-gap: 3px;
       margin-top: 8px;
       align-items: start;
@@ -578,18 +578,25 @@ switch (kondisi.toLowerCase()) {
 
 
   if (item.statuspinjam === "Dipinjam") {
-    // Tampilkan langsung ke bagian Informasi Peminjaman
-document.getElementById("peminjamanSection").classList.remove("hidden");
+  document.getElementById("peminjamanSection").classList.remove("hidden");
 
-// Set Status
-const statusElem = document.getElementById("statuspinjam");
-statusElem.innerText = "Dipinjam";
-statusElem.style.color = "red";
+  const statusElem = document.getElementById("statuspinjam");
+  statusElem.innerText = "Dipinjam";
+  statusElem.style.color = "red";
 
-// Set Nama Peminjam, No. HP, dan Batas Kembali
-document.getElementById("dataPeminjam").innerText = nama;
-document.getElementById("dataHP").innerText = hp;
-document.getElementById("dataKembali").innerText = batasTanggal;
+  document.getElementById("dataPeminjam").innerText = item.namaPeminjam || "-";
+  document.getElementById("dataHP").innerText = item.nomorHP || "-";
+
+  // Hitung tanggal kembali dari tanggal pinjam + batas
+  const tglPinjam = new Date(item.tanggal);
+  tglPinjam.setDate(tglPinjam.getDate() + parseInt(item.batasPinjam || 0));
+  const dd = String(tglPinjam.getDate()).padStart(2, '0');
+  const mm = String(tglPinjam.getMonth() + 1).padStart(2, '0');
+  const yyyy = tglPinjam.getFullYear();
+  const batasTanggal = `${dd}-${mm}-${yyyy}`;
+
+  document.getElementById("dataKembali").innerText = batasTanggal;
+}
 
   } else {
     document.getElementById("statuspinjam").innerText = "Tersedia";
