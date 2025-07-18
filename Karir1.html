@@ -103,7 +103,7 @@
  }
     .info-blok {
       display: grid;
-      grid-template-columns: 70px 10px 1fr;
+      grid-template-columns: 80px 10px 1fr;
       column-gap: 3px;
       margin-top: 8px;
       align-items: start;
@@ -457,60 +457,70 @@ document.getElementById("formPinjam").addEventListener("submit", function(e) {
   const tanggal = document.getElementById("tanggalPinjam").value;
   const durasi = document.getElementById("batasPinjam").value;
   const kuantitas = document.getElementById("kuantitas").value;
-let kodeDipinjam = [];
 
-if (kuantitas === "satuan") {
-  kodeDipinjam = [kode];
-} else {
-  const selectedOptions = document.getElementById("dropdownBarang").selectedOptions;
-kodeDipinjam = Array.from(selectedOptions).map(opt => opt.value);
-}
-
+  let kodeDipinjam = [];
+  if (kuantitas === "satuan") {
+    kodeDipinjam = [kode];
+  } else {
+    const selectedOptions = document.getElementById("dropdownBarang").selectedOptions;
+    kodeDipinjam = Array.from(selectedOptions).map(opt => opt.value);
+  }
 
   const dataPinjam = {
-  kodeBarang: kodeDipinjam,
-  namaPeminjam: nama,
-  nomorHP: hp,
-  tanggalPinjam: tanggal,
-  batasPinjam: durasi,
-  kuantitas: kuantitas,
-  status: "Dipinjam"
-};
+    kodeBarang: kodeDipinjam,
+    namaPeminjam: nama,
+    nomorHP: hp,
+    tanggalPinjam: tanggal,
+    batasPinjam: durasi,
+    kuantitas: kuantitas,
+    status: "Dipinjam"
+  };
 
-  // Simpan ke Firebase di /peminjaman_barang
+  // Simpan ke Firebase
   firebase.database().ref("peminjaman_barang").push(dataPinjam);
 
-// Update status semua barang yang dipinjam (termasuk sebagian/keseluruhan)
-firebase.database().ref("inventaris_kode").once("value", snapshot => {
-  const data = snapshot.val();
-  for (let key in data) {
-    const kodeData = data[key].kode;
-    if (kodeDipinjam.includes(kodeData)) {
-      firebase.database().ref("inventaris_kode/" + key).update({
-        statuspinjam: "Dipinjam",
-        namaPeminjam: nama,
-        batasPinjam: durasi
-      });
+  // Update status semua barang yang dipinjam
+  firebase.database().ref("inventaris_kode").once("value", snapshot => {
+    const data = snapshot.val();
+    for (let key in data) {
+      const kodeData = data[key].kode;
+      if (kodeDipinjam.includes(kodeData)) {
+        firebase.database().ref("inventaris_kode/" + key).update({
+          statuspinjam: "Dipinjam",
+          namaPeminjam: nama,
+          batasPinjam: durasi
+        });
+      }
     }
-  }
-});
-  
+  });
+
+  // 🔽 Ganti bagian di bawah ini:
   // Hitung tanggal batas pengembalian
-const tglPinjam = new Date(tanggal);
-tglPinjam.setDate(tglPinjam.getDate() + parseInt(durasi));
+  const tglPinjam = new Date(tanggal);
+  tglPinjam.setDate(tglPinjam.getDate() + parseInt(durasi));
 
-const dd = String(tglPinjam.getDate()).padStart(2, '0');
-const mm = String(tglPinjam.getMonth() + 1).padStart(2, '0');
-const yyyy = tglPinjam.getFullYear();
-const batasTanggal = `${dd}-${mm}-${yyyy}`;
+  const dd = String(tglPinjam.getDate()).padStart(2, '0');
+  const mm = String(tglPinjam.getMonth() + 1).padStart(2, '0');
+  const yyyy = tglPinjam.getFullYear();
+  const batasTanggal = `${dd}-${mm}-${yyyy}`;
 
-// Tampilkan notifikasi
-alert(`Barang berhasil dipinjam. Mohon untuk mengembalikan barang sesuai dengan batas waktu yang telah disepakati yaitu pada ${batasTanggal}.`);
+  // ❌ Ini bagian lama yang harus DIGANTI:
+  // alert(`Barang berhasil dipinjam. Mohon untuk mengembalikan barang sesuai dengan batas waktu yang telah disepakati yaitu pada ${batasTanggal}.`);
+  // document.getElementById("statuspinjam").innerText = "Dipinjam";
+  // document.getElementById("statuspinjam").style.color = "red";
+
+  // ✅ Ganti dengan ini:
+  document.getElementById("peminjamanSection").classList.remove("hidden");
 
   document.getElementById("statuspinjam").innerText = "Dipinjam";
   document.getElementById("statuspinjam").style.color = "red";
+  document.getElementById("dataPeminjam").innerText = nama;
+  document.getElementById("dataHP").innerText = hp;
+  document.getElementById("dataKembali").innerText = batasTanggal;
 
-  tutupFormPinjam();
+  alert(`Barang berhasil dipinjam. Mohon dikembalikan sebelum ${batasTanggal}.`);
+
+  tutupFormPinjam(); // menutup form setelah submit
 });
 
 
