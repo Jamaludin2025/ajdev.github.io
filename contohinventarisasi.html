@@ -364,27 +364,26 @@
       <div class="form-group">
   <label>Kuantitas</label>
   <select id="kuantitas" required>
-  <option value="Satuan" selected>Satuan</option>
-  <option value="Sebagian">Sebagian</option>
-  <option value="Keseluruhan">Keseluruhan</option>
-</select>
+    <option value="Satuan" selected>Satuan</option>
+    <option value="Sebagian">Sebagian</option>
+    <option value="Keseluruhan">Keseluruhan</option>
+  </select>
 </div>
+
+<!-- Tambahan dropdown barang serupa -->
+<div class="form-group hidden" id="groupBarangSerupa">
+  <label>Pilih Barang Serupa</label>
+  <select id="dropdownBarangSerupa" multiple size="6" style="height:auto;">
+    <!-- Akan diisi dari JavaScript -->
+  </select>
+</div>
+
       <div style="margin-top:10px; display:flex; justify-content:space-between;">
         <button type="button" class="btn" onclick="tutupFormPinjam()">BATAL</button>
         <button type="submit" class="btn">KIRIM</button>
       </div>
     </form>
   </div>
-<div id="popupBarang" class="popup-container hidden">
-  <div class="popup-box">
-    <h4>Pilih Barang Serupa</h4>
-    <div id="daftarCheckbox" class="checkbox-list"></div>
-    <div class="popup-btns">
-      <button onclick="tutupPopup()">Batal</button>
-      <button onclick="konfirmasiCheckbox()">OK</button>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -447,6 +446,12 @@ document.getElementById("formPinjam").addEventListener("submit", function(e) {
   const hp = document.getElementById("nomorHP").value;
   const tanggal = document.getElementById("tanggalPinjam").value;
   const durasi = document.getElementById("batasPinjam").value;
+  const pilihan = document.getElementById("kuantitas").value;
+
+if (pilihan === "Sebagian") {
+  const select = document.getElementById("dropdownBarangSerupa");
+  barangTerpilih = Array.from(select.selectedOptions).map(opt => opt.value);
+}
 
   const dataPinjam = {
     kodeBarang: barangTerpilih.length ? barangTerpilih : [kode],
@@ -483,48 +488,34 @@ let barangTerpilih = [];
 
 document.getElementById("kuantitas").addEventListener("change", function () {
   const pilihan = this.value;
+  const groupDropdown = document.getElementById("groupBarangSerupa");
+  const select = document.getElementById("dropdownBarangSerupa");
 
   if (pilihan === "Sebagian") {
-    tampilkanPopup();
+    groupDropdown.classList.remove("hidden");
+    select.innerHTML = "";
+
+    semuaBarangSerupa.forEach(barang => {
+      if (barang.statuspinjam !== "Dipinjam") {
+        const option = document.createElement("option");
+        option.value = barang.kode;
+        option.textContent = barang.kode;
+        select.appendChild(option);
+      }
+    });
+
+    barangTerpilih = []; // reset
   } else if (pilihan === "Keseluruhan") {
-    barangTerpilih = semuaBarangSerupa.filter(b => b.statuspinjam !== "Dipinjam").map(b => b.kode);
+    groupDropdown.classList.add("hidden");
+    barangTerpilih = semuaBarangSerupa
+      .filter(b => b.statuspinjam !== "Dipinjam")
+      .map(b => b.kode);
     alert("Semua barang tersedia otomatis dipilih.");
   } else {
-    barangTerpilih = []; // Satuan
+    groupDropdown.classList.add("hidden");
+    barangTerpilih = [];
   }
 });
-
-function tampilkanPopup() {
-  const container = document.getElementById("daftarCheckbox");
-  container.innerHTML = "";
-
-  semuaBarangSerupa.forEach(barang => {
-    const cek = document.createElement("input");
-    cek.type = "checkbox";
-    cek.value = barang.kode;
-    cek.id = "kode-" + barang.kode;
-    cek.disabled = barang.statuspinjam === "Dipinjam";
-
-    const label = document.createElement("label");
-    label.htmlFor = cek.id;
-    label.appendChild(cek);
-    label.appendChild(document.createTextNode(" " + barang.kode));
-
-    container.appendChild(label);
-  });
-
-  document.getElementById("popupBarang").classList.remove("hidden");
-}
-
-function tutupPopup() {
-  document.getElementById("popupBarang").classList.add("hidden");
-}
-
-function konfirmasiCheckbox() {
-  barangTerpilih = Array.from(document.querySelectorAll("#daftarCheckbox input:checked")).map(cb => cb.value);
-  tutupPopup();
-  alert("Dipilih: " + barangTerpilih.join(", "));
-}
 
   
   // Hitung tanggal batas pengembalian
