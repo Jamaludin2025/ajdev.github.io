@@ -724,6 +724,12 @@
                 renderOrdersAdminPage(); // Re-render the orders page to refresh
             };
 
+            // NEW CHECK: Ensure Html5Qrcode is defined before proceeding with camera access
+            if (typeof Html5Qrcode === 'undefined') {
+                alert("Terjadi kesalahan: Pustaka pemindai (Html5Qrcode) tidak dapat dimuat. Mohon periksa koneksi internet Anda, pastikan tidak ada pemblokir iklan/skrip, coba bersihkan cache browser, atau gunakan browser lain.");
+                stopScannerAndHidePage(); // Hide the scanner page if the library isn't loaded
+                return;
+            }
 
             // --- NEW: Function to attempt camera access directly and then start html5-qrcode ---
             async function attemptCameraAccessBeforeScanner() {
@@ -740,6 +746,7 @@
                     console.log("Direct camera access successful or permission granted.");
 
                     // Initialize Html5QrcodeScanner
+                    // This line should now be safe because we've checked for Html5Qrcode
                     if (!html5QrCodeScannerInstance) {
                         html5QrCodeScannerInstance = new Html5Qrcode("scanner-container");
                         console.log("New Html5Qrcode instance created.");
