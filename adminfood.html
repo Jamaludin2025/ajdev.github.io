@@ -759,7 +759,7 @@
                     li.appendChild(removeBtn);
                     scannedItemsUl.appendChild(li);
                 } else if (scannedOrderIds.includes(code)) {
-                    console.log(`Barcode/QR Code ${code} sudah ada di daftar.`);
+                    alert(`Barcode/QR Code ${code} sudah ada di daftar.`); // Changed to alert for clearer feedback
                 } else {
                     // Provide specific feedback for invalid scan
                     alert(`Pesanan #${code} tidak valid atau statusnya tidak memungkinkan untuk diupdate (misalnya: masih menunggu konfirmasi atau sudah ditolak).`);
@@ -772,6 +772,25 @@
                 disableFlip: false // Allows the library to show a flip camera button if available
             };
 
+            // NEW: Check for cameras before attempting to start
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (devices && devices.length) {
+                    // At least one camera is available
+                    console.log("Available cameras:", devices);
+                } else {
+                    alert("Gagal memulai scanner: Tidak ada kamera yang terdeteksi di perangkat ini. Pastikan kamera terpasang dan berfungsi.");
+                    stopScannerAndHidePage();
+                    return; // Stop execution if no cameras
+                }
+            } catch (cameraErr) {
+                console.error("Error getting camera devices:", cameraErr);
+                alert("Gagal mengakses daftar kamera. Ini mungkin disebabkan oleh masalah izin atau perangkat keras: " + cameraErr.message);
+                stopScannerAndHidePage();
+                return; // Stop execution if camera enumeration fails
+            }
+
+
             // Start scanning
             try {
                 await html5QrCodeScannerInstance.start(
@@ -780,25 +799,25 @@
                     qrCodeSuccessCallback,
                     (errorMessage) => {
                         // This callback is for continuous errors during scanning, less critical for startup issues
-                        // console.warn("Scanner runtime error:", errorMessage);
+                        console.warn("Scanner runtime error:", errorMessage);
                     }
                 );
                 console.log("html5-qrcode scanner started successfully.");
             } catch (err) {
                 console.error("Failed to start html5-qrcode scanner:", err);
-                let errorMessage = "Gagal memulai scanner: ";
+                let startupErrorMessage = "Gagal memulai scanner: ";
                 if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                    errorMessage += "Akses kamera ditolak. Harap izinkan akses kamera di pengaturan browser atau ponsel Anda.";
+                    startupErrorMessage += "Akses kamera ditolak. Harap izinkan akses kamera di pengaturan browser atau ponsel Anda.";
                 } else if (err.name === "NotFoundError") {
-                    errorMessage += "Tidak ada perangkat kamera belakang yang ditemukan.";
+                    startupErrorMessage += "Tidak ada perangkat kamera belakang yang ditemukan.";
                 } else if (err.name === "NotReadableError" || err.name === "OverconstrainedError") {
-                    errorMessage += 'Kamera sedang digunakan oleh aplikasi lain atau ada masalah perangkat keras.';
+                    startupErrorMessage += 'Kamera sedang digunakan oleh aplikasi lain atau ada masalah perangkat keras.';
                 } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-                    errorMessage += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Saat ini Anda menggunakan HTTP atau file lokal.';
+                    startupErrorMessage += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Saat ini Anda menggunakan HTTP atau file lokal.';
                 } else {
-                    errorMessage += 'Terjadi kesalahan tidak terduga: ' + err.message;
+                    startupErrorMessage += 'Terjadi kesalahan tidak terduga: ' + err.message;
                 }
-                alert(errorMessage + '\n\nSilakan periksa izin kamera Anda dan coba lagi.');
+                alert(startupErrorMessage + '\n\nSilakan periksa izin kamera Anda dan coba lagi.');
                 stopScannerAndHidePage(); // Ensure scanner page is hidden on startup failure
             }
 
