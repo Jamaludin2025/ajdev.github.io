@@ -1,4 +1,3 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -13,8 +12,8 @@
             background-color: #f4f4f4;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            align-items: flex-start; /* Ganti dari center ke flex-start untuk menghindari dorongan ke bawah */
+            min-height: 100vh; /* Pertahankan min-height untuk body */
         }
 
         #app-admin {
@@ -26,7 +25,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            min-height: 100vh; /* Pertahankan min-height untuk app-admin */
             position: relative;
             padding-bottom: 60px; /* Ruang untuk bottom nav */
         }
@@ -43,25 +42,8 @@
         #admin-main-content {
             padding: 15px;
             overflow-y: auto;
-            flex-grow: 1;
+            flex-grow: 1; /* Penting agar konten utama mengisi sisa ruang */
         }
-        /* New: Styles for the scanner-page, making it full-screen within app-admin */
-        #scanner-page {
-            position: absolute; /* Take full control of its position */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95); /* Darker background for scanner */
-            display: flex; /* Flexbox for centering content */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001; /* Above main content, below modal */
-            padding: 15px; /* Add some padding around the scanner elements */
-            box-sizing: border-box; /* Include padding in width/height */
-        }
-
 
         /* Bottom Navigation Admin */
         .bottom-nav-admin {
@@ -144,6 +126,7 @@
             margin-top: 25px;
             margin-bottom: 15px;
             text-align: center;
+            font-size: 1.3em;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
@@ -217,64 +200,63 @@
         }
 
 
-        /* Scanner Page Elements */
-        #scanner-page h2 {
-            color: white;
-            margin-bottom: 20px;
-            text-align: center;
+        /* Scanner Overlay */
+        .scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Di atas segalanya */
         }
 
-        #scanner-container {
-            width: 100%; /* Fill available width */
-            max-width: 400px; /* Limit max width */
-            aspect-ratio: 16 / 9; /* Maintain aspect ratio (e.g., 16:9 for video) */
-            background-color: black;
+        #reader { /* ID yang digunakan oleh html5-qrcode */
+            width: 90%;
+            max-width: 400px;
+            /* height: 250px;  html5-qrcode akan mengatur sendiri */
             border-radius: 8px;
             overflow: hidden;
             position: relative;
-            margin-bottom: 15px;
         }
-
-        /* html5-qrcode injects its own video/canvas here, so no need for explicit video styling */
-        #scanner-container video,
-        #scanner-container canvas {
+        
+        #reader video { /* Styling untuk video di dalam #reader */
             width: 100% !important;
-            height: 100% !important;
-            object-fit: cover;
-            display: block;
+            height: auto !important; /* Biarkan html5-qrcode mengatur tinggi */
+            border-radius: 10px;
         }
 
         .scanner-controls {
+            margin-top: 15px;
             display: flex;
             gap: 10px;
-            width: 100%; /* Menyesuaikan lebar dengan scanner-container */
-            max-width: 400px; /* Menyesuaikan lebar dengan scanner-container */
-            margin-bottom: 20px;
         }
 
         .scanner-controls button {
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 12px 15px; /* Slightly larger buttons */
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            flex-grow: 1; /* Agar tombol mengisi ruang */
-            font-size: 1.1em;
         }
 
         .scanner-controls button.cancel {
             background-color: #dc3545;
         }
-        
-        /* Scanned Orders List - Lebar sama dengan scanner */
+
         .scanned-orders-list {
             background-color: #fff;
             border-radius: 8px;
             padding: 15px;
-            width: 100%; /* Lebar sama dengan scanner-container */
-            max-width: 400px; /* Lebar sama dengan scanner-container */
+            margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
             max-height: 200px;
             overflow-y: auto;
             border: 1px solid #ddd;
@@ -315,6 +297,20 @@
             line-height: 1;
         }
 
+        .update-all-scanned-button {
+            background-color: #28a745; /* Green for success */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+
         /* New: Reject Reason Modal */
         .reject-modal-overlay {
             position: fixed;
@@ -326,7 +322,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2001; /* Di atas scanner page */
+            z-index: 2001; /* Di atas scanner overlay */
         }
 
         .reject-modal {
@@ -383,7 +379,7 @@
             color: white;
         }
 
-        /* Order List for History Tab (unchanged) */
+        /* Order List for History Tab */
         .order-history-list .order-card-summary {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -450,7 +446,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script> 
 </head>
 <body>
     <div id="app-admin">
@@ -458,25 +454,10 @@
             <h1>Admin Panel</h1>
         </header>
 
-        <div id="scanner-page" style="display: none;">
-            <h2>Pindai Barcode Pesanan</h2>
-            <div id="scanner-container">
-                </div>
-            <div class="scanner-controls">
-                <button id="stop-scanner" class="cancel">Batal</button>
-                <button id="update-scanned-orders">Update</button>
-            </div>
-            <div class="scanned-orders-list">
-                <h4>Pesanan yang Dipindai:</h4>
-                <ul id="scanned-items-ul">
-                    </ul>
-            </div>
-        </div>
-
         <main id="admin-main-content">
             </main>
 
-        <nav class="bottom-nav-admin" id="bottom-nav-admin">
+        <nav class="bottom-nav-admin">
             <a href="#" class="nav-item-admin active" data-target="orders">
                 <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=P" alt="Pesanan">
                 <span>Pesanan</span>
@@ -507,13 +488,13 @@
         const adminMainContent = document.getElementById('admin-main-content');
         const appAdminContainer = document.getElementById('app-admin');
         const bottomNavAdminItems = document.querySelectorAll('.bottom-nav-admin .nav-item-admin');
-        const scannerPage = document.getElementById('scanner-page'); // Get the new scanner page element
-        const bottomNavAdmin = document.getElementById('bottom-nav-admin'); // Get the bottom nav
 
         let orders = []; // Ini akan menampung data pesanan dari Firebase
         let scannedOrderIds = []; // Untuk menyimpan ID pesanan yang dipindai saat ini
         let currentStatusToUpdate = ''; // Menyimpan status yang akan diterapkan (Dikemas, Diantar, Diterima)
-        let html5QrCodeScannerInstance = null; // Menyimpan instance scanner
+
+        // Inisialisasi html5-qrcode
+        let html5QrCode = null; // Deklarasikan di scope global agar bisa diakses dari mana saja
 
         // --- Navigasi Admin ---
         function setActiveNavAdmin(target) {
@@ -526,28 +507,15 @@
         }
 
         function navigateAdmin(target) {
-            // If scanner is active and we navigate away from orders, stop it
-            if (scannerPage.style.display !== 'none' && target !== 'orders') {
-                stopScannerAndHidePage(); // Ensure scanner is stopped and hidden
-            }
             setActiveNavAdmin(target);
             switch (target) {
                 case 'orders':
-                    adminMainContent.style.display = 'block'; // Show main content
-                    scannerPage.style.display = 'none'; // Hide scanner page
-                    bottomNavAdmin.style.display = 'flex'; // Show bottom nav
                     renderOrdersAdminPage();
                     break;
                 case 'history':
-                    adminMainContent.style.display = 'block'; // Show main content
-                    scannerPage.style.display = 'none'; // Hide scanner page
-                    bottomNavAdmin.style.display = 'flex'; // Show bottom nav
                     renderHistoryAdminPage();
                     break;
                 default:
-                    adminMainContent.style.display = 'block'; // Show main content
-                    scannerPage.style.display = 'none'; // Hide scanner page
-                    bottomNavAdmin.style.display = 'flex'; // Show bottom nav
                     renderOrdersAdminPage();
             }
         }
@@ -575,8 +543,7 @@
                         <img src="https://via.placeholder.com/36/3498db/FFFFFF?text=✅" alt="Diterima">
                         <p>Diterima</p>
                     </div>
-                </div>
-                <div class="pending-orders-section">
+                </div> <div class="pending-orders-section">
                     <h3>Pesanan Menunggu Konfirmasi</h3>
             `;
 
@@ -608,11 +575,11 @@
             document.querySelectorAll('.status-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     currentStatusToUpdate = e.currentTarget.dataset.status;
-                    showScannerPage(); // Call the new function
+                    showScannerOverlay();
                 });
             });
 
-            // Event listeners for Accept/Reject buttons
+            // New: Event listeners for Accept/Reject buttons
             document.querySelectorAll('.accept-button').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const firebaseId = e.target.dataset.firebaseId;
@@ -628,7 +595,7 @@
             });
         }
 
-        // --- Halaman Riwayat Admin (unchanged from previous version) ---
+        // --- Halaman Riwayat Admin ---
         function renderHistoryAdminPage() {
             let historyHtml = `<div class="order-history-list">`;
             if (orders.length === 0) {
@@ -657,7 +624,7 @@
                                     <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
                                     <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
                                     <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</p></div>
+                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
                                     <h5>Item Pesanan:</h5>
                                     <ul>
                         `;
@@ -686,221 +653,135 @@
         }
 
 
-        // --- Fungsi Scanner Barcode/QR (html5-qrcode) ---
-        async function showScannerPage() { // Renamed from showScannerOverlay
+        // --- Fungsi Scanner Barcode (menggunakan html5-qrcode) ---
+        function showScannerOverlay() {
             scannedOrderIds = []; // Reset daftar pesanan yang dipindai setiap kali scanner dibuka
 
-            // Hide main content and bottom nav, show scanner page
-            adminMainContent.style.display = 'none';
-            bottomNavAdmin.style.display = 'none';
-            scannerPage.style.display = 'flex'; // Use flex to center its content
+            const overlay = document.createElement('div');
+            overlay.classList.add('scanner-overlay');
+            overlay.innerHTML = `
+                <div id="reader"></div> <div class="scanner-controls">
+                    <button id="stop-scanner" class="cancel">Batal</button>
+                    </div>
+                <div class="scanned-orders-list">
+                    <h4>Pesanan yang Dipindai (${currentStatusToUpdate}):</h4>
+                    <ul id="scanned-items-ul"></ul>
+                </div>
+                <button id="update-scanned-orders" class="update-all-scanned-button">Update Status (${currentStatusToUpdate})</button>
+            `;
+            appAdminContainer.appendChild(overlay);
 
-            // Get references to elements inside the scanner-page
-            const scannedItemsUl = scannerPage.querySelector('#scanned-items-ul');
-            scannedItemsUl.innerHTML = ''; // Clear previous scanned items
-            const stopScannerBtn = scannerPage.querySelector('#stop-scanner');
-            const updateScannedOrdersBtn = scannerPage.querySelector('#update-scanned-orders');
-            const scannerContainer = scannerPage.querySelector('#scanner-container');
+            const scannedItemsUl = document.getElementById('scanned-items-ul');
 
+            // Inisialisasi html5QrCode jika belum
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
 
-            // --- Function to safely stop scanner and hide scanner page ---
-            const stopScannerAndHidePage = async () => { // Renamed from stopScannerAndRemoveOverlay
-                console.log("Attempting to stop scanner and hide page.");
-                if (html5QrCodeScannerInstance && html5QrCodeScannerInstance.isScanning) {
-                    try {
-                        await html5QrCodeScannerInstance.stop();
-                        console.log("QR Code scanning stopped successfully.");
-                    } catch (err) {
-                        console.warn("Error stopping QR Code scanning gracefully:", err);
-                        // Even if stop fails, we still want to remove the overlay
+            // Mulai scanner
+            html5QrCode.start(
+                { facingMode: { exact: "environment" } }, // Prioritaskan kamera belakang
+                { fps: 10, qrbox: 250 }, // Konfigurasi fps dan ukuran kotak scan
+                (decodedText) => {
+                    // Logika ketika barcode terdeteksi
+                    const code = decodedText;
+                    console.log("Barcode detected and processed: ", code);
+                    
+                    const orderExistsAndNotPending = orders.some(order => order.id === code && order.status !== 'Menunggu konfirmasi dari penjual');
+
+                    if (!scannedOrderIds.includes(code) && orderExistsAndNotPending) {
+                        scannedOrderIds.push(code);
+                        const li = document.createElement('li');
+                        li.textContent = code;
+                        const removeBtn = document.createElement('button');
+                        removeBtn.classList.add('remove-scanned-item');
+                        removeBtn.textContent = 'X';
+                        removeBtn.addEventListener('click', () => {
+                            scannedOrderIds = scannedOrderIds.filter(item => item !== code);
+                            li.remove();
+                        });
+                        li.appendChild(removeBtn);
+                        scannedItemsUl.appendChild(li);
+                    } else if (scannedOrderIds.includes(code)) {
+                        console.log(`Barcode ${code} sudah ada di daftar.`);
+                    } else if (!orderExistsAndNotPending) {
+                        alert(`Pesanan #${code} tidak ditemukan atau masih menunggu konfirmasi. Hanya pesanan yang sudah diterima yang bisa diproses di sini.`);
                     }
+                },
+                (error) => {
+                    // Callback error
+                    console.warn(`QR Code Scan Error: ${error}`);
+                }
+            ).catch(err => {
+                alert("Gagal membuka kamera: " + err + ". Pastikan Anda mengizinkan akses kamera.");
+                overlay.remove(); // Hapus overlay jika gagal membuka kamera
+            });
+
+
+            document.getElementById('stop-scanner').addEventListener('click', () => {
+                if (html5QrCode && html5QrCode.isScanning) { // Pastikan scanner aktif sebelum mencoba menghentikan
+                    html5QrCode.stop().then(() => {
+                        console.log("Scanner berhenti.");
+                        overlay.remove();
+                    }).catch(err => {
+                        console.error("Gagal menghentikan scanner: ", err);
+                        overlay.remove(); // Tetap hapus overlay meski ada error
+                    });
                 } else {
-                    console.log("Scanner not active or not initialized. Directly hiding page.");
+                     overlay.remove(); // Jika scanner tidak aktif, langsung hapus overlay
                 }
-                scannerPage.style.display = 'none'; // Hide scanner page
-                adminMainContent.style.display = 'block'; // Show main content again
-                bottomNavAdmin.style.display = 'flex'; // Show bottom nav again
-                html5QrCodeScannerInstance = null; // Clear instance after removal
-                renderOrdersAdminPage(); // Re-render the orders page to refresh
-            };
+            });
 
-            // NEW CHECK: Ensure Html5Qrcode is defined before proceeding with camera access
-            if (typeof Html5Qrcode === 'undefined') {
-                alert("Terjadi kesalahan: Pustaka pemindai (Html5Qrcode) tidak dapat dimuat. Mohon periksa koneksi internet Anda, pastikan tidak ada pemblokir iklan/skrip, coba bersihkan cache browser, atau gunakan browser lain.");
-                stopScannerAndHidePage(); // Hide the scanner page if the library isn't loaded
-                return;
-            }
-
-            // --- NEW: Function to attempt camera access directly and then start html5-qrcode ---
-            async function attemptCameraAccessBeforeScanner() {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert("Browser Anda tidak mendukung akses kamera atau versi terlalu lama.");
-                    return false;
-                }
-
-                try {
-                    // Try to get a video stream - this is where the permission prompt usually appears
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } });
-                    // If successful, stop the stream immediately as html5-qrcode will start its own
-                    stream.getTracks().forEach(track => track.stop());
-                    console.log("Direct camera access successful or permission granted.");
-
-                    // Initialize Html5QrcodeScanner
-                    // This line should now be safe because we've checked for Html5Qrcode
-                    if (!html5QrCodeScannerInstance) {
-                        html5QrCodeScannerInstance = new Html5Qrcode("scanner-container");
-                        console.log("New Html5Qrcode instance created.");
-                    } else {
-                        console.log("Re-using existing Html5Qrcode instance.");
-                    }
-
-                    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                        const code = decodedText;
-                        console.log("Scanned result: ", code, decodedResult);
-
-                        const orderExistsAndValidStatus = orders.some(order => 
-                            order.id === code && 
-                            order.status !== 'Menunggu konfirmasi dari penjual' &&
-                            order.status !== 'Pesanan ditolak oleh penjual' 
-                        );
-                        
-                        if (!scannedOrderIds.includes(code) && orderExistsAndValidStatus) {
-                            scannedOrderIds.push(code);
-                            const li = document.createElement('li');
-                            li.textContent = `Pesanan #${code}`;
-                            const removeBtn = document.createElement('button');
-                            removeBtn.classList.add('remove-scanned-item');
-                            removeBtn.textContent = 'X';
-                            removeBtn.addEventListener('click', () => {
-                                scannedOrderIds = scannedOrderIds.filter(item => item !== code);
-                                li.remove();
-                            });
-                            li.appendChild(removeBtn);
-                            scannedItemsUl.appendChild(li);
-                        } else if (scannedOrderIds.includes(code)) {
-                            alert(`Barcode/QR Code ${code} sudah ada di daftar.`); 
-                        } else {
-                            alert(`Pesanan #${code} tidak valid atau statusnya tidak memungkinkan untuk diupdate (misalnya: masih menunggu konfirmasi atau sudah ditolak).`);
-                        }
-                    };
-
-                    const config = {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        disableFlip: false 
-                    };
-
-                    // Start scanning with html5-qrcode
-                    try {
-                        await html5QrCodeScannerInstance.start(
-                            { facingMode: { exact: "environment" } }, // Prefer rear camera
-                            config,
-                            qrCodeSuccessCallback,
-                            (errorMessage) => {
-                                console.warn("Scanner runtime error (html5-qrcode):", errorMessage);
-                            }
-                        );
-                        console.log("html5-qrcode scanner started successfully.");
-                        return true; // Indicate success
-                    } catch (err) {
-                        console.error("Failed to start html5-qrcode scanner (after direct access check):", err);
-                        let startupErrorMessage = "Gagal memulai scanner: ";
-                        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                            startupErrorMessage += "Akses kamera ditolak. Harap izinkan akses kamera di pengaturan browser atau ponsel Anda.";
-                        } else if (err.name === "NotFoundError") {
-                            startupErrorMessage += "Tidak ada perangkat kamera belakang yang ditemukan.";
-                        } else if (err.name === "NotReadableError" || err.name === "OverconstrainedError") {
-                            startupErrorMessage += 'Kamera sedang digunakan oleh aplikasi lain atau ada masalah perangkat keras.';
-                        } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-                            startupErrorMessage += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Saat ini Anda menggunakan HTTP atau file lokal.';
-                        } else {
-                            startupErrorMessage += 'Terjadi kesalahan tidak terduga: ' + err.message;
-                        }
-                        alert(startupErrorMessage + '\n\nSilakan periksa izin kamera Anda dan coba lagi.');
-                        return false; // Indicate failure
-                    }
-
-                } catch (err) {
-                    console.error("Error during direct camera access attempt:", err);
-                    let cameraAccessError = "Gagal mengakses kamera: ";
-                    if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                        cameraAccessError += "Akses kamera ditolak. Ini adalah alasan paling mungkin jika tidak ada prompt. Harap izinkan akses kamera di pengaturan browser atau ponsel Anda.";
-                    } else if (err.name === "NotFoundError") {
-                        cameraAccessError += "Tidak ada kamera yang terdeteksi di perangkat Anda.";
-                    } else if (err.name === "NotReadableError") {
-                        cameraAccessError += "Kamera sedang digunakan oleh aplikasi lain.";
-                    } else if (err.name === "OverconstrainedError") {
-                        cameraAccessError += "Kamera tidak dapat diakses dengan batasan yang diminta (misalnya, kamera belakang tidak ditemukan).";
-                    } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-                        cameraAccessError += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Anda saat ini mungkin menggunakan HTTP.';
-                    }
-                    else {
-                        cameraAccessError += `Terjadi kesalahan tidak terduga: ${err.message}.`;
-                    }
-                    alert(cameraAccessError + '\n\nMohon periksa pengaturan izin kamera di ponsel Anda.');
-                    return false; // Indicate failure
-                }
-            }
-            
-            // Call the new camera access function
-            const cameraReady = await attemptCameraAccessBeforeScanner();
-            if (!cameraReady) {
-                stopScannerAndHidePage(); // Hide the scanner page if camera access fails
-                return;
-            }
-
-
-            // --- Event listeners for scanner controls ---
-            stopScannerBtn.addEventListener('click', stopScannerAndHidePage);
-
-            updateScannedOrdersBtn.addEventListener('click', async () => {
+            document.getElementById('update-scanned-orders').addEventListener('click', () => {
                 if (scannedOrderIds.length === 0) {
                     alert('Tidak ada nomor pesanan yang dipindai untuk diupdate.');
                     return;
                 }
 
+                // Konversi status teks ke status yang akan disimpan di Firebase
                 let newStatus = '';
                 if (currentStatusToUpdate === 'Dikemas') {
                     newStatus = 'Pesanan sedang disiapkan oleh penjual';
-                } else if (currentStatusToUpdate === 'Diantar') {
+                } else if (currentStatusToupdate === 'Diantar') {
                     newStatus = 'Pesanan sedang diantar oleh penjual';
                 } else if (currentStatusToUpdate === 'Diterima') {
                     newStatus = 'Pesanan telah diterima pelanggan';
                 }
 
-                let successfulUpdates = 0;
-                for (const orderIdToUpdate of scannedOrderIds) {
+                // Update status di Firebase untuk setiap ID yang dipindai
+                scannedOrderIds.forEach(orderIdToUpdate => {
+                    // Cari pesanan di array `orders` berdasarkan `id`
                     const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
-                    if (orderToUpdate && orderToUpdate.firebaseId) {
-                        try {
-                            // Ensure we don't update a rejected order to a positive status
-                            if (orderToUpdate.status === 'Pesanan ditolak oleh penjual' && newStatus !== 'Pesanan ditolak oleh penjual') {
-                                console.warn(`Skipping update for rejected order #${orderIdToUpdate}.`);
-                                alert(`Pesanan #${orderIdToUpdate} ditolak dan tidak bisa diupdate ke status "${currentStatusToUpdate}".`);
-                                continue; // Skip to next order
-                            }
-                            await database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus });
-                            console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
-                            orderToUpdate.status = newStatus; // Update local state immediately
-                            successfulUpdates++;
-                        } catch (error) {
-                            console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
-                            alert(`Gagal mengupdate pesanan #${orderIdToUpdate}. Coba lagi.`); // Inform user about specific failure
-                        }
+                    if (orderToUpdate && orderToUpdate.firebaseId) { // Pastikan order ditemukan dan punya firebaseId
+                        database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
+                            .then(() => {
+                                console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
+                                // Perbarui status di array 'orders' lokal juga
+                                orderToUpdate.status = newStatus;
+                            })
+                            .catch(error => {
+                                console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
+                            });
                     } else {
                         console.warn(`Pesanan dengan ID #${orderIdToUpdate} tidak ditemukan di database lokal atau tidak memiliki firebaseId.`);
-                        alert(`Pesanan #${orderIdToUpdate} tidak ditemukan atau tidak valid.`); // Inform user
                     }
-                }
+                });
 
-                if (successfulUpdates > 0) {
-                    alert(`${successfulUpdates} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
+                alert(`${scannedOrderIds.length} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
+                if (html5QrCode && html5QrCode.isScanning) { // Pastikan scanner aktif sebelum mencoba menghentikan
+                     html5QrCode.stop().then(() => {
+                        console.log("Scanner berhenti setelah update.");
+                        overlay.remove();
+                    }).catch(err => {
+                        console.error("Gagal menghentikan scanner setelah update: ", err);
+                        overlay.remove(); // Tetap hapus overlay
+                    });
                 } else {
-                    alert(`Tidak ada pesanan yang berhasil diupdate.`);
+                    overlay.remove(); // Jika scanner tidak aktif, langsung hapus overlay
                 }
-                
-                await stopScannerAndHidePage(); // Stop scanner and hide page
-                scannedOrderIds = []; // Clear scanned IDs after update
+               
+                scannedOrderIds = []; // Kosongkan daftar setelah update
+                renderOrdersAdminPage(); // Refresh halaman admin
             });
         }
 
@@ -960,7 +841,7 @@
         }
 
 
-        // --- Integrasi Firebase (Realtime Database - unchanged logic for listener) ---
+        // --- Integrasi Firebase (Realtime Database) ---
         function getOrdersFromFirebase() {
             database.ref('orders').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -972,17 +853,10 @@
                 }
                 console.log('Pesanan dimuat dari Firebase (Admin):', orders);
                 // Render ulang halaman saat data berubah
-                // Hanya render ulang jika kita tidak di halaman scanner
-                if (scannerPage.style.display === 'none') {
-                    if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'orders') {
-                        renderOrdersAdminPage();
-                    } else if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'history') {
-                        renderHistoryAdminPage();
-                    }
-                } else {
-                    // If scanner is active, just log and don't re-render main content
-                    // This prevents scanner from closing unexpectedly
-                    console.log("Skipping re-render as scanner page is active.");
+                if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'orders') {
+                    renderOrdersAdminPage();
+                } else if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'history') {
+                    renderHistoryAdminPage();
                 }
             }, (error) => {
                 console.error('Gagal membaca pesanan dari Firebase (Admin):', error);
