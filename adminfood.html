@@ -673,9 +673,14 @@
 
             const scannedItemsUl = document.getElementById('scanned-items-ul');
 
-            // Inisialisasi html5QrCode jika belum
+            // Inisialisasi html5QrCode jika belum atau jika sudah dihentikan dan perlu diinisialisasi ulang
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("reader");
+            } else {
+                // Jika sudah ada instance, pastikan dihentikan dulu sebelum memulai lagi
+                if (html5QrCode.isScanning) {
+                    html5QrCode.stop().catch(err => console.error("Error stopping existing scanner before new start:", err));
+                }
             }
 
             // Mulai scanner
@@ -714,6 +719,7 @@
                 }
             ).catch(err => {
                 alert("Gagal membuka kamera: " + err + ". Pastikan Anda mengizinkan akses kamera.");
+                console.error("html5QrCode start failed:", err);
                 overlay.remove(); // Hapus overlay jika gagal membuka kamera
             });
 
@@ -733,6 +739,9 @@
             });
 
             document.getElementById('update-scanned-orders').addEventListener('click', () => {
+                console.log("Update Status button clicked.");
+                console.log("Scanned Order IDs:", scannedOrderIds);
+
                 if (scannedOrderIds.length === 0) {
                     alert('Tidak ada nomor pesanan yang dipindai untuk diupdate.');
                     return;
@@ -742,18 +751,20 @@
                 let newStatus = '';
                 if (currentStatusToUpdate === 'Dikemas') {
                     newStatus = 'Pesanan sedang disiapkan oleh penjual';
-                } else if (currentStatusToupdate === 'Diantar') {
+                } else if (currentStatusToUpdate === 'Diantar') {
                     newStatus = 'Pesanan sedang diantar oleh penjual';
                 } else if (currentStatusToUpdate === 'Diterima') {
                     newStatus = 'Pesanan telah diterima pelanggan';
                 }
+
+                let updatePromises = [];
 
                 // Update status di Firebase untuk setiap ID yang dipindai
                 scannedOrderIds.forEach(orderIdToUpdate => {
                     // Cari pesanan di array `orders` berdasarkan `id`
                     const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
                     if (orderToUpdate && orderToUpdate.firebaseId) { // Pastikan order ditemukan dan punya firebaseId
-                        database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
+                        const promise = database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
                             .then(() => {
                                 console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
                                 // Perbarui status di array 'orders' lokal juga
@@ -761,27 +772,42 @@
                             })
                             .catch(error => {
                                 console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
+                                alert(`Gagal mengupdate status pesanan #${orderIdToUpdate}. Coba lagi.`);
                             });
+                        updatePromises.push(promise);
                     } else {
                         console.warn(`Pesanan dengan ID #${orderIdToUpdate} tidak ditemukan di database lokal atau tidak memiliki firebaseId.`);
                     }
                 });
 
-                alert(`${scannedOrderIds.length} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
-                if (html5QrCode && html5QrCode.isScanning) { // Pastikan scanner aktif sebelum mencoba menghentikan
-                     html5QrCode.stop().then(() => {
-                        console.log("Scanner berhenti setelah update.");
+                // Tunggu semua update selesai sebelum menutup scanner dan me-refresh
+                Promise.all(updatePromises).then(() => {
+                    alert(`${scannedOrderIds.length} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
+                    if (html5QrCode && html5QrCode.isScanning) { 
+                         html5QrCode.stop().then(() => {
+                            console.log("Scanner berhenti setelah update.");
+                            overlay.remove();
+                        }).catch(err => {
+                            console.error("Gagal menghentikan scanner setelah update: ", err);
+                            overlay.remove(); 
+                        });
+                    } else {
+                        overlay.remove(); 
+                    }
+                   
+                    scannedOrderIds = []; // Kosongkan daftar setelah update
+                    renderOrdersAdminPage(); // Refresh halaman admin
+                }).catch(err => {
+                    console.error("Terjadi kesalahan saat menunggu semua update selesai:", err);
+                    alert("Terjadi kesalahan saat memproses update pesanan.");
+                     if (html5QrCode && html5QrCode.isScanning) { 
+                         html5QrCode.stop().then(() => {
+                            overlay.remove();
+                        }).catch(e => console.error("Error stopping scanner after partial update:", e));
+                    } else {
                         overlay.remove();
-                    }).catch(err => {
-                        console.error("Gagal menghentikan scanner setelah update: ", err);
-                        overlay.remove(); // Tetap hapus overlay
-                    });
-                } else {
-                    overlay.remove(); // Jika scanner tidak aktif, langsung hapus overlay
-                }
-               
-                scannedOrderIds = []; // Kosongkan daftar setelah update
-                renderOrdersAdminPage(); // Refresh halaman admin
+                    }
+                });
             });
         }
 
