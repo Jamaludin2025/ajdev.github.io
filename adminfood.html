@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pesanan Makanan</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app-admin {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 60px; /* Ruang untuk bottom nav */
+        }
+
+        header {
+            background-color: #3498db; /* Warna biru untuk admin */
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #admin-main-content {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Bottom Navigation Admin */
+        .bottom-nav-admin {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            padding: 8px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .bottom-nav-admin .nav-item-admin {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            font-size: 0.8em;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .bottom-nav-admin .nav-item-admin.active {
+            color: #3498db; /* Warna aktif biru */
+        }
+
+        .bottom-nav-admin .nav-item-admin img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 3px;
+        }
+
+        /* Order Status Cards */
+        .status-cards {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            flex: 1;
+            background-color: #f0f8ff; /* Light background for cards */
+            border: 1px solid #cceeff;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .status-card:hover {
+            transform: translateY(-3px);
+            background-color: #e6f7ff;
+        }
+
+        .status-card img {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 8px;
+        }
+
+        .status-card p {
+            margin: 0;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* New: Pending Orders List */
+        .pending-orders-section h3 {
+            color: #3498db;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .pending-order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .pending-order-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .pending-order-card p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* New: Action buttons for pending orders */
+        .pending-order-actions {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .pending-order-actions button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.95em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .pending-order-actions .accept-button {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+
+        .pending-order-actions .accept-button:hover {
+            background-color: #218838;
+        }
+
+        .pending-order-actions .reject-button {
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+
+        .pending-order-actions .reject-button:hover {
+            background-color: #c82333;
+        }
+
+        .empty-pending-orders {
+            text-align: center;
+            padding: 30px 15px;
+            color: #777;
+            font-size: 1em;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+
+        /* Scanner Overlay (unchanged) */
+        .scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Di atas segalanya */
+        }
+
+        #scanner-container {
+            width: 90%;
+            max-width: 400px;
+            height: 250px; /* Tinggi untuk video scanner */
+            background-color: black;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #scanner-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Memastikan video mengisi container */
+            display: block;
+        }
+
+        .scanner-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .scanner-controls button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .scanner-controls button.cancel {
+            background-color: #dc3545;
+        }
+
+        .scanned-orders-list {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        .scanned-orders-list h4 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .scanned-orders-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .scanned-orders-list li {
+            background-color: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scanned-orders-list li .remove-scanned-item {
+            background: none;
+            border: none;
+            color: #dc3545;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .update-all-scanned-button {
+            background-color: #28a745; /* Green for success */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+
+        /* New: Reject Reason Modal */
+        .reject-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2001; /* Di atas scanner overlay */
+        }
+
+        .reject-modal {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .reject-modal h4 {
+            margin-top: 0;
+            color: #dc3545;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .reject-modal textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 80px;
+            font-size: 0.95em;
+        }
+
+        .reject-modal .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        .reject-modal .modal-buttons button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .reject-modal .modal-buttons .confirm-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .reject-modal .modal-buttons .cancel-reject {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Order List for History Tab (unchanged) */
+        .order-history-list .order-card-summary {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .order-history-list .order-card-summary:hover {
+            background-color: #f0f0f0;
+        }
+
+        .order-history-list .order-card-summary h4 {
+            margin: 0;
+            color: #3498db;
+        }
+
+        .order-history-list .order-card-summary p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .order-history-list .order-card-detail {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .order-history-list .detail-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 5px;
+            align-items: start;
+        }
+
+        .order-history-list .detail-item span:first-child {
+            white-space: nowrap;
+        }
+
+        .order-history-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+
+        .order-history-list ul li {
+            margin-bottom: 5px;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 50px 20px;
+            color: #777;
+            font-size: 1.1em;
+        }
+
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
+</head>
+<body>
+    <div id="app-admin">
+        <header>
+            <h1>Admin Panel</h1>
+        </header>
+
+        <main id="admin-main-content">
+            </main>
+
+        <nav class="bottom-nav-admin">
+            <a href="#" class="nav-item-admin active" data-target="orders">
+                <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=P" alt="Pesanan">
+                <span>Pesanan</span>
+            </a>
+            <a href="#" class="nav-item-admin" data-target="history">
+                <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=R" alt="Riwayat">
+                <span>Riwayat</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Konfigurasi Firebase (SAMA DENGAN index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyASXJiNqbekENXpk7C5U5XjE6gImfNUBwg",
+            authDomain: "pustakapribadi-25.firebaseapp.com",
+            databaseURL: "https://pustakapribadi-25-default-rtdb.firebaseio.com",
+            projectId: "pustakapribadi-25",
+            storageBucket: "pustakapribadi-25.firebasestorage.app",
+            messagingSenderId: "828550020946",
+            appId: "1:828550020946:web:65322f2092d1927c43c48b"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const adminMainContent = document.getElementById('admin-main-content');
+        const appAdminContainer = document.getElementById('app-admin');
+        const bottomNavAdminItems = document.querySelectorAll('.bottom-nav-admin .nav-item-admin');
+
+        let orders = []; // Ini akan menampung data pesanan dari Firebase
+        let scannedOrderIds = []; // Untuk menyimpan ID pesanan yang dipindai saat ini
+        let currentStatusToUpdate = ''; // Menyimpan status yang akan diterapkan (Dikemas, Diantar, Diterima)
+
+        // --- Navigasi Admin ---
+        function setActiveNavAdmin(target) {
+            bottomNavAdminItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.target === target) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function navigateAdmin(target) {
+            setActiveNavAdmin(target);
+            switch (target) {
+                case 'orders':
+                    renderOrdersAdminPage();
+                    break;
+                case 'history':
+                    renderHistoryAdminPage();
+                    break;
+                default:
+                    renderOrdersAdminPage();
+            }
+        }
+
+        bottomNavAdminItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateAdmin(item.dataset.target);
+            });
+        });
+
+        // --- Halaman Pesanan Admin ---
+        function renderOrdersAdminPage() {
+            let ordersAdminHtml = `
+                <div class="status-cards">
+                    <div class="status-card" data-status="Dikemas">
+                        <img src="https://via.placeholder.com/36/3498db/FFFFFF?text=📦" alt="Dikemas">
+                        <p>Dikemas</p>
+                    </div>
+                    <div class="status-card" data-status="Diantar">
+                        <img src="https://via.placeholder.com/36/3498db/FFFFFF?text=🛵" alt="Diantar">
+                        <p>Diantar</p>
+                    </div>
+                    <div class="status-card" data-status="Diterima">
+                        <img src="https://via.placeholder.com/36/3498db/FFFFFF?text=✅" alt="Diterima">
+                        <p>Diterima</p>
+                    </div>
+                </div>
+                <div class="pending-orders-section">
+                    <h3>Pesanan Menunggu Konfirmasi</h3>
+            `;
+
+            const pendingOrders = orders.filter(order => order.status === 'Menunggu konfirmasi dari penjual');
+
+            if (pendingOrders.length === 0) {
+                ordersAdminHtml += `<div class="empty-pending-orders"><p>Tidak ada pesanan yang menunggu konfirmasi.</p></div>`;
+            } else {
+                pendingOrders.forEach(order => {
+                    ordersAdminHtml += `
+                        <div class="pending-order-card" data-firebase-id="${order.firebaseId}">
+                            <h4>Pesanan #${order.id}</h4>
+                            <p>Pembeli: ${order.customerName}</p>
+                            <p>Total: Rp ${order.total.toLocaleString('id-ID')}</p>
+                            <p>Metode Pembayaran: ${order.paymentMethod}</p>
+                            <div class="pending-order-actions">
+                                <button class="accept-button" data-firebase-id="${order.firebaseId}">Terima</button>
+                                <button class="reject-button" data-firebase-id="${order.firebaseId}">Tolak</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            ordersAdminHtml += `</div>`; // Close pending-orders-section
+
+            adminMainContent.innerHTML = ordersAdminHtml;
+
+            // Event listeners for status cards (scanner)
+            document.querySelectorAll('.status-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    currentStatusToUpdate = e.currentTarget.dataset.status;
+                    showScannerOverlay();
+                });
+            });
+
+            // New: Event listeners for Accept/Reject buttons
+            document.querySelectorAll('.accept-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    updateOrderStatus(firebaseId, 'Pesanan sudah dilihat oleh penjual');
+                });
+            });
+
+            document.querySelectorAll('.reject-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    showRejectReasonModal(firebaseId);
+                });
+            });
+        }
+
+        // --- Halaman Riwayat Admin (unchanged from previous version) ---
+        function renderHistoryAdminPage() {
+            let historyHtml = `<div class="order-history-list">`;
+            if (orders.length === 0) {
+                historyHtml += `
+                    <div class="empty-history">
+                        <p>Belum ada riwayat pesanan.</p>
+                    </div>
+                `;
+            } else {
+                // Tampilkan semua pesanan, termasuk yang sudah selesai/diterima
+                // Urutkan dari terbaru ke terlama
+                const sortedOrders = [...orders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+                sortedOrders.forEach((order, index) => {
+                    // Hanya tampilkan di riwayat jika status BUKAN 'Menunggu konfirmasi dari penjual'
+                    // Karena pesanan ini sudah ditampilkan di tab 'Pesanan'
+                    if (order.status !== 'Menunggu konfirmasi dari penjual') {
+                        historyHtml += `
+                            <div class="order-card-summary" data-index="${index}" data-firebase-id="${order.firebaseId}">
+                                <h4>Pesanan #${order.id}</h4>
+                                <p>Status: ${order.status}</p>
+                                ${order.rejectionReason ? `<p style="color:red; font-weight:normal;">Catatan Tolak: ${order.rejectionReason}</p>` : ''}
+                                <div class="order-card-detail" style="display: none;">
+                                    <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
+                                    <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
+                                    <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
+                                    <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
+                                    <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
+                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
+                                    <h5>Item Pesanan:</h5>
+                                    <ul>
+                        `;
+                        order.items.forEach(item => {
+                            historyHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
+                        });
+                        historyHtml += `
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            historyHtml += `</div>`;
+            adminMainContent.innerHTML = historyHtml;
+
+            document.querySelectorAll('.order-history-list .order-card-summary').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const detailDiv = card.querySelector('.order-card-detail');
+                    if (detailDiv) {
+                        detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+            });
+        }
+
+
+        // --- Fungsi Scanner Barcode (QuaggaJS - unchanged) ---
+        function showScannerOverlay() {
+            scannedOrderIds = []; // Reset daftar pesanan yang dipindai setiap kali scanner dibuka
+
+            const overlay = document.createElement('div');
+            overlay.classList.add('scanner-overlay');
+            overlay.innerHTML = `
+                <div id="scanner-container">
+                    <video id="barcode-scanner-video"></video>
+                </div>
+                <div class="scanner-controls">
+                    <button id="stop-scanner" class="cancel">Batal</button>
+                    <button id="toggle-camera">Ganti Kamera</button>
+                </div>
+                <div class="scanned-orders-list">
+                    <h4>Pesanan yang Dipindai (${currentStatusToUpdate}):</h4>
+                    <ul id="scanned-items-ul">
+                        </ul>
+                </div>
+                <button id="update-scanned-orders" class="update-all-scanned-button">Update Status (${currentStatusToUpdate})</button>
+            `;
+            appAdminContainer.appendChild(overlay);
+
+            const videoElement = document.getElementById('barcode-scanner-video');
+            const scannedItemsUl = document.getElementById('scanned-items-ul');
+            let cameraDeviceId = null; // Menyimpan ID kamera yang sedang digunakan
+            let cameraList = []; // Daftar semua perangkat kamera
+
+            // Initialize QuaggaJS
+            function startScanner() {
+                Quagga.init({
+                    inputStream : {
+                        name : "Live",
+                        type : "LiveStream",
+                        target: videoElement, // Menggunakan elemen video
+                        constraints: {
+                            width: { min: 640 },
+                            height: { min: 480 },
+                            aspectRatio: { min: 1, max: 100 },
+                            facingMode: "environment", // Prioritaskan kamera belakang
+                            deviceId: cameraDeviceId // Gunakan ID kamera yang dipilih
+                        },
+                    },
+                    decoder : {
+                        readers : ["ean_reader", "code_128_reader", "code_39_reader"] // Jenis barcode yang didukung
+                    }
+                }, function(err) {
+                    if (err) {
+                        console.error(err);
+                        alert('Gagal memulai scanner: ' + err.message + '. Pastikan Anda mengizinkan akses kamera.');
+                        overlay.remove();
+                        return;
+                    }
+                    console.log("QuaggaJS initialization finished. Ready to start");
+                    Quagga.start();
+                    // Dapatkan daftar kamera setelah Quagga.start() jika belum
+                    if (cameraList.length === 0) {
+                        Quagga.CameraAccess.enumerateVideoDevices()
+                            .then(devices => {
+                                cameraList = devices.filter(device => device.kind === 'videoinput');
+                                if (cameraList.length > 0 && !cameraDeviceId) {
+                                    // Set default camera to back camera if available
+                                    const environmentCamera = cameraList.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
+                                    if (environmentCamera) {
+                                        cameraDeviceId = environmentCamera.deviceId;
+                                    } else {
+                                        cameraDeviceId = cameraList[0].deviceId;
+                                    }
+                                }
+                            });
+                    }
+                });
+
+                Quagga.onDetected(function(result) {
+                    const code = result.codeResult.code;
+                    console.log("Barcode detected and processed: ", code);
+                    // Hanya tambahkan jika orderId memang ada di daftar pesanan dan bukan status "Menunggu konfirmasi"
+                    const orderExistsAndNotPending = orders.some(order => order.id === code && order.status !== 'Menunggu konfirmasi dari penjual');
+
+                    if (!scannedOrderIds.includes(code) && orderExistsAndNotPending) {
+                        scannedOrderIds.push(code);
+                        const li = document.createElement('li');
+                        li.textContent = code;
+                        const removeBtn = document.createElement('button');
+                        removeBtn.classList.add('remove-scanned-item');
+                        removeBtn.textContent = 'X';
+                        removeBtn.addEventListener('click', () => {
+                            scannedOrderIds = scannedOrderIds.filter(item => item !== code);
+                            li.remove();
+                        });
+                        li.appendChild(removeBtn);
+                        scannedItemsUl.appendChild(li);
+                    } else if (scannedOrderIds.includes(code)) {
+                        console.log(`Barcode ${code} sudah ada di daftar.`);
+                    } else if (!orderExistsAndNotPending) {
+                        alert(`Pesanan #${code} tidak ditemukan atau masih menunggu konfirmasi. Hanya pesanan yang sudah diterima yang bisa diproses di sini.`);
+                    }
+                });
+            }
+
+            startScanner(); // Mulai scanner saat overlay ditampilkan
+
+            document.getElementById('stop-scanner').addEventListener('click', () => {
+                Quagga.stop();
+                overlay.remove();
+            });
+
+            document.getElementById('toggle-camera').addEventListener('click', () => {
+                if (cameraList.length > 1) {
+                    // Temukan index kamera saat ini
+                    const currentIndex = cameraList.findIndex(device => device.deviceId === cameraDeviceId);
+                    // Pilih kamera berikutnya (putar kembali ke awal jika sudah di akhir)
+                    const nextIndex = (currentIndex + 1) % cameraList.length;
+                    cameraDeviceId = cameraList[nextIndex].deviceId;
+
+                    Quagga.stop(); // Hentikan scanner saat ini
+                    // Restart scanner dengan kamera yang baru
+                    startScanner();
+                    console.log('Mengganti kamera ke:', cameraList[nextIndex].label);
+                } else {
+                    alert('Hanya ada satu kamera yang terdeteksi.');
+                }
+            });
+
+            document.getElementById('update-scanned-orders').addEventListener('click', () => {
+                if (scannedOrderIds.length === 0) {
+                    alert('Tidak ada nomor pesanan yang dipindai untuk diupdate.');
+                    return;
+                }
+
+                // Konversi status teks ke status yang akan disimpan di Firebase
+                let newStatus = '';
+                if (currentStatusToUpdate === 'Dikemas') {
+                    newStatus = 'Pesanan sedang disiapkan oleh penjual';
+                } else if (currentStatusToUpdate === 'Diantar') {
+                    newStatus = 'Pesanan sedang diantar oleh penjual';
+                } else if (currentStatusToUpdate === 'Diterima') {
+                    newStatus = 'Pesanan telah diterima pelanggan';
+                }
+
+                // Update status di Firebase untuk setiap ID yang dipindai
+                scannedOrderIds.forEach(orderIdToUpdate => {
+                    // Cari pesanan di array `orders` berdasarkan `id`
+                    const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
+                    if (orderToUpdate && orderToUpdate.firebaseId) { // Pastikan order ditemukan dan punya firebaseId
+                        database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
+                            .then(() => {
+                                console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
+                                // Perbarui status di array 'orders' lokal juga
+                                orderToUpdate.status = newStatus;
+                            })
+                            .catch(error => {
+                                console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
+                            });
+                    } else {
+                        console.warn(`Pesanan dengan ID #${orderIdToUpdate} tidak ditemukan di database lokal atau tidak memiliki firebaseId.`);
+                    }
+                });
+
+                alert(`${scannedOrderIds.length} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
+                Quagga.stop();
+                overlay.remove();
+                scannedOrderIds = []; // Kosongkan daftar setelah update
+                renderOrdersAdminPage(); // Refresh halaman admin
+            });
+        }
+
+        // --- New: Fungsi untuk menampilkan modal alasan penolakan ---
+        function showRejectReasonModal(firebaseId) {
+            const overlay = document.createElement('div');
+            overlay.classList.add('reject-modal-overlay');
+            overlay.innerHTML = `
+                <div class="reject-modal">
+                    <h4>Tolak Pesanan</h4>
+                    <p>Berikan catatan penolakan untuk pesanan ini:</p>
+                    <textarea id="reject-reason-input" placeholder="Misalnya: Stok habis, Alamat tidak jelas, dll." rows="4"></textarea>
+                    <div class="modal-buttons">
+                        <button class="confirm-reject">Kirim Penolakan</button>
+                        <button class="cancel-reject">Batal</button>
+                    </div>
+                </div>
+            `;
+            appAdminContainer.appendChild(overlay);
+
+            document.querySelector('.confirm-reject').addEventListener('click', () => {
+                const reason = document.getElementById('reject-reason-input').value.trim();
+                if (reason) {
+                    updateOrderStatus(firebaseId, 'Pesanan ditolak oleh penjual', reason);
+                    overlay.remove();
+                } else {
+                    alert('Catatan penolakan tidak boleh kosong.');
+                }
+            });
+
+            document.querySelector('.cancel-reject').addEventListener('click', () => {
+                overlay.remove();
+            });
+        }
+
+        // --- New/Modified: Fungsi untuk memperbarui status pesanan di Firebase ---
+        function updateOrderStatus(firebaseId, newStatus, rejectionReason = null) {
+            const updates = { status: newStatus };
+            if (rejectionReason !== null) { // Add rejection reason if provided
+                updates.rejectionReason = rejectionReason;
+            } else {
+                // Ensure rejectionReason is removed if status is not 'rejected'
+                // This prevents old rejection messages from lingering
+                updates.rejectionReason = firebase.database.ServerValue.remove();
+            }
+
+            database.ref('orders/' + firebaseId).update(updates)
+                .then(() => {
+                    console.log(`Status pesanan ${firebaseId} berhasil diupdate menjadi: ${newStatus}`);
+                    alert(`Pesanan berhasil diupdate menjadi "${newStatus}"!`);
+                    // Setelah update, Firebase listener akan otomatis me-render ulang halaman
+                })
+                .catch(error => {
+                    console.error(`Gagal mengupdate status pesanan ${firebaseId}:`, error);
+                    alert('Gagal mengupdate status pesanan. Coba lagi.');
+                });
+        }
+
+
+        // --- Integrasi Firebase (Realtime Database - unchanged logic for listener) ---
+        function getOrdersFromFirebase() {
+            database.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                orders = [];
+                if (data) {
+                    for (let key in data) {
+                        orders.push({ ...data[key], firebaseId: key });
+                    }
+                }
+                console.log('Pesanan dimuat dari Firebase (Admin):', orders);
+                // Render ulang halaman saat data berubah
+                if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'orders') {
+                    renderOrdersAdminPage();
+                } else if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'history') {
+                    renderHistoryAdminPage();
+                }
+            }, (error) => {
+                console.error('Gagal membaca pesanan dari Firebase (Admin):', error);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            getOrdersFromFirebase(); // Muat pesanan saat halaman admin dimuat
+            navigateAdmin('orders'); // Tampilkan halaman pesanan secara default
+        });
+    </script>
+</body>
+</html>
