@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Makanan Online</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Agar konten bisa scroll */
+            position: relative; /* Untuk bottom nav */
+            padding-bottom: 60px; /* Ruang untuk bottom nav */
+        }
+
+        header {
+            background-color: #ff6600;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #main-content {
+            padding: 15px;
+            overflow-y: auto; /* Aktifkan scroll pada konten utama */
+            flex-grow: 1; /* Agar mengambil ruang yang tersedia */
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            padding: 8px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            font-size: 0.8em;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .bottom-nav .nav-item.active {
+            color: #ff6600;
+        }
+
+        .bottom-nav .nav-item img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 3px;
+        }
+
+        /* Home Page */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .menu-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 150px; /* Atur tinggi sesuai lebar */
+            object-fit: cover;
+        }
+
+        .menu-card h3 {
+            font-size: 1.1em;
+            margin: 10px 0 5px;
+            color: #333;
+        }
+
+        .menu-card p {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        /* Product Detail (Modal) */
+        .product-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001; /* Di atas bottom nav */
+        }
+
+        .product-detail-modal {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            max-height: 90vh; /* Agar bisa discroll jika konten banyak */
+            overflow-y: auto;
+        }
+
+        .product-detail-modal .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .product-detail-modal img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .product-detail-modal h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-top: 0;
+            text-align: left;
+        }
+
+        .product-detail-modal .description {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .product-detail-modal .price-and-quantity {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .product-detail-modal .price {
+            font-size: 1.5em;
+            color: #ff6600;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .product-detail-modal .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-detail-modal .quantity-control button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        .product-detail-modal .quantity-control span {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .product-detail-modal .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .product-detail-modal .action-buttons button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .product-detail-modal .action-buttons button.buy-now {
+            background-color: #33cc33;
+        }
+
+        /* Cart Page */
+        .cart-items {
+            margin-top: 20px;
+            padding-bottom: 70px; /* Tambahkan padding agar tidak tertutup summary */
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1; /* Mengambil sisa ruang */
+        }
+
+        .cart-item-info input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .cart-item-info img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .item-details {
+            flex-grow: 1; /* Mengambil ruang untuk nama dan harga */
+        }
+
+        .item-details h4 {
+            margin: 0 0 5px 0;
+            font-size: 1em;
+        }
+
+        .item-details p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            flex-direction: row; /* Kontrol kuantitas sejajar horizontal */
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cart-item-actions .quantity-control {
+            margin-bottom: 0;
+        }
+
+        .cart-summary {
+            position: fixed; /* Agar tetap di bawah */
+            bottom: 60px; /* Di atas bottom-nav */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            padding: 15px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            display: flex; /* Untuk sejajar horizontal */
+            justify-content: space-between; /* Grand Total kiri, Tombol kanan */
+            align-items: center;
+            box-sizing: border-box; /* Include padding in width */
+            z-index: 999; /* Di bawah bottom-nav, di atas main-content */
+        }
+
+        .cart-summary h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .cart-summary .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cart-summary button {
+            background-color: #33cc33;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            flex-shrink: 0; /* Jangan menyusut */
+            font-weight: bold; /* Bold untuk tombol di summary cart */
+        }
+
+        .cart-summary button.delete-selected {
+            background-color: #dc3545;
+        }
+
+
+        /* Orders Page */
+        .order-list {
+            margin-top: 20px;
+        }
+
+        .order-card-summary { /* Gaya baru untuk ringkasan pesanan */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            cursor: pointer; /* Menunjukkan bisa diklik */
+            transition: background-color 0.2s;
+        }
+
+        .order-card-summary:hover {
+            background-color: #f0f0f0;
+        }
+
+        .order-card-summary h4 {
+            margin: 0 0 10px 0; /* Tambah margin bawah */
+            color: #ff6600;
+            display: flex; /* Untuk sejajar dengan tombol batal */
+            justify-content: space-between; /* Untuk mendorong tombol batal ke kanan */
+            align-items: center;
+        }
+
+        .order-card-summary p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* New: Cancel Order Link */
+        .cancel-order-link {
+            color: #dc3545; /* Red for cancel */
+            font-size: 0.8em;
+            font-weight: normal;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 10px; /* Jarak dari nomor pesanan */
+            white-space: nowrap; /* Jangan putus baris */
+        }
+
+        /* New: Time Display for status */
+        .status-time {
+            font-size: 0.8em;
+            color: #888;
+            margin-right: 5px; /* Jarak antara jam dan teks status */
+            font-weight: normal;
+        }
+
+        /* New: Rejection Reason */
+        .rejection-reason {
+            color: #dc3545; /* Red for rejection reason */
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #f0f0f0; /* Garis pemisah */
+            font-weight: normal; /* Pastikan tidak bold */
+        }
+
+
+        .order-card-detail { /* Gaya untuk detail pesanan yang muncul saat diklik */
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .order-card-detail .detail-item { /* Untuk meluruskan titik dua */
+            display: grid;
+            grid-template-columns: auto 1fr; /* Kolom pertama auto (untuk label+titik dua), kolom kedua sisa ruang */
+            gap: 5px; /* Jarak antar kolom */
+            align-items: start;
+        }
+
+        .order-card-detail .detail-item span:first-child {
+            white-space: nowrap; /* Jangan putus baris untuk label */
+        }
+
+        .order-card-detail ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+
+        .order-card-detail ul li {
+            margin-bottom: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #777;
+            font-size: 1.1em;
+        }
+
+        .empty-state button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold; /* Bold untuk tombol di empty state */
+        }
+
+        /* Form Pemesanan */
+        .order-form {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow-y: auto; /* Pastikan form bisa discroll */
+            max-height: calc(100vh - 120px); /* Sesuaikan tinggi agar tidak menutupi header/nav */
+        }
+
+        .order-form h2 {
+            text-align: center;
+            color: #ff6600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select,
+        .order-summary-checkout {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-group .note {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .order-summary-checkout {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ff6600;
+            border-radius: 5px;
+            background-color: #fffaf7;
+            box-sizing: border-box;
+        }
+
+        .order-summary-checkout h3 {
+            margin-top: 0;
+            color: #ff6600;
+            font-size: 1.2em;
+        }
+
+        .order-summary-checkout ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 10px;
+        }
+
+        .order-summary-checkout ul li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .order-summary-checkout .total-line {
+            font-weight: bold;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        /* Payment Method Label Spacing */
+        .form-group.payment-method-group {
+            margin-top: 25px; /* Jarak atas untuk label metode pembayaran */
+        }
+
+        /* Styling for optgroup labels to be bold */
+        .form-group select#paymentMethod optgroup {
+            font-weight: bold;
+            color: #333; /* Warna agar konsisten dengan label lain */
+        }
+        .form-group select#paymentMethod option {
+            font-weight: normal; /* Pastikan opsi di dalamnya tidak tebal */
+        }
+
+
+        /* Payment Dropdown Styling */
+        .form-group select#paymentMethod {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23333%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px;
+            padding-right: 30px;
+        }
+
+        .create-order-button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        /* Halaman QR Pembayaran (Full Page) */
+        .payment-qr-full-page {
+            position: absolute; /* Menggunakan absolute agar bisa diatur di dalam #app */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f4f4f4; /* Background senada dengan body */
+            display: flex;
+            flex-direction: column; /* Konten vertikal */
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 1000; /* Pastikan di atas konten utama */
+            overflow-y: auto; /* Agar bisa discroll jika konten panjang */
+        }
+
+        .payment-qr-full-page .top-bar {
+            display: flex;
+            justify-content: flex-end; /* Tombol X di kanan */
+            padding-bottom: 10px;
+        }
+
+        .payment-qr-full-page .close-button-qr {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        /* New styling for "Pesanan Dibuat!" text outside the box */
+        .payment-qr-full-page h3.order-success-title {
+            text-align: center;
+            color: #ff6600;
+            margin-top: 15px; /* Jarak dari tombol close */
+            margin-bottom: 20px; /* Jarak ke kotak */
+            font-size: 1.5em; /* Ukuran agak besar */
+        }
+
+        /* Kotak dashed QR: auto-fit content */
+        .payment-qr-content-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px dashed #ff6600;
+            /* Hapus flex-grow, justify-content, align-items, dan height */
+            /* agar ukuran kotak menyesuaikan kontennya */
+            display: inline-block; /* Agar border menyesuaikan lebar konten */
+            margin: 0 auto; /* Pusatkan kotak */
+            max-width: 90%; /* Batasi lebar agar tidak terlalu besar */
+            box-sizing: border-box;
+        }
+
+        .payment-qr-content-box .order-number-label {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 5px;
+            display: block; /* Agar label dan value di baris terpisah */
+        }
+
+        .payment-qr-content-box .order-number-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ff6600;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .payment-qr-content-box img {
+            max-width: 200px; /* Ukuran QR lebih pas di tengah */
+            height: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: block; /* Agar img center dan tidak ada sisa ruang samping */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .payment-qr-content-box .grand-total-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ff6600;
+            margin-bottom: 20px; /* Jarak dengan tombol unduh */
+            display: block;
+        }
+
+        .payment-qr-content-box button.download-qr {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            width: 100%; /* Tombol unduh memenuhi lebar kotak */
+            margin-top: 15px; /* Jarak dari total */
+            max-width: 250px; /* Agar tombol tidak terlalu lebar */
+        }
+
+        /* New Payment Instruction and Note Styling - Removed from inside the box */
+        /* These styles are now for the elements outside the main QR content box */
+        .payment-qr-full-page .payment-instruction-section,
+        .payment-qr-full-page .payment-note-section {
+            text-align: left; /* Rata kiri */
+            margin-top: 25px; /* Jarak dari elemen sebelumnya */
+            padding: 0 15px; /* Padding agar tidak terlalu mepet tepi */
+            width: 100%; /* Lebar penuh */
+            box-sizing: border-box;
+        }
+
+        .payment-qr-full-page .payment-instruction-section p,
+        .payment-qr-full-page .payment-note-section p {
+            margin-bottom: 5px; /* Dirapikan */
+            color: #555;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .payment-qr-full-page .payment-instruction-section p.title,
+        .payment-qr-full-page .payment-note-section p.title {
+            font-weight: bold;
+            margin-bottom: 8px; /* Dirapikan, sedikit lebih kecil dari sebelumnya */
+            color: #333;
+        }
+
+        .payment-qr-full-page .payment-instruction-section ul {
+            list-style: none; /* Hapus bullet default */
+            padding-left: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .payment-qr-full-page .payment-instruction-section ul li {
+            margin-bottom: 5px;
+            padding-left: 10px; /* Indentasi untuk poin-poin */
+            text-indent: -10px; /* Agar bullet " - " rata dengan teks */
+        }
+
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Pesan Makanan Praktis</h1>
+        </header>
+
+        <main id="main-content">
+            </main>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-target="home">
+                <img src="https://via.placeholder.com/24" alt="Beranda">
+                <span>Beranda</span>
+            </a>
+            <a href="#" class="nav-item" data-target="cart">
+                <img src="https://via.placeholder.com/24" alt="Keranjang">
+                <span>Keranjang</span>
+            </a>
+            <a href="#" class="nav-item" data-target="orders">
+                <img src="https://via.placeholder.com/24" alt="Pesanan">
+                <span>Pesanan</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyASXJiNqbekENXpk7C5U5XjE6gImfNUBwg",
+            authDomain: "pustakapribadi-25.firebaseapp.com",
+            databaseURL: "https://pustakapribadi-25-default-rtdb.firebaseio.com",
+            projectId: "pustakapribadi-25",
+            storageBucket: "pustakapribadi-25.firebasestorage.app",
+            messagingSenderId: "828550020946",
+            appId: "1:828550020946:web:65322f2092d1927c43c48b"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const mainContent = document.getElementById('main-content');
+        const appContainer = document.getElementById('app');
+        const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+
+        let cart = [];
+        let orders = []; // Ini akan menampung pesanan dari Firebase
+        const deliveryFee = 5000;
+
+        const menuItems = [
+            { id: 'm1', name: 'Nasi Goreng Spesial', price: 25000, description: 'Nasi goreng dengan telur, ayam suwir, dan kerupuk.', imageUrl: 'https://via.placeholder.com/150x150/FF6600/FFFFFF?text=Nasi+Goreng' },
+            { id: 'm2', name: 'Mie Ayam Bakso', price: 20000, description: 'Mie ayam lengkap dengan bakso sapi kenyal.', imageUrl: 'https://via.placeholder.com/150x150/FF6600/FFFFFF?text=Mie+Ayam' },
+            { id: 'm3', name: 'Ayam Geprek Sambal Matah', price: 28000, description: 'Ayam geprek pedas dengan sambal matah khas Bali.', imageUrl: 'https://via.placeholder.com/150x150/FF6600/FFFFFF?text=Ayam+Geprek' },
+            { id: 'm4', name: 'Sate Ayam Madura', price: 30000, description: 'Sate ayam bumbu kacang khas Madura.', imageUrl: 'https://via.placeholder.com/150x150/FF6600/FFFFFF?text=Sate+Ayam' },
+            { id: 'm5', name: 'Es Teh Manis', price: 5000, description: 'Minuman teh segar dengan es.', imageUrl: 'https://via.placeholder.com/150x150/FF6600/FFFFFF?text=Es+Teh' },
+        ];
+
+        // Menggunakan URL QR Code dari Cloudinary
+        const paymentQRUrl = "https://res.cloudinary.com/dduvixb7q/image/upload/v1721896792/payment_qr_code.png";
+
+        // Variabel untuk menyimpan urutan pesanan harian
+        let dailyOrderCount = 0;
+        let lastOrderDate = '';
+
+        // --- Helper Function untuk format tanggal ---
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        // --- Fungsi untuk menghasilkan Nomor Pesanan (diperbarui) ---
+        function generateOrderId() {
+            const today = new Date();
+            const todayFormatted = formatDateToYYYYMMDD(today);
+            const timeFormatted = String(today.getHours()).padStart(2, '0') + String(today.getMinutes()).padStart(2, '0'); // HHMM
+
+            if (lastOrderDate !== todayFormatted) {
+                dailyOrderCount = 0; // Reset counter for a new day
+                lastOrderDate = todayFormatted; // Update last order date
+            }
+            dailyOrderCount++;
+            const sequence = String(dailyOrderCount).padStart(3, '0'); // e.g., 001, 002
+            return `${todayFormatted}${timeFormatted}${sequence}`; // YYYYMMDDHHMMXXX
+        }
+
+        // --- Fungsi Navigasi ---
+        function setActiveNav(target) {
+            bottomNavItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.target === target) {
+                    item.classList.add('active');
+                }
+            });
+            const cartSummaryElement = document.getElementById('cart-summary-fixed');
+            if (cartSummaryElement) {
+                cartSummaryElement.style.display = (target === 'cart' && cart.length > 0) ? 'flex' : 'none';
+            }
+            // Pastikan overlay detail produk atau QR pembayaran tertutup saat navigasi
+            const productDetailOverlay = document.getElementById('product-detail-overlay');
+            if (productDetailOverlay) productDetailOverlay.remove();
+            
+            // Perubahan: Hapus halaman QR penuh jika navigasi ke tempat lain
+            const paymentQrFullPage = document.getElementById('payment-qr-full-page');
+            if (paymentQrFullPage) paymentQrFullPage.remove();
+        }
+
+        function navigate(target) {
+            setActiveNav(target);
+            const existingCartSummary = document.getElementById('cart-summary-fixed');
+            if (existingCartSummary) {
+                existingCartSummary.remove();
+            }
+
+            // Always show header and bottom nav when navigating,
+            // they will be hidden specifically by renderPaymentQrPage if needed.
+            document.querySelector('header').style.display = 'block';
+            document.querySelector('.bottom-nav').style.display = 'flex';
+            mainContent.style.display = 'block'; // Ensure main content is visible
+
+            switch (target) {
+                case 'home':
+                    renderHomePage();
+                    break;
+                case 'cart':
+                    renderCartPage();
+                    break;
+                case 'orders':
+                    renderOrdersPage();
+                    break;
+                case 'checkoutForm':
+                    renderCheckoutForm();
+                    break;
+                case 'paymentQrPage': // This target is now handled internally by renderPaymentQrPage
+                    break;
+                default:
+                    renderHomePage();
+            }
+        }
+
+        bottomNavItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigate(item.dataset.target);
+            });
+        });
+
+        // --- Halaman Beranda (Menampilkan Menu) ---
+        function renderHomePage() {
+            let homeHtml = `
+                <div class="menu-grid">
+            `;
+            menuItems.forEach(item => {
+                homeHtml += `
+                    <div class="menu-card" data-id="${item.id}">
+                        <img src="${item.imageUrl}" alt="${item.name}">
+                        <h3>${item.name}</h3>
+                        <p>Rp ${item.price.toLocaleString('id-ID')}</p>
+                    </div>
+                `;
+            });
+            homeHtml += `</div>`;
+            mainContent.innerHTML = homeHtml;
+
+            document.querySelectorAll('.menu-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const itemId = e.currentTarget.dataset.id;
+                    renderProductDetail(itemId);
+                });
+            });
+        }
+
+        // --- Tampilan Detail Produk (Modal) ---
+        function renderProductDetail(itemId) {
+            const product = menuItems.find(item => item.id === itemId);
+            if (!product) {
+                alert('Produk tidak ditemukan!');
+                renderHomePage();
+                return;
+            }
+
+            let quantity = 1;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'product-detail-overlay';
+            overlay.classList.add('product-detail-overlay');
+
+            const modal = document.createElement('div');
+            modal.classList.add('product-detail-modal');
+
+            modal.innerHTML = `
+                <button class="close-button">X</button>
+                <img src="${product.imageUrl}" alt="${product.name}">
+                <h2>${product.name}</h2>
+                <p class="description">${product.description}</p>
+                <div class="price-and-quantity">
+                    <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
+                    <div class="quantity-control">
+                        <button id="decrease-qty">-</button>
+                        <span id="product-qty">${quantity}</span>
+                        <button id="increase-qty">+</button>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="add-to-cart">Masukkan Keranjang</button>
+                    <button id="buy-now" class="buy-now">Pesan Sekarang</button>
+                </div>
+            `;
+            overlay.appendChild(modal);
+            appContainer.appendChild(overlay); // Masukkan overlay ke dalam app container
+
+            const productQtySpan = modal.querySelector('#product-qty');
+            modal.querySelector('#decrease-qty').addEventListener('click', () => {
+                if (quantity > 1) {
+                    quantity--;
+                    productQtySpan.textContent = quantity;
+                }
+            });
+
+            modal.querySelector('#increase-qty').addEventListener('click', () => {
+                quantity++;
+                productQtySpan.textContent = quantity;
+            });
+
+            modal.querySelector('#add-to-cart').addEventListener('click', () => {
+                addToCart(product, quantity);
+                alert(`${quantity} ${product.name} ditambahkan ke keranjang!`);
+                overlay.remove(); // Tutup modal
+            });
+
+            // Tombol "Pesan Sekarang" akan langsung ke form checkout
+            modal.querySelector('#buy-now').addEventListener('click', () => {
+                addToCart(product, quantity); // Tambahkan ke keranjang dulu
+                overlay.remove(); // Tutup modal
+                navigate('checkoutForm'); // Langsung ke form checkout
+            });
+
+            // Tutup modal jika klik tombol X atau di luar modal
+            modal.querySelector('.close-button').addEventListener('click', () => {
+                overlay.remove();
+            });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) { // Hanya jika klik tepat di overlay, bukan di modalnya
+                    overlay.remove();
+                }
+            });
+        }
+
+        // --- Fungsi Keranjang ---
+        function addToCart(product, quantity) {
+            const existingItemIndex = cart.findIndex(item => item.id === product.id);
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += quantity;
+            } else {
+                cart.push({ ...product, quantity: quantity, checked: true });
+            }
+            updateCartInFirebase();
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCartInFirebase();
+        }
+
+        function removeCheckedItemsFromCart() {
+            cart = cart.filter(item => !item.checked);
+            updateCartInFirebase();
+        }
+
+        function updateCartItemQuantity(itemId, newQuantity) {
+            const item = cart.find(item => item.id === itemId);
+            if (item) {
+                item.quantity = newQuantity;
+                if (item.quantity <= 0) {
+                    removeFromCart(itemId);
+                } else {
+                    updateCartInFirebase();
+                }
+            }
+        }
+
+        function toggleCartItemChecked(itemId) {
+            const item = cart.find(item => item.id === itemId);
+            if (item) {
+                item.checked = !item.checked;
+                updateCartInFirebase();
+            }
+        }
+
+        function calculateGrandTotal() {
+            return cart.reduce((total, item) => {
+                return item.checked ? total + (item.price * item.quantity) : total;
+            }, 0);
+        }
+
+        function renderCartPage() {
+            let cartHtml = `
+                <div class="cart-items">
+            `;
+            if (cart.length === 0) {
+                cartHtml += `<p class="empty-state">Keranjangmu masih kosong. Yuk, tambahkan makanan favoritmu!</p>`;
+            } else {
+                cart.forEach(item => {
+                    cartHtml += `
+                        <div class="cart-item" data-id="${item.id}">
+                            <div class="cart-item-info">
+                                <input type="checkbox" ${item.checked ? 'checked' : ''} data-id="${item.id}">
+                                <img src="${item.imageUrl}" alt="${item.name}">
+                                <div class="item-details">
+                                    <h4>${item.name}</h4>
+                                    <p>Rp ${item.price.toLocaleString('id-ID')} x ${item.quantity}</p>
+                                </div>
+                            </div>
+                            <div class="cart-item-actions">
+                                <div class="quantity-control">
+                                    <button class="decrease-cart-qty" data-id="${item.id}">-</button>
+                                    <span class="cart-item-qty">${item.quantity}</span>
+                                    <button class="increase-cart-qty" data-id="${item.id}">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            cartHtml += `</div>`;
+            mainContent.innerHTML = cartHtml;
+
+            let cartSummaryElement = document.getElementById('cart-summary-fixed');
+            if (!cartSummaryElement) {
+                cartSummaryElement = document.createElement('div');
+                cartSummaryElement.id = 'cart-summary-fixed';
+                cartSummaryElement.classList.add('cart-summary');
+                appContainer.appendChild(cartSummaryElement);
+            }
+            
+            const hasCheckedItems = cart.filter(item => item.checked).length > 0;
+            const checkoutButtonDisabled = !hasCheckedItems;
+            const deleteSelectedButtonDisabled = !hasCheckedItems;
+
+            cartSummaryElement.innerHTML = `
+                <h3>Grand Total: <span id="grand-total">Rp ${calculateGrandTotal().toLocaleString('id-ID')}</span></h3>
+                <div class="action-buttons">
+                    <button id="delete-selected-items" class="delete-selected" ${deleteSelectedButtonDisabled ? 'disabled' : ''}>Hapus</button>
+                    <button id="checkout-button" ${checkoutButtonDisabled ? 'disabled' : ''}>Pesan Sekarang</button>
+                </div>
+            `;
+            cartSummaryElement.style.display = 'flex';
+
+            document.querySelectorAll('.cart-item-info input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const itemId = e.currentTarget.dataset.id;
+                    toggleCartItemChecked(itemId);
+                    renderCartPage();
+                });
+            });
+
+            document.querySelectorAll('.increase-cart-qty').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const itemId = e.currentTarget.dataset.id;
+                    const item = cart.find(i => i.id === itemId);
+                    if (item) {
+                        updateCartItemQuantity(itemId, item.quantity + 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.decrease-cart-qty').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const itemId = e.currentTarget.dataset.id;
+                    const item = cart.find(i => i.id === itemId);
+                    if (item && item.quantity > 1) {
+                        updateCartItemQuantity(itemId, item.quantity - 1);
+                    } else if (item && item.quantity === 1) {
+                        if (confirm('Kuantitas akan menjadi 0. Hapus item ini dari keranjang?')) {
+                            removeFromCart(itemId);
+                        }
+                    }
+                });
+            });
+
+            document.getElementById('delete-selected-items').addEventListener('click', () => {
+                const checkedItems = cart.filter(item => item.checked);
+                if (checkedItems.length > 0) {
+                    if (confirm(`Apakah Anda yakin ingin menghapus ${checkedItems.length} item yang dipilih dari keranjang?`)) {
+                        removeCheckedItemsFromCart();
+                    }
+                } else {
+                    alert('Tidak ada item yang dipilih untuk dihapus.');
+                }
+            });
+
+            document.getElementById('checkout-button').addEventListener('click', () => {
+                const itemsToCheckout = cart.filter(item => item.checked);
+                if (itemsToCheckout.length > 0) {
+                    navigate('checkoutForm');
+                } else {
+                    alert('Pilih setidaknya satu item untuk dipesan.');
+                }
+            });
+        }
+
+        // --- Formulir Pemesanan ---
+        function renderCheckoutForm() {
+            const cartSummaryElement = document.getElementById('cart-summary-fixed');
+            if (cartSummaryElement) {
+                cartSummaryElement.style.display = 'none';
+            }
+
+            const itemsToOrder = cart.filter(item => item.checked);
+            if (itemsToOrder.length === 0) {
+                alert('Tidak ada item yang dipilih untuk dipesan.');
+                navigate('cart');
+                return;
+            }
+
+            let orderItemsHtml = '';
+            let subtotal = 0;
+            itemsToOrder.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                orderItemsHtml += `
+                    <li>
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>Rp ${itemTotal.toLocaleString('id-ID')}</span>
+                    </li>
+                `;
+            });
+
+            const totalWithDelivery = subtotal + deliveryFee;
+
+            let formHtml = `
+                <div class="order-form">
+                    <h2>Lengkapi Detail Pemesanan</h2>
+                    <div class="form-group">
+                        <label for="customerName">Nama Pembeli:</label>
+                        <input type="text" id="customerName" placeholder="Masukkan nama lengkap Anda" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsappNumber">No. WhatsApp:</label>
+                        <input type="text" id="whatsappNumber" placeholder="Contoh: 081234567890" required>
+                        <div class="note">Pastikan nomor aktif yang bisa dihubungi.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="deliveryAddress">Alamat Pengiriman:</label>
+                        <textarea id="deliveryAddress" rows="3" placeholder="Contoh: Jl. Merdeka No. 123, RT 001/RW 002, Kel. Maju Jaya, Kec. Sejahtera, Kota Bahagia" required></textarea>
+                    </div>
+
+                    <div class="order-summary-checkout">
+                        <h3>Ringkasan Pesanan Anda</h3>
+                        <ul>
+                            ${orderItemsHtml}
+                            <li class="total-line">
+                                <span>Subtotal:</span>
+                                <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+                            </li>
+                            <li>
+                                <span>Ongkos Kirim:</span>
+                                <span>Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                            </li>
+                            <li class="total-line">
+                                <span>Grand Total:</span>
+                                <span>Rp ${totalWithDelivery.toLocaleString('id-ID')}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-group payment-method-group"> <label for="paymentMethod">Metode Pembayaran:</label>
+                        <select id="paymentMethod">
+                            <option value="">Pilih Metode Pembayaran</option>
+                            <optgroup label="Virtual Account">
+                                <option value="BNI VA">BNI Virtual Account</option>
+                                <option value="BRI VA">BRI Virtual Account</option>
+                                <option value="BCA VA">BCA Virtual Account</option>
+                                <option value="Mandiri VA">Mandiri Virtual Account</option>
+                                <option value="Permata VA">Permata Virtual Account</option>
+                            </optgroup>
+                            <optgroup label="E-Wallet">
+                                <option value="Dana">Dana</option>
+                                <option value="OVO">OVO</option>
+                                <option value="GoPay">GoPay</option>
+                                <option value="ShopePay">ShopePay</option>
+                            </optgroup>
+                            <optgroup label="Cash">
+                                <option value="COD">Cash On Delivery (COD)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <button id="create-order" class="create-order-button">Buat Pesanan</button>
+                </div>
+            `;
+            mainContent.innerHTML = formHtml;
+
+            // Auto-scroll to focused input
+            document.querySelectorAll('.order-form input, .order-form textarea').forEach(input => {
+                input.addEventListener('focus', (e) => {
+                    // Scroll container main-content ke elemen yang sedang fokus
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+
+            document.getElementById('create-order').addEventListener('click', () => {
+                const customerName = document.getElementById('customerName').value;
+                const whatsappNumber = document.getElementById('whatsappNumber').value;
+                const deliveryAddress = document.getElementById('deliveryAddress').value;
+                const selectedPaymentMethod = document.getElementById('paymentMethod').value;
+
+                if (!customerName || !whatsappNumber || !deliveryAddress || !selectedPaymentMethod || selectedPaymentMethod === '') {
+                    alert('Mohon lengkapi semua data formulir!');
+                    return;
+                }
+
+                const itemsForOrder = cart.filter(item => item.checked).map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                }));
+
+                const orderGrandTotal = totalWithDelivery;
+
+                const newOrderId = generateOrderId();
+                const submissionTimestamp = Date.now(); // Timestamp untuk jendela pembatalan
+
+                // Buat pesanan di database
+                placeOrder(newOrderId, customerName, whatsappNumber, deliveryAddress, selectedPaymentMethod, itemsForOrder, orderGrandTotal, submissionTimestamp);
+                
+                // Kosongkan keranjang setelah pesanan dibuat (hanya item yang dicentang)
+                cart = cart.filter(item => !item.checked);
+                updateCartInFirebase();
+                
+                // Tampilkan halaman QR pembayaran terpisah
+                renderPaymentQrPage(newOrderId, orderGrandTotal, selectedPaymentMethod);
+            });
+        }
+
+        // --- Fungsi untuk menampilkan halaman QR pembayaran terpisah (Full Page) ---
+        function renderPaymentQrPage(orderNumber, grandTotal, paymentMethod) {
+            // Sembunyikan main-content dan bottom-nav
+            mainContent.style.display = 'none';
+            document.querySelector('.bottom-nav').style.display = 'none';
+            document.querySelector('header').style.display = 'none'; // Sembunyikan header juga
+
+            const paymentQrFullPage = document.createElement('div');
+            paymentQrFullPage.id = 'payment-qr-full-page';
+            paymentQrFullPage.classList.add('payment-qr-full-page');
+
+            let paymentContentHtml = `
+                <div class="top-bar">
+                    <button class="close-button-qr">X</button>
+                </div>
+                <h3 class="order-success-title">Pesanan Dibuat!</h3> `;
+
+            if (paymentMethod !== 'COD') {
+                paymentContentHtml += `
+                    <div class="payment-qr-content-box">
+                        <span class="order-number-label">Nomor Pesanan:</span>
+                        <span class="order-number-value">#${orderNumber}</span>
+                        <img src="${paymentQRUrl}" alt="Scan untuk Bayar">
+                        <span class="grand-total-display">Total yang harus dibayar: Rp ${grandTotal.toLocaleString('id-ID')}</span>
+                        <button id="download-qr-post-order" class="download-qr">Unduh QR Pembayaran</button>
+                    </div>
+                    <div class="payment-instruction-section">
+                        <p class="title">Petunjuk Pembayaran:</p>
+                        <ul>
+                            <li>- Screen shot atau unduh kode QR pembayaran lalu pindai.</li>
+                            <li>- Masukkan nominal sesuai dengan harga yang tertera.</li>
+                        </ul>
+                    </div>
+                    <div class="payment-note-section">
+                        <p class="title">Catatan:</p>
+                        <p>Jika nominal yang diinput kurang dari harga yang tertera, pembeli akan mengembalikannya sebesar 90%.</p>
+                    </div>
+                `;
+            } else {
+                paymentContentHtml += `
+                    <div class="payment-qr-content-box">
+                        <span class="order-number-label">Nomor Pesanan:</span>
+                        <span class="order-number-value">#${orderNumber}</span>
+                        <p class="payment-instruction-only">Pembayaran akan dilakukan secara Cash On Delivery (COD) saat pesanan tiba.</p>
+                        <span class="grand-total-display">Total yang harus dibayar: Rp ${grandTotal.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+            }
+
+            paymentQrFullPage.innerHTML = paymentContentHtml;
+            appContainer.appendChild(paymentQrFullPage);
+
+            paymentQrFullPage.querySelector('.close-button-qr').addEventListener('click', () => {
+                paymentQrFullPage.remove();
+                mainContent.style.display = 'block'; // Tampilkan kembali main-content
+                document.querySelector('.bottom-nav').style.display = 'flex'; // Tampilkan kembali bottom-nav
+                document.querySelector('header').style.display = 'block'; // Tampilkan kembali header
+                navigate('orders'); // Kembali ke tab pesanan setelah menutup QR
+            });
+
+            if (paymentMethod !== 'COD') {
+                document.getElementById('download-qr-post-order').addEventListener('click', async () => {
+                    try {
+                        const response = await fetch(paymentQRUrl);
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `QR_Pembayaran_${orderNumber}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url); // Bersihkan URL objek
+                        alert('Gambar QR Code berhasil diunduh!');
+                    } catch (error) {
+                        console.error('Gagal mengunduh QR Code:', error);
+                        alert('Gagal mengunduh gambar QR Code. Silakan coba lagi.');
+                    }
+                });
+            }
+        }
+
+
+        // --- Fungsi Pesanan (Diperbarui untuk fitur baru) ---
+        function placeOrder(orderId, customerName, whatsappNumber, deliveryAddress, paymentMethod, items, totalAmount, submissionTimestamp) {
+            const now = new Date();
+            const newOrder = {
+                id: orderId,
+                customerName: customerName,
+                whatsappNumber: whatsappNumber,
+                deliveryAddress: deliveryAddress,
+                paymentMethod: paymentMethod,
+                items: items,
+                total: totalAmount,
+                status: 'Menunggu konfirmasi dari penjual', // Status awal baru
+                orderDate: now.toLocaleString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                statusUpdatedAt: now.toISOString(), // New: timestamp for status updates
+                submissionTimestamp: submissionTimestamp // New: timestamp for cancellation window
+            };
+            
+            // Push data to Firebase and get the unique key
+            const newOrderRef = database.ref('orders').push();
+            newOrderRef.set(newOrder)
+                .then(() => {
+                    console.log('Pesanan berhasil ditempatkan ke Firebase:', newOrderRef.key);
+                    // Tidak perlu push ke array orders lokal di sini, karena getOrdersFromFirebase akan memuat ulang
+                })
+                .catch(error => {
+                    console.error('Error placing order to Firebase:', error);
+                    alert('Gagal menempatkan pesanan. Silakan coba lagi.');
+                });
+        }
+
+        function renderOrdersPage() {
+            const cartSummaryElement = document.getElementById('cart-summary-fixed');
+            if (cartSummaryElement) {
+                cartSummaryElement.style.display = 'none';
+            }
+
+            let ordersHtml = `<div class="order-list">`;
+            const now = Date.now();
+            
+            // Filter pesanan untuk "aktif" di tab ini
+            const activeOrders = orders.filter(order => {
+                // Pesanan yang diterima akan hilang setelah besok (artinya hanya tampil hari ini jika statusnya 'diterima')
+                if (order.status === 'Pesanan telah diterima pelanggan') {
+                    const statusUpdateDate = new Date(order.statusUpdatedAt);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Atur ke awal hari ini
+                    statusUpdateDate.setHours(0, 0, 0, 0); // Atur ke awal hari pembaruan status
+                    return statusUpdateDate.getTime() === today.getTime(); // Hanya tampil jika diterima hari ini
+                }
+                // Tampilkan status lain kecuali 'Ditolak' dan 'Dibatalkan oleh pembeli' (karena itu dianggap riwayat)
+                return order.status !== 'Pesanan ditolak oleh penjual' && order.status !== 'Pesanan dibatalkan oleh pembeli';
+            });
+
+            // Urutkan pesanan aktif dari yang terbaru
+            const sortedActiveOrders = [...activeOrders].sort((a, b) => b.submissionTimestamp - a.submissionTimestamp);
+
+
+            if (sortedActiveOrders.length === 0) {
+                ordersHtml += `
+                    <div class="empty-state">
+                        <p>Kamu belum pesan apapun, yuk pesan sekarang!</p>
+                        <button id="go-to-home-from-empty-order">Pesan Sekarang</button>
+                    </div>
+                `;
+            } else {
+                sortedActiveOrders.forEach((order) => {
+                    const orderSubmissionTime = new Date(order.submissionTimestamp);
+                    const twentyMinutesLater = orderSubmissionTime.getTime() + (20 * 60 * 1000); // 20 menit dalam milidetik
+                    const canCancel = order.status === 'Menunggu konfirmasi dari penjual' && now < twentyMinutesLater;
+
+                    // Format waktu pembaruan status
+                    let statusTime = '';
+                    if (order.statusUpdatedAt) {
+                        const date = new Date(order.statusUpdatedAt);
+                        statusTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    ordersHtml += `
+                        <div class="order-card-summary" data-firebase-id="${order.firebaseId}">
+                            <h4>
+                                Pesanan #${order.id}
+                                ${canCancel ? `<span class="cancel-order-link" data-firebase-id="${order.firebaseId}">Batalkan Pesanan</span>` : ''}
+                            </h4>
+                            <p>Status: <span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
+                            ${order.rejectionReason ? `<p class="rejection-reason">Catatan Penjual: ${order.rejectionReason}</p>` : ''}
+                            <div class="order-card-detail" style="display: none;">
+                                <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
+                                <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
+                                <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
+                                <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
+                                <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
+                                <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
+                                <h5>Item Pesanan:</h5>
+                                <ul>
+                    `;
+                    order.items.forEach(item => {
+                        ordersHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
+                    });
+                    ordersHtml += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            ordersHtml += `</div>`;
+            mainContent.innerHTML = ordersHtml;
+
+            if (sortedActiveOrders.length === 0) {
+                document.getElementById('go-to-home-from-empty-order').addEventListener('click', () => {
+                    navigate('home');
+                });
+            } else {
+                document.querySelectorAll('.order-card-summary').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                         // Jangan toggle detail jika tombol batal diklik
+                        if (e.target.classList.contains('cancel-order-link')) {
+                            return;
+                        }
+                        const detailDiv = card.querySelector('.order-card-detail');
+                        if (detailDiv) {
+                            detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.cancel-order-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Mencegah event click bubbling ke card
+                        const firebaseId = e.target.dataset.firebaseId;
+                        if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
+                            cancelOrder(firebaseId);
+                        }
+                    });
+                });
+
+                // Set up a timer to re-render orders page every minute to update cancellation link visibility
+                // This is a simple approach. For high-frequency updates, consider a more sophisticated pub-sub.
+                // Clear any existing timeout to prevent multiple calls
+                if (window.ordersPageRefreshTimeout) {
+                    clearTimeout(window.ordersPageRefreshTimeout);
+                }
+                window.ordersPageRefreshTimeout = setTimeout(renderOrdersPage, 60 * 1000); // Re-render every minute
+            }
+        }
+
+
+        // --- Fungsi Riwayat Pesanan (BARU) ---
+        // Anda perlu menambahkan tab "Riwayat" di navigasi bottom-nav Anda
+        // Saya akan tambahkan logikanya di sini, Anda bisa menambahkannya di HTML
+        /*
+        <a href="#" class="nav-item" data-target="history">
+            <img src="https://via.placeholder.com/24" alt="Riwayat">
+            <span>Riwayat</span>
+        </a>
+        */
+        function renderHistoryPage() {
+            const cartSummaryElement = document.getElementById('cart-summary-fixed');
+            if (cartSummaryElement) {
+                cartSummaryElement.style.display = 'none';
+            }
+
+            let historyHtml = `<div class="order-list">`;
+
+            const historyOrders = orders.filter(order => {
+                // Pesanan "Diterima" dianggap riwayat jika sudah hari berikutnya
+                if (order.status === 'Pesanan telah diterima pelanggan') {
+                    const statusUpdateDate = new Date(order.statusUpdatedAt);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Set ke awal hari ini
+                    statusUpdateDate.setHours(0, 0, 0, 0); // Set ke awal hari pembaruan status
+                    return statusUpdateDate.getTime() < today.getTime(); // Jika diterima sebelum hari ini
+                }
+                // Pesanan "Ditolak" dan "Dibatalkan oleh pembeli" selalu masuk riwayat
+                return order.status === 'Pesanan ditolak oleh penjual' || order.status === 'Pesanan dibatalkan oleh pembeli';
+            });
+
+            // Urutkan riwayat pesanan dari yang terbaru
+            const sortedHistoryOrders = [...historyOrders].sort((a, b) => b.submissionTimestamp - a.submissionTimestamp);
+
+            if (sortedHistoryOrders.length === 0) {
+                historyHtml += `
+                    <div class="empty-state">
+                        <p>Belum ada riwayat pesanan.</p>
+                        <button id="go-to-home-from-empty-history">Pesan Sekarang</button>
+                    </div>
+                `;
+            } else {
+                sortedHistoryOrders.forEach((order) => {
+                     // Format waktu pembaruan status
+                    let statusTime = '';
+                    if (order.statusUpdatedAt) {
+                        const date = new Date(order.statusUpdatedAt);
+                        statusTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    historyHtml += `
+                        <div class="order-card-summary" data-firebase-id="${order.firebaseId}">
+                            <h4>Pesanan #${order.id}</h4>
+                            <p>Status: <span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
+                            ${order.rejectionReason ? `<p class="rejection-reason">Catatan Penjual: ${order.rejectionReason}</p>` : ''}
+                            <div class="order-card-detail" style="display: none;">
+                                <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
+                                <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
+                                <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
+                                <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
+                                <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
+                                <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
+                                <h5>Item Pesanan:</h5>
+                                <ul>
+                    `;
+                    order.items.forEach(item => {
+                        historyHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
+                    });
+                    historyHtml += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            historyHtml += `</div>`;
+            mainContent.innerHTML = historyHtml;
+
+            if (sortedHistoryOrders.length === 0) {
+                document.getElementById('go-to-home-from-empty-history').addEventListener('click', () => {
+                    navigate('home');
+                });
+            } else {
+                document.querySelectorAll('.order-card-summary').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const detailDiv = card.querySelector('.order-card-detail');
+                        if (detailDiv) {
+                            detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+
+        // --- Integrasi Firebase (Realtime Database) ---
+        function updateCartInFirebase() {
+            database.ref('cart').set(cart)
+                .then(() => {
+                    console.log('Keranjang berhasil diperbarui di Firebase.');
+                    if (document.querySelector('.bottom-nav .nav-item.active').dataset.target === 'cart') {
+                        renderCartPage();
+                    }
+                })
+                .catch(error => {
+                    console.error('Gagal memperbarui keranjang di Firebase:', error);
+                });
+        }
+
+        function getCartFromFirebase() {
+            database.ref('cart').on('value', (snapshot) => {
+                const data = snapshot.val();
+                cart = data ? Object.values(data) : [];
+                console.log('Keranjang dimuat dari Firebase:', cart);
+                if (document.querySelector('.bottom-nav .nav-item.active').dataset.target === 'cart') {
+                    renderCartPage();
+                }
+            }, (error) => {
+                console.error('Gagal membaca keranjang dari Firebase:', error);
+            });
+        }
+
+        // Fungsi ini tidak lagi digunakan untuk update keseluruhan pesanan,
+        // hanya untuk state dailyOrderCount dan lastOrderDate
+        function updateOrdersInFirebase() {
+            database.ref('appState/dailyOrderCount').set(dailyOrderCount);
+            database.ref('appState/lastOrderDate').set(lastOrderDate);
+            // Tidak perlu renderOrdersPage di sini karena `getOrdersFromFirebase` sudah punya listener
+        }
+
+        function getOrdersFromFirebase() {
+            database.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                orders = [];
+                if (data) {
+                    for (let key in data) {
+                        orders.push({ ...data[key], firebaseId: key });
+                    }
+                }
+                console.log('Pesanan dimuat dari Firebase (Customer):', orders);
+                // Refresh tampilan berdasarkan tab yang aktif
+                const activeTab = document.querySelector('.bottom-nav .nav-item.active').dataset.target;
+                if (activeTab === 'orders') {
+                    renderOrdersPage();
+                } else if (activeTab === 'history') { // Perhatikan jika Anda menambahkan tab history
+                    renderHistoryPage();
+                }
+                // Check dan hapus pesanan yang sudah diterima dan sudah lewat hari
+                checkAndDeleteOldReceivedOrders();
+            }, (error) => {
+                console.error('Gagal membaca pesanan dari Firebase (Customer):', error);
+            });
+        }
+
+        // New: Function to cancel an order
+        async function cancelOrder(firebaseId) {
+            try {
+                // Get current order data to check status and submission time
+                const orderRef = database.ref('orders/' + firebaseId);
+                const snapshot = await orderRef.once('value');
+                const order = snapshot.val();
+
+                if (order) {
+                    const now = Date.now();
+                    const orderSubmissionTime = order.submissionTimestamp; // Ini sudah dalam milidetik
+                    const twentyMinutesLater = orderSubmissionTime + (20 * 60 * 1000); // 20 minutes in milliseconds
+
+                    // Check if it's within 20 minutes and status is pending confirmation
+                    if (order.status === 'Menunggu konfirmasi dari penjual' && now < twentyMinutesLater) {
+                        await orderRef.update({
+                            status: 'Pesanan dibatalkan oleh pembeli',
+                            statusUpdatedAt: new Date().toISOString()
+                        });
+                        alert('Pesanan berhasil dibatalkan!');
+                    } else {
+                        alert('Pesanan tidak dapat dibatalkan. Mungkin sudah lewat batas waktu 20 menit atau statusnya sudah berubah.');
+                    }
+                } else {
+                    alert('Pesanan tidak ditemukan.');
+                }
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+                alert('Gagal membatalkan pesanan. Silakan coba lagi.');
+            }
+        }
+
+        // New: Function to delete old 'Diterima' orders from database
+        function checkAndDeleteOldReceivedOrders() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of today for comparison
+
+            orders.forEach(order => {
+                if (order.status === 'Pesanan telah diterima pelanggan' && order.statusUpdatedAt) {
+                    const statusUpdateDate = new Date(order.statusUpdatedAt);
+                    statusUpdateDate.setHours(0, 0, 0, 0); // Set to start of status update day
+
+                    // If the status update date is before today (meaning it was received yesterday or earlier)
+                    if (statusUpdateDate.getTime() < today.getTime()) {
+                        console.log(`Deleting old received order: ${order.id} (Received on: ${order.statusUpdatedAt})`);
+                        database.ref('orders/' + order.firebaseId).remove()
+                            .then(() => {
+                                console.log(`Order #${order.id} successfully removed from database.`);
+                            })
+                            .catch(error => {
+                                console.error(`Error removing order #${order.id}:`, error);
+                            });
+                    }
+                }
+            });
+        }
+
+        // Muat dailyOrderCount dan lastOrderDate dari Firebase saat aplikasi dimuat
+        function getAppStateFromFirebase() {
+            database.ref('appState').once('value', (snapshot) => {
+                const appState = snapshot.val();
+                if (appState) {
+                    dailyOrderCount = appState.dailyOrderCount || 0;
+                    lastOrderDate = appState.lastOrderDate || '';
+                }
+                // Setelah appState dimuat, baru muat keranjang dan pesanan, lalu navigasi
+                getCartFromFirebase();
+                getOrdersFromFirebase(); // Memulai listener real-time untuk pesanan
+                navigate('home');
+            }, (error) => {
+                console.error('Gagal membaca appState dari Firebase:', error);
+                // Fallback jika gagal membaca appState
+                getCartFromFirebase();
+                getOrdersFromFirebase();
+                navigate('home');
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            getAppStateFromFirebase(); // Panggil ini pertama
+        });
+    </script>
+</body>
+</html>
