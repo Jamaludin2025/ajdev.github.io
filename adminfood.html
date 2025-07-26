@@ -624,7 +624,7 @@
                                     <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
                                     <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
                                     <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
+                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')})</span></div>
                                     <h5>Item Pesanan:</h5>
                                     <ul>
                         `;
@@ -751,10 +751,14 @@
                 let newStatus = '';
                 if (currentStatusToUpdate === 'Dikemas') {
                     newStatus = 'Pesanan sedang disiapkan oleh penjual';
-                } else if (currentStatusToUpdate === 'Diantar') {
+                } else if (currentStatusToUpdate === 'Diantar') { // <-- PERBAIKAN DI SINI: currentStatusToUpdate
                     newStatus = 'Pesanan sedang diantar oleh penjual';
-                } else if (currentStatusToUpdate === 'Diterima') {
+                } else if (currentStatusToUpdate === 'Diterima') { // <-- PERBAIKAN DI SINI: currentStatusToUpdate
                     newStatus = 'Pesanan telah diterima pelanggan';
+                } else {
+                    console.warn("Status yang tidak dikenal:", currentStatusToUpdate);
+                    alert("Terjadi kesalahan: Status update tidak dikenal.");
+                    return;
                 }
 
                 let updatePromises = [];
