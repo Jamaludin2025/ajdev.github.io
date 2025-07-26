@@ -1,4 +1,5 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -126,7 +127,6 @@
             margin-top: 25px;
             margin-bottom: 15px;
             text-align: center;
-            font-size: 1.3em;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
@@ -687,13 +687,26 @@
                     }
                 }, function(err) {
                     if (err) {
-                        console.error(err);
-                        alert('Gagal memulai scanner: ' + err.message + '. Pastikan Anda mengizinkan akses kamera.');
+                        console.error("Quagga.init error:", err); // Log error lebih detail
+                        let errorMessage = 'Gagal memulai scanner: ';
+                        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+                            errorMessage += 'Akses kamera ditolak. Harap izinkan akses kamera di pengaturan browser Anda.';
+                        } else if (err.name === "NotFoundError") {
+                            errorMessage += 'Tidak ada perangkat kamera yang ditemukan.';
+                        } else if (err.name === "NotReadableError" || err.name === "OverconstrainedError") {
+                            errorMessage += 'Kamera sedang digunakan oleh aplikasi lain atau ada masalah perangkat keras.';
+                        } else if (location.protocol !== 'https:') {
+                            errorMessage += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Saat ini Anda menggunakan HTTP.';
+                        } else {
+                            errorMessage += 'Terjadi kesalahan tidak terduga: ' + err.message + '. Pastikan Anda mengizinkan akses kamera.';
+                        }
+                        alert(errorMessage);
                         overlay.remove();
                         return;
                     }
                     console.log("QuaggaJS initialization finished. Ready to start");
                     Quagga.start();
+                    console.log("Quagga.start() called successfully.");
                 });
 
                 Quagga.onDetected(function(result) {
