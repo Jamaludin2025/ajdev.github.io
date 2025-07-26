@@ -1,5 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/>
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -127,6 +126,7 @@
             margin-top: 25px;
             margin-bottom: 15px;
             text-align: center;
+            font-size: 1.3em;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
@@ -200,7 +200,7 @@
         }
 
 
-        /* Scanner Overlay */
+        /* Scanner Overlay (unchanged) */
         .scanner-overlay {
             position: fixed;
             top: 0;
@@ -236,8 +236,6 @@
             margin-top: 15px;
             display: flex;
             gap: 10px;
-            width: 90%; /* Menyesuaikan lebar dengan scanner-container */
-            max-width: 400px; /* Menyesuaikan lebar dengan scanner-container */
         }
 
         .scanner-controls button {
@@ -248,21 +246,19 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            flex-grow: 1; /* Agar tombol mengisi ruang */
         }
 
         .scanner-controls button.cancel {
             background-color: #dc3545;
         }
-        
-        /* Scanned Orders List - Lebar sama dengan scanner */
+
         .scanned-orders-list {
             background-color: #fff;
             border-radius: 8px;
             padding: 15px;
             margin-top: 20px;
-            width: 90%; /* Lebar sama dengan scanner-container */
-            max-width: 400px; /* Lebar sama dengan scanner-container */
+            width: 90%;
+            max-width: 400px;
             max-height: 200px;
             overflow-y: auto;
             border: 1px solid #ddd;
@@ -301,6 +297,20 @@
             cursor: pointer;
             padding: 0;
             line-height: 1;
+        }
+
+        .update-all-scanned-button {
+            background-color: #28a745; /* Green for success */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
         }
 
         /* New: Reject Reason Modal */
@@ -614,7 +624,7 @@
                                     <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
                                     <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
                                     <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</p></div>
+                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
                                     <h5>Item Pesanan:</h5>
                                     <ul>
                         `;
@@ -643,151 +653,148 @@
         }
 
 
-        // --- Fungsi Scanner Barcode (QuaggaJS) ---
+        // --- Fungsi Scanner Barcode (QuaggaJS - unchanged) ---
         function showScannerOverlay() {
-            scannedOrderIds = []; // Reset daftar pesanan yang dipindai setiap kali scanner dibuka
+    scannedOrderIds = [];
 
-            const overlay = document.createElement('div');
-            overlay.classList.add('scanner-overlay');
-            overlay.innerHTML = `
-                <div id="scanner-container">
-                    <video id="barcode-scanner-video"></video>
-                </div>
-                <div class="scanner-controls">
-                    <button id="stop-scanner" class="cancel">Batal</button>
-                    <button id="update-scanned-orders">Update</button>
-                </div>
-                <div class="scanned-orders-list">
-                    <h4>Pesanan yang Dipindai:</h4>
-                    <ul id="scanned-items-ul">
-                        </ul>
-                </div>
-            `;
-            appAdminContainer.appendChild(overlay);
+    const overlay = document.createElement('div');
+    overlay.classList.add('scanner-overlay');
+    overlay.innerHTML = `
+        <div id="scanner-container">
+            <video id="barcode-scanner-video"></video>
+        </div>
+        <div class="scanner-controls">
+            <button id="stop-scanner" class="cancel">Batal</button>
+            <button id="toggle-camera">Ganti Kamera</button>
+        </div>
+        <div class="scanned-orders-list">
+            <h4>Pesanan yang Dipindai (${currentStatusToUpdate}):</h4>
+            <ul id="scanned-items-ul"></ul>
+        </div>
+        <button id="update-scanned-orders" class="update-all-scanned-button">Update Status (${currentStatusToUpdate})</button>
+    `;
+    appAdminContainer.appendChild(overlay);
 
-            const videoElement = document.getElementById('barcode-scanner-video');
-            const scannedItemsUl = document.getElementById('scanned-items-ul');
+    const videoElement = document.getElementById('barcode-scanner-video');
+    const scannedItemsUl = document.getElementById('scanned-items-ul');
+    let cameraDeviceId = null;
+    let cameraList = [];
 
-            // Initialize QuaggaJS
-            function startScanner() {
-                Quagga.init({
-                    inputStream : {
-                        name : "Live",
-                        type : "LiveStream",
-                        target: videoElement, // Menggunakan elemen video
-                        constraints: {
-                            width: { min: 640 },
-                            height: { min: 480 },
-                            aspectRatio: { min: 1, max: 100 },
-                            facingMode: "environment", // Prioritaskan kamera belakang
-                        },
-                    },
-                    decoder : {
-                        readers : ["ean_reader", "code_128_reader", "code_39_reader"] // Jenis barcode yang didukung
-                    }
-                }, function(err) {
-                    if (err) {
-                        console.error("Quagga.init error:", err); // Log error lebih detail
-                        let errorMessage = 'Gagal memulai scanner: ';
-                        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                            errorMessage += 'Akses kamera ditolak. Harap izinkan akses kamera di pengaturan browser Anda.';
-                        } else if (err.name === "NotFoundError") {
-                            errorMessage += 'Tidak ada perangkat kamera yang ditemukan.';
-                        } else if (err.name === "NotReadableError" || err.name === "OverconstrainedError") {
-                            errorMessage += 'Kamera sedang digunakan oleh aplikasi lain atau ada masalah perangkat keras.';
-                        } else if (location.protocol !== 'https:') {
-                            errorMessage += 'Akses kamera hanya diizinkan di koneksi aman (HTTPS) atau localhost. Saat ini Anda menggunakan HTTP.';
-                        } else {
-                            errorMessage += 'Terjadi kesalahan tidak terduga: ' + err.message + '. Pastikan Anda mengizinkan akses kamera.';
-                        }
-                        alert(errorMessage);
-                        overlay.remove();
-                        return;
-                    }
-                    console.log("QuaggaJS initialization finished. Ready to start");
-                    Quagga.start();
-                    console.log("Quagga.start() called successfully.");
-                });
+    function startScanner() {
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: videoElement,
+                constraints: {
+                    facingMode: "environment",
+                    deviceId: cameraDeviceId ? { exact: cameraDeviceId } : undefined,
+                    width: { min: 640 },
+                    height: { min: 480 },
+                    aspectRatio: { min: 1, max: 100 }
+                }
+            },
+            decoder: {
+                readers: ["ean_reader", "code_128_reader", "code_39_reader"]
+            }
+        }, function (err) {
+            if (err) {
+                console.error(err);
+                alert('Gagal memulai scanner: ' + err.message);
+                overlay.remove();
+                return;
+            }
+            Quagga.start();
+        });
 
-                Quagga.onDetected(function(result) {
-                    const code = result.codeResult.code;
-                    console.log("Barcode detected and processed: ", code);
-                    // Hanya tambahkan jika orderId memang ada di daftar pesanan dan bukan status "Menunggu konfirmasi"
-                    const orderExistsAndNotPending = orders.some(order => order.id === code && order.status !== 'Menunggu konfirmasi dari penjual');
+        Quagga.onDetected(function (result) {
+            const code = result.codeResult.code;
+            const exists = orders.some(order => order.id === code && order.status !== 'Menunggu konfirmasi dari penjual');
 
-                    if (!scannedOrderIds.includes(code) && orderExistsAndNotPending) {
-                        scannedOrderIds.push(code);
-                        const li = document.createElement('li');
-                        li.textContent = `Pesanan #${code}`;
-                        const removeBtn = document.createElement('button');
-                        removeBtn.classList.add('remove-scanned-item');
-                        removeBtn.textContent = 'X';
-                        removeBtn.addEventListener('click', () => {
-                            scannedOrderIds = scannedOrderIds.filter(item => item !== code);
-                            li.remove();
-                        });
-                        li.appendChild(removeBtn);
-                        scannedItemsUl.appendChild(li);
-                    } else if (scannedOrderIds.includes(code)) {
-                        console.log(`Barcode ${code} sudah ada di daftar.`);
-                    } else if (!orderExistsAndNotPending) {
-                        alert(`Pesanan #${code} tidak ditemukan atau masih menunggu konfirmasi. Hanya pesanan yang sudah diterima yang bisa diproses di sini.`);
-                    }
-                });
+            if (!scannedOrderIds.includes(code) && exists) {
+                scannedOrderIds.push(code);
+                const li = document.createElement('li');
+                li.textContent = code;
+                const btn = document.createElement('button');
+                btn.classList.add('remove-scanned-item');
+                btn.textContent = 'X';
+                btn.onclick = () => {
+                    scannedOrderIds = scannedOrderIds.filter(id => id !== code);
+                    li.remove();
+                };
+                li.appendChild(btn);
+                scannedItemsUl.appendChild(li);
+            }
+        });
+    }
+
+    Quagga.CameraAccess.enumerateVideoDevices()
+        .then(devices => {
+            cameraList = devices.filter(device => device.kind === 'videoinput');
+            if (cameraList.length === 0) {
+                alert('Kamera tidak ditemukan.');
+                overlay.remove();
+                return;
             }
 
-            startScanner(); // Mulai scanner saat overlay ditampilkan
+            const backCam = cameraList.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
+            cameraDeviceId = backCam ? backCam.deviceId : cameraList[0].deviceId;
 
-            document.getElementById('stop-scanner').addEventListener('click', () => {
-                Quagga.stop();
-                overlay.remove();
-            });
+            startScanner();
+        });
 
-            // Tombol "Ganti Kamera" telah dihapus sesuai permintaan.
-            // Logika untuk mengganti kamera juga dihapus.
+    document.getElementById('stop-scanner').onclick = () => {
+        Quagga.stop();
+        overlay.remove();
+    };
 
-            document.getElementById('update-scanned-orders').addEventListener('click', () => {
-                if (scannedOrderIds.length === 0) {
-                    alert('Tidak ada nomor pesanan yang dipindai untuk diupdate.');
-                    return;
-                }
+    document.getElementById('toggle-camera').onclick = () => {
+        if (cameraList.length > 1) {
+            const currentIndex = cameraList.findIndex(d => d.deviceId === cameraDeviceId);
+            const nextIndex = (currentIndex + 1) % cameraList.length;
+            cameraDeviceId = cameraList[nextIndex].deviceId;
 
-                // Konversi status teks ke status yang akan disimpan di Firebase
-                let newStatus = '';
-                if (currentStatusToUpdate === 'Dikemas') {
-                    newStatus = 'Pesanan sedang disiapkan oleh penjual';
-                } else if (currentStatusToUpdate === 'Diantar') {
-                    newStatus = 'Pesanan sedang diantar oleh penjual';
-                } else if (currentStatusToUpdate === 'Diterima') {
-                    newStatus = 'Pesanan telah diterima pelanggan';
-                }
-
-                // Update status di Firebase untuk setiap ID yang dipindai
-                scannedOrderIds.forEach(orderIdToUpdate => {
-                    // Cari pesanan di array `orders` berdasarkan `id`
-                    const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
-                    if (orderToUpdate && orderToUpdate.firebaseId) { // Pastikan order ditemukan dan punya firebaseId
-                        database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
-                            .then(() => {
-                                console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
-                                // Perbarui status di array 'orders' lokal juga
-                                orderToUpdate.status = newStatus;
-                            })
-                            .catch(error => {
-                                console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
-                            });
-                    } else {
-                        console.warn(`Pesanan dengan ID #${orderIdToUpdate} tidak ditemukan di database lokal atau tidak memiliki firebaseId.`);
-                    }
-                });
-
-                alert(`${scannedOrderIds.length} pesanan berhasil diupdate ke status "${currentStatusToUpdate}"!`);
-                Quagga.stop();
-                overlay.remove();
-                scannedOrderIds = []; // Kosongkan daftar setelah update
-                renderOrdersAdminPage(); // Refresh halaman admin
-            });
+            Quagga.stop();
+            startScanner();
+        } else {
+            alert('Hanya satu kamera tersedia.');
         }
+    };
+
+    document.getElementById('update-scanned-orders').onclick = () => {
+        if (scannedOrderIds.length === 0) {
+            alert('Tidak ada nomor pesanan yang dipindai.');
+            return;
+        }
+
+        let newStatus = '';
+        if (currentStatusToUpdate === 'Dikemas') {
+            newStatus = 'Pesanan sedang disiapkan oleh penjual';
+        } else if (currentStatusToUpdate === 'Diantar') {
+            newStatus = 'Pesanan sedang diantar oleh penjual';
+        } else if (currentStatusToUpdate === 'Diterima') {
+            newStatus = 'Pesanan telah diterima pelanggan';
+        }
+
+        scannedOrderIds.forEach(orderIdToUpdate => {
+            const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
+            if (orderToUpdate && orderToUpdate.firebaseId) {
+                database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
+                    .then(() => {
+                        orderToUpdate.status = newStatus;
+                        console.log(`Updated: ${orderIdToUpdate}`);
+                    });
+            }
+        });
+
+        alert(`${scannedOrderIds.length} pesanan diupdate ke "${currentStatusToUpdate}"`);
+        Quagga.stop();
+        overlay.remove();
+        scannedOrderIds = [];
+        renderOrdersAdminPage();
+    };
+}
+
 
         // --- New: Fungsi untuk menampilkan modal alasan penolakan ---
         function showRejectReasonModal(firebaseId) {
