@@ -237,6 +237,7 @@
             display: flex;
             justify-content: space-between; /* Untuk meletakkan tombol di ujung */
             align-items: center;
+            gap: 10px; /* Jarak antar tombol */
         }
 
         .scanner-controls button {
@@ -247,6 +248,8 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            flex: 1; /* Membuat tombol memiliki lebar yang sama */
+            font-size: 1em; /* Menyeragamkan ukuran teks tombol */
         }
 
         .scanner-controls button.cancel {
@@ -669,7 +672,7 @@
             overlay.innerHTML = `
                 <div id="reader"></div> <div class="scanner-controls">
                     <button id="stop-scanner" class="cancel">Batal</button>
-                    <button id="update-scanned-orders" class="update-all-scanned-button">Update</button> </div>
+                    <button id="update-scanned-orders">Update</button> </div>
                 <div class="scanned-orders-list">
                     <h4>Pesanan yang Dipindai (${currentStatusToUpdate}):</h4>
                     <ul id="scanned-items-ul"></ul>
