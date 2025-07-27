@@ -159,6 +159,12 @@
             gap: 10px;
             margin-top: 15px;
         }
+        
+        .pending-order-actions .button-group {
+            display: flex;
+            flex-grow: 1;
+            gap: 10px;
+        }
 
         .pending-order-actions button {
             flex: 1;
@@ -187,6 +193,15 @@
 
         .pending-order-actions .reject-button:hover {
             background-color: #c82333;
+        }
+
+        .pending-order-actions .receipt-button {
+            background-color: #007bff; /* Blue */
+            color: white;
+        }
+
+        .pending-order-actions .receipt-button:hover {
+            background-color: #0056b3;
         }
 
         .empty-pending-orders {
@@ -448,11 +463,213 @@
             font-size: 1.1em;
         }
 
+        /* Receipt Modal Styles */
+        .receipt-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2002; /* Di atas semua modal lain */
+            overflow-y: auto; /* Untuk konten struk yang panjang */
+            padding: 20px 0;
+        }
+
+        .receipt-modal {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 320px; /* Lebar struk mirip contoh */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            text-align: center;
+            position: relative;
+            box-sizing: border-box; /* Pastikan padding termasuk dalam width */
+        }
+
+        .receipt-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #555;
+            background: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .receipt-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .receipt-header p {
+            font-size: 0.8em;
+            color: #777;
+            margin: 0 0 15px 0;
+        }
+
+        .receipt-info {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .receipt-info p {
+            display: flex;
+            margin: 3px 0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .receipt-info p span:first-child {
+            flex-basis: 90px; /* Lebar label */
+            font-weight: bold;
+        }
+        .receipt-info p span:last-child {
+            flex-grow: 1;
+        }
+
+        .receipt-items {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .receipt-items .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        .receipt-items .item-row .item-name {
+            flex-grow: 1;
+            padding-right: 10px;
+        }
+        .receipt-items .item-row .item-price {
+            white-space: nowrap; /* Menghindari pecah baris untuk harga */
+        }
+
+        .receipt-summary {
+            text-align: right;
+            margin-top: 15px;
+        }
+        .receipt-summary .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        .receipt-summary .summary-row .label {
+            font-weight: bold;
+        }
+        .receipt-summary .summary-row.total .value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .receipt-barcode {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .receipt-barcode canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .receipt-footer {
+            margin-top: 15px;
+            font-size: 0.85em;
+            color: #555;
+            text-align: center;
+        }
+        .receipt-footer p {
+            margin: 3px 0;
+        }
+
+        .receipt-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee; /* Pembatas untuk tombol */
+        }
+
+        .receipt-modal-actions button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .receipt-modal-actions .download-button {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+
+        .receipt-modal-actions .print-button {
+            background-color: #6c757d; /* Grey */
+            color: white;
+        }
+        
+        hr.dashed {
+            border: none;
+            border-top: 1px dashed #bbb;
+            margin: 10px 0;
+        }
+
+        /* Print Specific Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .receipt-modal-overlay, .receipt-modal-overlay * {
+                visibility: visible;
+            }
+            .receipt-modal-overlay {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                background: none;
+                display: block; /* Agar tidak flex dan bisa diprint normal */
+                padding: 0;
+            }
+            .receipt-modal {
+                box-shadow: none;
+                max-width: none;
+                width: 80mm; /* Lebar standar kertas struk */
+                margin: 0 auto;
+                padding: 0;
+                border: none;
+                border-radius: 0;
+            }
+            .receipt-modal-close, .receipt-modal-actions {
+                display: none; /* Sembunyikan tombol di mode cetak */
+            }
+            /* Menyesuaikan ukuran font untuk cetak jika perlu */
+            .receipt-modal h2 { font-size: 1.1em; }
+            .receipt-modal p, .receipt-modal .item-row, .receipt-modal .summary-row { font-size: 0.8em; }
+            .receipt-barcode canvas {
+                width: 100px; /* Sesuaikan ukuran barcode untuk cetak */
+                height: 40px;
+            }
+        }
+
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
     <div id="app-admin">
@@ -570,8 +787,11 @@
                             <p>Total: Rp ${order.total.toLocaleString('id-ID')}</p>
                             <p>Metode Pembayaran: ${order.paymentMethod}</p>
                             <div class="pending-order-actions">
-                                <button class="accept-button" data-firebase-id="${order.firebaseId}">Terima</button>
-                                <button class="reject-button" data-firebase-id="${order.firebaseId}">Tolak</button>
+                                <div class="button-group">
+                                    <button class="accept-button" data-firebase-id="${order.firebaseId}">Terima</button>
+                                    <button class="reject-button" data-firebase-id="${order.firebaseId}">Tolak</button>
+                                </div>
+                                <button class="receipt-button" data-firebase-id="${order.firebaseId}">Struk</button>
                             </div>
                         </div>
                     `;
@@ -601,6 +821,19 @@
                 button.addEventListener('click', (e) => {
                     const firebaseId = e.target.dataset.firebaseId;
                     showRejectReasonModal(firebaseId);
+                });
+            });
+
+            // New: Event listener for Struk button
+            document.querySelectorAll('.receipt-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    const order = orders.find(o => o.firebaseId === firebaseId);
+                    if (order) {
+                        showReceiptModal(order);
+                    } else {
+                        alert('Detail pesanan tidak ditemukan.');
+                    }
                 });
             });
         }
@@ -880,8 +1113,149 @@
                 });
         }
 
+        // --- New: Fungsi untuk menampilkan modal struk pesanan ---
+        function showReceiptModal(order) {
+            const overlay = document.createElement('div');
+            overlay.classList.add('receipt-modal-overlay');
+            overlay.innerHTML = `
+                <div class="receipt-modal" id="receiptModalContent">
+                    <button class="receipt-modal-close">&times;</button>
+                    <div class="receipt-header">
+                        <h2>STRUK PEMESANAN</h2>
+                        <p>https://jamaludin2025.github.io/order.html</p>
+                    </div>
+                    <hr class="dashed">
+                    <div class="receipt-info">
+                        <p><span>Tanggal</span><span>: ${order.orderDate}</span></p>
+                        <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
+                        <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
+                        <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
+                    </div>
+                    <hr class="dashed">
+                    <div class="receipt-items" id="receipt-items-list">
+                        </div>
+                    <hr class="dashed">
+                    <div class="receipt-summary">
+                        <div class="summary-row">
+                            <span class="label">Subtotal</span>
+                            <span class="value">Rp ${order.subtotal.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="label">Biaya Kirim</span>
+                            <span class="value">Rp ${order.deliveryFee.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span class="label">Total</span>
+                            <span class="value">Rp ${order.total.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                    <div class="receipt-barcode">
+                        <canvas id="barcodeCanvas"></canvas>
+                    </div>
+                    <div class="receipt-footer">
+                        <p>Terima Kasih atas Pesanannya</p>
+                        <p>Kritik dan Saran 089677484948</p>
+                    </div>
+                </div>
+                <div class="receipt-modal-actions">
+                    <button class="download-button">Unduh Struk</button>
+                    <button class="print-button">Cetak Struk</button>
+                </div>
+            `;
+            appAdminContainer.appendChild(overlay);
 
-        // --- Integrasi Firebase (Realtime Database) ---
+            // Populate items
+            const receiptItemsList = overlay.querySelector('#receipt-items-list');
+            order.items.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.classList.add('item-row');
+                itemRow.innerHTML = `
+                    <span class="item-name">${item.name} x ${item.quantity}</span>
+                    <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                `;
+                receiptItemsList.appendChild(itemRow);
+            });
+
+            // Generate barcode
+            generateBarcode(order.id);
+
+            // Event Listeners for modal
+            overlay.querySelector('.receipt-modal-close').addEventListener('click', () => {
+                overlay.remove();
+            });
+
+            overlay.querySelector('.download-button').addEventListener('click', () => {
+                downloadReceipt(order.id);
+            });
+
+            overlay.querySelector('.print-button').addEventListener('click', () => {
+                printReceipt();
+            });
+        }
+
+        // Fungsi untuk menghasilkan barcode
+        function generateBarcode(orderId) {
+            const canvas = document.getElementById('barcodeCanvas');
+            // Menghapus elemen canvas yang sudah ada dan membuat yang baru untuk menghindari masalah
+            // saat modal dibuka berulang kali.
+            if (canvas) {
+                canvas.remove();
+            }
+            const newCanvas = document.createElement('canvas');
+            newCanvas.id = 'barcodeCanvas';
+            document.querySelector('.receipt-barcode').appendChild(newCanvas);
+
+            // Pastikan JsBarcode tersedia
+            if (typeof JsBarcode !== 'undefined') {
+                JsBarcode(newCanvas, orderId, {
+                    format: "CODE128", // Atau format lain yang Anda inginkan
+                    width: 2,
+                    height: 80,
+                    displayValue: false // Jangan tampilkan teks nomor di bawah barcode
+                });
+            } else {
+                console.error("JsBarcode library not loaded.");
+                newCanvas.style.display = 'none'; // Sembunyikan jika JsBarcode tidak ada
+            }
+        }
+
+        // Fungsi untuk mengunduh struk sebagai PNG
+        function downloadReceipt(orderId) {
+            const receiptContent = document.getElementById('receiptModalContent');
+            const receiptActions = receiptContent.nextElementSibling; // Get the actions div
+
+            // Sembunyikan tombol aksi dan tombol tutup modal sementara
+            receiptActions.style.display = 'none';
+            receiptContent.querySelector('.receipt-modal-close').style.display = 'none';
+
+            html2canvas(receiptContent, { 
+                scale: 2, // Meningkatkan resolusi gambar
+                useCORS: true,
+                backgroundColor: '#ffffff' // Pastikan background putih
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `struk_pesanan_${orderId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                // Tampilkan kembali tombol aksi dan tombol tutup modal
+                receiptActions.style.display = 'flex';
+                receiptContent.querySelector('.receipt-modal-close').style.display = 'block';
+            }).catch(err => {
+                console.error("Error generating receipt image:", err);
+                alert("Gagal mengunduh struk. Coba lagi.");
+                 // Tampilkan kembali tombol aksi dan tombol tutup modal jika ada error
+                receiptActions.style.display = 'flex';
+                receiptContent.querySelector('.receipt-modal-close').style.display = 'block';
+            });
+        }
+
+        // Fungsi untuk mencetak struk
+        function printReceipt() {
+            window.print();
+        }
+
+        // --- Integrasi Firebase (Realtime Database - unchanged logic for listener) ---
         function getOrdersFromFirebase() {
             database.ref('orders').on('value', (snapshot) => {
                 const data = snapshot.val();
