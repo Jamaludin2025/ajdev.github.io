@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Pesanan Makanan</title>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
     <style>
         body {
             font-family: sans-serif;
@@ -158,6 +164,7 @@
             justify-content: space-around;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap; /* Izinkan wrap jika layar sempit */
         }
         
         .pending-order-actions .button-group {
@@ -175,6 +182,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.2s;
+            min-width: 90px; /* Agar tombol tidak terlalu kecil saat wrap */
         }
 
         .pending-order-actions .accept-button {
@@ -198,7 +206,16 @@
         .pending-order-actions .receipt-button {
             background-color: #007bff; /* Blue */
             color: white;
+            flex-basis: 100%; /* Ambil lebar penuh jika sendiri di baris baru */
+            margin-top: 10px; /* Jarak dari grup tombol di atasnya */
         }
+        @media (min-width: 380px) { /* Untuk layar yang lebih lebar, struk bisa berdampingan */
+            .pending-order-actions .receipt-button {
+                flex-basis: auto;
+                margin-top: 0;
+            }
+        }
+
 
         .pending-order-actions .receipt-button:hover {
             background-color: #0056b3;
@@ -664,12 +681,6 @@
         }
 
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script> 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
     <div id="app-admin">
@@ -1115,6 +1126,13 @@
 
         // --- New: Fungsi untuk menampilkan modal struk pesanan ---
         function showReceiptModal(order) {
+            // Hitung subtotal dan biaya kirim jika belum ada di objek order
+            let subtotal = 0;
+            if (order.items && Array.isArray(order.items)) {
+                subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            }
+            const deliveryFee = order.deliveryFee || 0; // Ambil dari order atau default ke 0
+
             const overlay = document.createElement('div');
             overlay.classList.add('receipt-modal-overlay');
             overlay.innerHTML = `
@@ -1130,6 +1148,7 @@
                         <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
                         <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
                         <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
+                        <p><span>Alamat</span><span>: ${order.deliveryAddress}</span></p>
                     </div>
                     <hr class="dashed">
                     <div class="receipt-items" id="receipt-items-list">
@@ -1138,11 +1157,11 @@
                     <div class="receipt-summary">
                         <div class="summary-row">
                             <span class="label">Subtotal</span>
-                            <span class="value">Rp ${order.subtotal.toLocaleString('id-ID')}</span>
+                            <span class="value">Rp ${subtotal.toLocaleString('id-ID')}</span>
                         </div>
                         <div class="summary-row">
                             <span class="label">Biaya Kirim</span>
-                            <span class="value">Rp ${order.deliveryFee.toLocaleString('id-ID')}</span>
+                            <span class="value">Rp ${deliveryFee.toLocaleString('id-ID')}</span>
                         </div>
                         <div class="summary-row total">
                             <span class="label">Total</span>
@@ -1166,17 +1185,20 @@
 
             // Populate items
             const receiptItemsList = overlay.querySelector('#receipt-items-list');
-            order.items.forEach(item => {
-                const itemRow = document.createElement('div');
-                itemRow.classList.add('item-row');
-                itemRow.innerHTML = `
-                    <span class="item-name">${item.name} x ${item.quantity}</span>
-                    <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
-                `;
-                receiptItemsList.appendChild(itemRow);
-            });
+            if (order.items && Array.isArray(order.items)) {
+                order.items.forEach(item => {
+                    const itemRow = document.createElement('div');
+                    itemRow.classList.add('item-row');
+                    itemRow.innerHTML = `
+                        <span class="item-name">${item.name} x ${item.quantity}</span>
+                        <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                    `;
+                    receiptItemsList.appendChild(itemRow);
+                });
+            }
 
-            // Generate barcode
+
+            // Generate barcode - Panggil setelah elemen canvas ada di DOM
             generateBarcode(order.id);
 
             // Event Listeners for modal
@@ -1196,26 +1218,17 @@
         // Fungsi untuk menghasilkan barcode
         function generateBarcode(orderId) {
             const canvas = document.getElementById('barcodeCanvas');
-            // Menghapus elemen canvas yang sudah ada dan membuat yang baru untuk menghindari masalah
-            // saat modal dibuka berulang kali.
-            if (canvas) {
-                canvas.remove();
-            }
-            const newCanvas = document.createElement('canvas');
-            newCanvas.id = 'barcodeCanvas';
-            document.querySelector('.receipt-barcode').appendChild(newCanvas);
-
             // Pastikan JsBarcode tersedia
-            if (typeof JsBarcode !== 'undefined') {
-                JsBarcode(newCanvas, orderId, {
+            if (typeof JsBarcode !== 'undefined' && canvas) {
+                JsBarcode(canvas, orderId, {
                     format: "CODE128", // Atau format lain yang Anda inginkan
                     width: 2,
                     height: 80,
                     displayValue: false // Jangan tampilkan teks nomor di bawah barcode
                 });
             } else {
-                console.error("JsBarcode library not loaded.");
-                newCanvas.style.display = 'none'; // Sembunyikan jika JsBarcode tidak ada
+                console.error("JsBarcode library not loaded or canvas not found.");
+                if (canvas) canvas.style.display = 'none'; // Sembunyikan jika JsBarcode tidak ada atau canvas tidak ditemukan
             }
         }
 
@@ -1264,13 +1277,25 @@
                     for (let key in data) {
                         orders.push({ ...data[key], firebaseId: key });
                     }
+                    // Sort orders by timestamp (assuming orderDate is parsable) or by ID
+                    orders.sort((a, b) => {
+                        const dateA = new Date(a.orderDate);
+                        const dateB = new Date(b.orderDate);
+                        return dateB.getTime() - dateA.getTime(); // Newest first
+                    });
                 }
                 console.log('Pesanan dimuat dari Firebase (Admin):', orders);
                 // Render ulang halaman saat data berubah
-                if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'orders') {
+                const activeTab = document.querySelector('.bottom-nav-admin .nav-item-admin.active');
+                if (activeTab) {
+                    if (activeTab.dataset.target === 'orders') {
+                        renderOrdersAdminPage();
+                    } else if (activeTab.dataset.target === 'history') {
+                        renderHistoryAdminPage();
+                    }
+                } else {
+                    // Fallback if no active tab is found (e.g., initial load)
                     renderOrdersAdminPage();
-                } else if (document.querySelector('.bottom-nav-admin .nav-item-admin.active').dataset.target === 'history') {
-                    renderHistoryAdminPage();
                 }
             }, (error) => {
                 console.error('Gagal membaca pesanan dari Firebase (Admin):', error);
