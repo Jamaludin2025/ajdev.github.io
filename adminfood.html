@@ -126,8 +126,8 @@
             color: #333;
         }
 
-        /* New: Pending Orders List */
-        .pending-orders-section h3 {
+        /* Pending Orders List (Now for 'Proses' tab) */
+        .pending-orders-section h3, .current-orders-section h3 {
             color: #3498db;
             margin-top: 25px;
             margin-bottom: 15px;
@@ -144,21 +144,57 @@
             margin-bottom: 15px;
             background-color: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer; /* Agar terasa bisa diklik untuk toggle detail */
         }
 
         .pending-order-card h4 {
-            margin: 0 0 10px 0;
+            margin: 0 0 5px 0;
             color: #333;
             font-size: 1.1em;
         }
 
-        .pending-order-card p {
+        /* MODIFIED: Detail toggle for Process tab and Orders tab */
+        .order-details-toggle {
+            display: none; /* Hidden by default */
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .order-details-toggle.expanded {
+            display: block; /* Show when expanded */
+        }
+
+        .order-details-toggle .detail-row {
+            display: flex;
             margin: 5px 0;
             font-size: 0.9em;
             color: #666;
         }
-        
-        /* New: Action buttons for pending orders */
+
+        .order-details-toggle .detail-row .label {
+            flex-basis: 90px; /* Lebar tetap untuk label */
+            font-weight: bold;
+        }
+
+        .order-details-toggle .detail-row .value {
+            flex-grow: 1;
+        }
+
+        .order-details-toggle ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+
+        .order-details-toggle ul li {
+            margin-bottom: 3px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        /* End New: Detail toggle for Process tab */
+
+        /* Action buttons for pending orders */
         .pending-order-actions {
             display: flex;
             justify-content: space-around;
@@ -185,15 +221,6 @@
             min-width: 90px; /* Agar tombol tidak terlalu kecil saat wrap */
         }
 
-        .pending-order-actions .accept-button {
-            background-color: #28a745; /* Green */
-            color: white;
-        }
-
-        .pending-order-actions .accept-button:hover {
-            background-color: #218838;
-        }
-
         .pending-order-actions .reject-button {
             background-color: #dc3545; /* Red */
             color: white;
@@ -203,23 +230,23 @@
             background-color: #c82333;
         }
 
-        .pending-order-actions .receipt-button {
+        .pending-order-actions .download-receipt-button {
             background-color: #007bff; /* Blue */
             color: white;
-            flex-basis: 100%; /* Ambil lebar penuh jika sendiri di baris baru */
-            margin-top: 10px; /* Jarak dari grup tombol di atasnya */
         }
-        @media (min-width: 380px) { /* Untuk layar yang lebih lebar, struk bisa berdampingan */
-            .pending-order-actions .receipt-button {
-                flex-basis: auto;
-                margin-top: 0;
-            }
-        }
-
-
-        .pending-order-actions .receipt-button:hover {
+        .pending-order-actions .download-receipt-button:hover {
             background-color: #0056b3;
         }
+
+        /* MODIFIED: Green color for print button */
+        .pending-order-actions .print-receipt-button {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .pending-order-actions .print-receipt-button:hover {
+            background-color: #218838;
+        }
+
 
         .empty-pending-orders {
             text-align: center;
@@ -450,6 +477,7 @@
             border-top: 1px solid #eee;
             font-size: 0.9em;
             color: #666;
+            display: none; /* Hidden by default */
         }
 
         .order-history-list .detail-item {
@@ -473,172 +501,123 @@
             margin-bottom: 5px;
         }
 
-        .empty-history {
+        .empty-history, .empty-orders, .empty-process {
             text-align: center;
             padding: 50px 20px;
             color: #777;
             font-size: 1.1em;
-        }
-
-        /* Receipt Modal Styles */
-        .receipt-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2002; /* Di atas semua modal lain */
-            overflow-y: auto; /* Untuk konten struk yang panjang */
-            padding: 20px 0;
-        }
-
-        .receipt-modal {
-            background-color: #fff;
-            padding: 20px;
+            border: 1px dashed #ccc;
             border-radius: 8px;
-            width: 90%;
-            max-width: 320px; /* Lebar struk mirip contoh */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            text-align: center;
-            position: relative;
-            box-sizing: border-box; /* Pastikan padding termasuk dalam width */
+            margin-bottom: 20px;
         }
 
-        .receipt-modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.8em;
-            cursor: pointer;
-            color: #555;
-            background: none;
-            border: none;
-            z-index: 10;
-        }
-
-        .receipt-header h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-        .receipt-header p {
-            font-size: 0.8em;
-            color: #777;
-            margin: 0 0 15px 0;
-        }
-
-        .receipt-info {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-        .receipt-info p {
-            display: flex;
-            margin: 3px 0;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-        .receipt-info p span:first-child {
-            flex-basis: 90px; /* Lebar label */
-            font-weight: bold;
-        }
-        .receipt-info p span:last-child {
-            flex-grow: 1;
-        }
-
-        .receipt-items {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-        .receipt-items .item-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-        .receipt-items .item-row .item-name {
-            flex-grow: 1;
-            padding-right: 10px;
-        }
-        .receipt-items .item-row .item-price {
-            white-space: nowrap; /* Menghindari pecah baris untuk harga */
-        }
-
-        .receipt-summary {
-            text-align: right;
+        /* Inline Receipt Styles (New) */
+        .inline-receipt {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #ccc; /* Border dashed agar mirip struk */
             margin-top: 15px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            /* Pastikan lebar tidak terlalu besar agar mirip struk fisik */
+            max-width: 300px; 
+            margin-left: auto;
+            margin-right: auto;
         }
-        .receipt-summary .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.95em;
+
+        .inline-receipt .receipt-header {
+            margin-bottom: 10px;
         }
-        .receipt-summary .summary-row .label {
-            font-weight: bold;
-        }
-        .receipt-summary .summary-row.total .value {
+        .inline-receipt .receipt-header h2 {
+            margin: 0;
             font-size: 1.1em;
             font-weight: bold;
         }
+        .inline-receipt .receipt-header p {
+            font-size: 0.75em;
+            color: #777;
+            margin: 2px 0 0;
+        }
 
-        .receipt-barcode {
-            margin-top: 20px;
-            margin-bottom: 15px;
+        .inline-receipt .receipt-info {
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+        }
+        .inline-receipt .receipt-info p {
+            display: flex;
+            margin: 2px 0;
+            line-height: 1.3;
+        }
+        .inline-receipt .receipt-info p span:first-child {
+            flex-basis: 75px; /* Lebar label */
+            font-weight: bold;
+        }
+        .inline-receipt .receipt-info p span:last-child {
+            flex-grow: 1;
+        }
+
+        .inline-receipt .receipt-items {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .inline-receipt .receipt-items .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 0.85em;
+        }
+        .inline-receipt .receipt-items .item-row .item-name {
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+        .inline-receipt .receipt-items .item-row .item-price {
+            white-space: nowrap;
+        }
+
+        .inline-receipt .receipt-summary {
+            text-align: right;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .inline-receipt .receipt-summary .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .inline-receipt .receipt-summary .summary-row .label {
+            font-weight: bold;
+        }
+        .inline-receipt .receipt-summary .summary-row.total .value {
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .inline-receipt .receipt-barcode {
+            margin-top: 15px;
+            margin-bottom: 10px;
             text-align: center;
         }
-        .receipt-barcode canvas {
+        .inline-receipt .receipt-barcode canvas {
             max-width: 100%;
             height: auto;
         }
 
-        .receipt-footer {
-            margin-top: 15px;
-            font-size: 0.85em;
+        .inline-receipt .receipt-footer {
+            margin-top: 10px;
+            font-size: 0.75em;
             color: #555;
             text-align: center;
         }
-        .receipt-footer p {
-            margin: 3px 0;
-        }
-
-        .receipt-modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee; /* Pembatas untuk tombol */
-        }
-
-        .receipt-modal-actions button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 0.9em;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 1;
-            max-width: 120px;
-        }
-
-        .receipt-modal-actions .download-button {
-            background-color: #28a745; /* Green */
-            color: white;
-        }
-
-        .receipt-modal-actions .print-button {
-            background-color: #6c757d; /* Grey */
-            color: white;
+        .inline-receipt .receipt-footer p {
+            margin: 2px 0;
         }
         
         hr.dashed {
             border: none;
             border-top: 1px dashed #bbb;
-            margin: 10px 0;
+            margin: 8px 0;
         }
 
         /* Print Specific Styles */
@@ -646,40 +625,37 @@
             body * {
                 visibility: hidden;
             }
-            .receipt-modal-overlay, .receipt-modal-overlay * {
-                visibility: visible;
+            .printable-receipt, .printable-receipt * {
+                visibility: visible !important;
             }
-            .receipt-modal-overlay {
+            .printable-receipt {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
-                height: auto;
-                background: none;
-                display: block; /* Agar tidak flex dan bisa diprint normal */
-                padding: 0;
-            }
-            .receipt-modal {
-                box-shadow: none;
-                max-width: none;
                 width: 80mm; /* Lebar standar kertas struk */
                 margin: 0 auto;
                 padding: 0;
                 border: none;
                 border-radius: 0;
-            }
-            .receipt-modal-close, .receipt-modal-actions {
-                display: none; /* Sembunyikan tombol di mode cetak */
+                box-shadow: none;
+                background-color: white;
             }
             /* Menyesuaikan ukuran font untuk cetak jika perlu */
-            .receipt-modal h2 { font-size: 1.1em; }
-            .receipt-modal p, .receipt-modal .item-row, .receipt-modal .summary-row { font-size: 0.8em; }
-            .receipt-barcode canvas {
+            .printable-receipt .receipt-header h2 { font-size: 1.1em; }
+            .printable-receipt .receipt-header p,
+            .printable-receipt .receipt-info p,
+            .printable-receipt .item-row,
+            .printable-receipt .summary-row,
+            .printable-receipt .receipt-footer p { font-size: 0.8em; }
+            .printable-receipt .receipt-barcode canvas {
                 width: 100px; /* Sesuaikan ukuran barcode untuk cetak */
                 height: 40px;
             }
+            /* Pastikan elemen yang tersembunyi untuk tampilan normal tetap tersembunyi */
+            .pending-order-actions, .bottom-nav-admin, header {
+                display: none !important;
+            }
         }
-
     </style>
 </head>
 <body>
@@ -692,8 +668,12 @@
             </main>
 
         <nav class="bottom-nav-admin">
-            <a href="#" class="nav-item-admin active" data-target="orders">
-                <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=P" alt="Pesanan">
+            <a href="#" class="nav-item-admin active" data-target="process">
+                <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=P" alt="Proses">
+                <span>Proses</span>
+            </a>
+            <a href="#" class="nav-item-admin" data-target="orders">
+                <img src="https://via.placeholder.com/24/3498db/FFFFFF?text=O" alt="Pesanan">
                 <span>Pesanan</span>
             </a>
             <a href="#" class="nav-item-admin" data-target="history">
@@ -747,6 +727,9 @@
         function navigateAdmin(target) {
             setActiveNavAdmin(target);
             switch (target) {
+                case 'process':
+                    renderProcessAdminPage();
+                    break;
                 case 'orders':
                     renderOrdersAdminPage();
                     break;
@@ -754,7 +737,7 @@
                     renderHistoryAdminPage();
                     break;
                 default:
-                    renderOrdersAdminPage();
+                    renderProcessAdminPage(); // Default to 'process'
             }
         }
 
@@ -765,7 +748,171 @@
             });
         });
 
-        // --- Halaman Pesanan Admin ---
+        // Helper function to format date
+        function formatOrderDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+            try {
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            } catch (e) {
+                console.error("Invalid date string:", dateString, e);
+                return "Tanggal tidak valid";
+            }
+        }
+
+        // --- Halaman Proses Admin (MODIFIED) ---
+        function renderProcessAdminPage() {
+            let processOrdersHtml = `
+                <div class="pending-orders-section">
+                    <h3>Pesanan Menunggu Konfirmasi</h3>
+            `;
+
+            const pendingOrders = orders.filter(order => order.status === 'Menunggu konfirmasi dari penjual');
+
+            if (pendingOrders.length === 0) {
+                processOrdersHtml += `<div class="empty-process"><p>Tidak ada pesanan yang menunggu konfirmasi.</p></div>`;
+            } else {
+                pendingOrders.forEach(order => {
+                    // Format tanggal dan waktu untuk tampilan
+                    const formattedOrderDate = formatOrderDate(order.orderDate);
+
+                    // Hitung subtotal dan biaya kirim
+                    let subtotal = 0;
+                    if (order.items && Array.isArray(order.items)) {
+                        subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    }
+                    const deliveryFee = order.deliveryFee || 0;
+
+                    // Buat HTML untuk item struk
+                    let receiptItemsHtml = '';
+                    if (order.items && Array.isArray(order.items)) {
+                        order.items.forEach(item => {
+                            receiptItemsHtml += `
+                                <div class="item-row">
+                                    <span class="item-name">${item.name} x ${item.quantity}</span>
+                                    <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    processOrdersHtml += `
+                        <div class="pending-order-card" data-firebase-id="${order.firebaseId}">
+                            <h4>Pesanan #${order.id}</h4>
+                            <p class="order-datetime">${formattedOrderDate}</p>
+                            
+                            <div class="order-details-toggle">
+                                <div class="inline-receipt printable-receipt" id="receiptContent-${order.firebaseId}">
+                                    <div class="receipt-header">
+                                        <h2>STRUK PEMESANAN</h2>
+                                        <p>https://jamaludin2025.github.io/order.html</p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-info">
+                                        <p><span>Tanggal</span><span>: ${formattedOrderDate}</span></p>
+                                        <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
+                                        <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
+                                        <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-items">
+                                        ${receiptItemsHtml}
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-summary">
+                                        <div class="summary-row">
+                                            <span class="label">Subtotal</span>
+                                            <span class="value">Rp ${subtotal.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span class="label">Biaya Kirim</span>
+                                            <span class="value">Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row total">
+                                            <span class="label">Total</span>
+                                            <span class="value">Rp ${order.total.toLocaleString('id-ID')}</span>
+                                        </div>
+                                    </div>
+                                    <div class="receipt-barcode">
+                                        <canvas id="barcodeCanvas-${order.firebaseId}"></canvas>
+                                    </div>
+                                    <div class="receipt-footer">
+                                        <p>Terima Kasih atas Pesanannya</p>
+                                        <p>Kritik dan Saran 089677484948</p>
+                                    </div>
+                                </div>
+                                </div>
+
+                            <div class="pending-order-actions">
+                                <button class="reject-button" data-firebase-id="${order.firebaseId}">Tolak</button>
+                                <button class="download-receipt-button" data-firebase-id="${order.firebaseId}">Unduh Struk</button>
+                                <button class="print-receipt-button" data-firebase-id="${order.firebaseId}">Cetak Struk</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            processOrdersHtml += `</div>`; // Close pending-orders-section
+
+            adminMainContent.innerHTML = processOrdersHtml;
+
+            // Generate barcodes after content is in DOM
+            pendingOrders.forEach(order => {
+                generateBarcode(`barcodeCanvas-${order.firebaseId}`, order.id);
+            });
+
+            // Event listeners for card clicks to toggle details
+            document.querySelectorAll('.pending-order-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Prevent toggling if a button inside the card was clicked
+                    if (e.target.tagName === 'BUTTON') {
+                        e.stopPropagation(); // Stop event propagation if a button is clicked
+                        return;
+                    }
+                    const details = card.querySelector('.order-details-toggle');
+                    const actions = card.querySelector('.pending-order-actions');
+
+                    if (details && actions) {
+                        const isExpanded = details.classList.contains('expanded');
+                        details.classList.toggle('expanded', !isExpanded);
+                        actions.style.display = isExpanded ? 'none' : 'flex';
+                    }
+                });
+                // Ensure action buttons are hidden by default
+                const actions = card.querySelector('.pending-order-actions');
+                if (actions) {
+                    actions.style.display = 'none';
+                }
+            });
+
+            // Event listeners for Reject button
+            document.querySelectorAll('.reject-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    showRejectReasonModal(firebaseId);
+                });
+            });
+
+            // Event listeners for Download and Print buttons
+            document.querySelectorAll('.download-receipt-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    const order = orders.find(o => o.firebaseId === firebaseId);
+                    if (order) {
+                        downloadReceipt(order.id, `receiptContent-${firebaseId}`);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.print-receipt-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    printReceipt(`receiptContent-${firebaseId}`);
+                });
+            });
+        }
+
+
+        // --- Halaman Pesanan Admin (MODIFIED) ---
         function renderOrdersAdminPage() {
             let ordersAdminHtml = `
                 <div class="status-cards">
@@ -781,38 +928,119 @@
                         <img src="https://via.placeholder.com/36/3498db/FFFFFF?text=✅" alt="Diterima">
                         <p>Diterima</p>
                     </div>
-                </div> <div class="pending-orders-section">
-                    <h3>Pesanan Menunggu Konfirmasi</h3>
+                </div>
+                <div class="current-orders-section">
+                    <h3>Daftar Pesanan</h3>
             `;
 
-            const pendingOrders = orders.filter(order => order.status === 'Menunggu konfirmasi dari penjual');
+            // Filter pesanan untuk tab "Pesanan"
+            const filteredOrders = orders.filter(order => 
+                order.status === 'Pesanan sedang disiapkan oleh penjual' ||
+                order.status === 'Pesanan sedang diantar oleh penjual'
+            );
+            
+            // Sort by orderDate, newest first
+            filteredOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
-            if (pendingOrders.length === 0) {
-                ordersAdminHtml += `<div class="empty-pending-orders"><p>Tidak ada pesanan yang menunggu konfirmasi.</p></div>`;
+
+            if (filteredOrders.length === 0) {
+                ordersAdminHtml += `<div class="empty-orders"><p>Tidak ada pesanan yang aktif di tab ini.</p></div>`;
             } else {
-                pendingOrders.forEach(order => {
+                filteredOrders.forEach(order => {
+                    // Format tanggal dan waktu pembaruan status terakhir (gunakan orderDate sebagai acuan jika tidak ada lastUpdate)
+                    const formattedOrderDate = formatOrderDate(order.orderDate);
+
+                    // Hitung subtotal dan biaya kirim
+                    let subtotal = 0;
+                    if (order.items && Array.isArray(order.items)) {
+                        subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    }
+                    const deliveryFee = order.deliveryFee || 0;
+
+                    // Buat HTML untuk item struk
+                    let receiptItemsHtml = '';
+                    if (order.items && Array.isArray(order.items)) {
+                        order.items.forEach(item => {
+                            receiptItemsHtml += `
+                                <div class="item-row">
+                                    <span class="item-name">${item.name} x ${item.quantity}</span>
+                                    <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
                     ordersAdminHtml += `
                         <div class="pending-order-card" data-firebase-id="${order.firebaseId}">
                             <h4>Pesanan #${order.id}</h4>
-                            <p>Pembeli: ${order.customerName}</p>
-                            <p>Total: Rp ${order.total.toLocaleString('id-ID')}</p>
-                            <p>Metode Pembayaran: ${order.paymentMethod}</p>
-                            <div class="pending-order-actions">
-                                <div class="button-group">
-                                    <button class="accept-button" data-firebase-id="${order.firebaseId}">Terima</button>
-                                    <button class="reject-button" data-firebase-id="${order.firebaseId}">Tolak</button>
+                            <p class="order-datetime">Diperbarui: ${formattedOrderDate}</p>
+                            <p>Status: <span style="font-weight:bold; color: ${order.status === 'Pesanan sedang disiapkan oleh penjual' ? '#f39c12' : (order.status === 'Pesanan sedang diantar oleh penjual' ? '#2980b9' : '#34495e')}">${order.status}</span></p>
+                            
+                            <div class="order-details-toggle">
+                                <div class="detail-row"><span class="label">Pembeli</span><span class="value">: ${order.customerName}</span></div>
+                                <div class="detail-row"><span class="label">Pembayaran</span><span class="value">: ${order.paymentMethod}</span></div>
+                                <div class="detail-row"><span class="label">Alamat</span><span class="value">: ${order.deliveryAddress}</span></div>
+                                
+                                <div class="inline-receipt printable-receipt" id="receiptContent-${order.firebaseId}">
+                                    <div class="receipt-header">
+                                        <h2>STRUK PEMESANAN</h2>
+                                        <p>https://jamaludin2025.github.io/order.html</p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-info">
+                                        <p><span>Tanggal</span><span>: ${formattedOrderDate}</span></p>
+                                        <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
+                                        <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
+                                        <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
+                                        <p><span>Alamat</span><span>: ${order.deliveryAddress}</span></p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-items">
+                                        ${receiptItemsHtml}
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-summary">
+                                        <div class="summary-row">
+                                            <span class="label">Subtotal</span>
+                                            <span class="value">Rp ${subtotal.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span class="label">Biaya Kirim</span>
+                                            <span class="value">Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row total">
+                                            <span class="label">Total</span>
+                                            <span class="value">Rp ${order.total.toLocaleString('id-ID')}</span>
+                                        </div>
+                                    </div>
+                                    <div class="receipt-barcode">
+                                        <canvas id="barcodeCanvas-${order.firebaseId}"></canvas>
+                                    </div>
+                                    <div class="receipt-footer">
+                                        <p>Terima Kasih atas Pesanannya</p>
+                                        <p>Kritik dan Saran 089677484948</p>
+                                    </div>
                                 </div>
-                                <button class="receipt-button" data-firebase-id="${order.firebaseId}">Struk</button>
+                                </div>
+
+                            <div class="pending-order-actions">
+                                <button class="download-receipt-button" data-firebase-id="${order.firebaseId}">Unduh Struk</button>
+                                <button class="print-receipt-button" data-firebase-id="${order.firebaseId}">Cetak Struk</button>
                             </div>
                         </div>
                     `;
                 });
             }
-            ordersAdminHtml += `</div>`; // Close pending-orders-section
+            ordersAdminHtml += `</div>`; // Close current-orders-section
 
             adminMainContent.innerHTML = ordersAdminHtml;
 
-            // Event listeners for status cards (scanner)
+            // Generate barcodes after content is in DOM
+            filteredOrders.forEach(order => {
+                generateBarcode(`barcodeCanvas-${order.firebaseId}`, order.id);
+            });
+
+            // Event listeners for status cards (scanner) - unchanged
             document.querySelectorAll('.status-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     currentStatusToUpdate = e.currentTarget.dataset.status;
@@ -820,87 +1048,163 @@
                 });
             });
 
-            // New: Event listeners for Accept/Reject buttons
-            document.querySelectorAll('.accept-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const firebaseId = e.target.dataset.firebaseId;
-                    updateOrderStatus(firebaseId, 'Pesanan sudah dilihat oleh penjual');
+            // Event listeners for card clicks to toggle details
+            document.querySelectorAll('.pending-order-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Prevent toggling if a button inside the card was clicked
+                    if (e.target.tagName === 'BUTTON') {
+                        e.stopPropagation(); // Stop event propagation if a button is clicked
+                        return;
+                    }
+                    const details = card.querySelector('.order-details-toggle');
+                    const actions = card.querySelector('.pending-order-actions');
+                    
+                    if (details && actions) {
+                        const isExpanded = details.classList.contains('expanded');
+                        details.classList.toggle('expanded', !isExpanded);
+                        actions.style.display = isExpanded ? 'none' : 'flex';
+                    }
                 });
+                // Ensure action buttons are hidden by default
+                const actions = card.querySelector('.pending-order-actions');
+                if (actions) {
+                    actions.style.display = 'none';
+                }
             });
 
-            document.querySelectorAll('.reject-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const firebaseId = e.target.dataset.firebaseId;
-                    showRejectReasonModal(firebaseId);
-                });
-            });
-
-            // New: Event listener for Struk button
-            document.querySelectorAll('.receipt-button').forEach(button => {
+            // Event listeners for Download and Print buttons
+            document.querySelectorAll('.download-receipt-button').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const firebaseId = e.target.dataset.firebaseId;
                     const order = orders.find(o => o.firebaseId === firebaseId);
                     if (order) {
-                        showReceiptModal(order);
-                    } else {
-                        alert('Detail pesanan tidak ditemukan.');
+                        downloadReceipt(order.id, `receiptContent-${firebaseId}`);
                     }
+                });
+            });
+
+            document.querySelectorAll('.print-receipt-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const firebaseId = e.target.dataset.firebaseId;
+                    printReceipt(`receiptContent-${firebaseId}`);
                 });
             });
         }
 
-        // --- Halaman Riwayat Admin ---
+        // --- Halaman Riwayat Admin (MODIFIED) ---
         function renderHistoryAdminPage() {
             let historyHtml = `<div class="order-history-list">`;
-            if (orders.length === 0) {
+            
+            // Filter out only orders that are NOT 'Menunggu konfirmasi dari penjual'
+            const historicalOrders = orders.filter(order => order.status !== 'Menunggu konfirmasi dari penjual');
+            
+            // Urutkan dari terbaru ke terlama
+            const sortedOrders = [...historicalOrders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+            if (sortedOrders.length === 0) {
                 historyHtml += `
                     <div class="empty-history">
                         <p>Belum ada riwayat pesanan.</p>
                     </div>
                 `;
             } else {
-                // Tampilkan semua pesanan, termasuk yang sudah selesai/diterima
-                // Urutkan dari terbaru ke terlama
-                const sortedOrders = [...orders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-
                 sortedOrders.forEach((order, index) => {
-                    // Hanya tampilkan di riwayat jika status BUKAN 'Menunggu konfirmasi dari penjual'
-                    // Karena pesanan ini sudah ditampilkan di tab 'Pesanan'
-                    if (order.status !== 'Menunggu konfirmasi dari penjual') {
-                        historyHtml += `
-                            <div class="order-card-summary" data-index="${index}" data-firebase-id="${order.firebaseId}">
-                                <h4>Pesanan #${order.id}</h4>
-                                <p>Status: ${order.status}</p>
-                                ${order.rejectionReason ? `<p style="color:red; font-weight:normal;">Catatan Tolak: ${order.rejectionReason}</p>` : ''}
-                                <div class="order-card-detail" style="display: none;">
-                                    <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
-                                    <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
-                                    <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
-                                    <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
-                                    <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                    <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')})</span></div>
-                                    <h5>Item Pesanan:</h5>
-                                    <ul>
-                        `;
-                        order.items.forEach(item => {
-                            historyHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
-                        });
-                        historyHtml += `
-                                    </ul>
-                                </div>
-                            </div>
-                        `;
+                    // Format tanggal dan waktu untuk tampilan
+                    const formattedOrderDate = formatOrderDate(order.orderDate);
+
+                    // Hitung subtotal dan biaya kirim
+                    let subtotal = 0;
+                    if (order.items && Array.isArray(order.items)) {
+                        subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                     }
+                    const deliveryFee = order.deliveryFee || 0;
+
+                    // Buat HTML untuk item struk
+                    let receiptItemsHtml = '';
+                    if (order.items && Array.isArray(order.items)) {
+                        order.items.forEach(item => {
+                            receiptItemsHtml += `
+                                <div class="item-row">
+                                    <span class="item-name">${item.name} x ${item.quantity}</span>
+                                    <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    historyHtml += `
+                        <div class="order-card-summary" data-index="${index}" data-firebase-id="${order.firebaseId}">
+                            <h4>Pesanan #${order.id}</h4>
+                            <p>Status: ${order.status}</p>
+                            ${order.rejectionReason ? `<p style="color:red; font-weight:normal;">Catatan Tolak: ${order.rejectionReason}</p>` : ''}
+                            <div class="order-card-detail">
+                                <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
+                                <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
+                                <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
+                                <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
+                                <div class="detail-item"><span>Tanggal</span><span>: ${formattedOrderDate}</span></div>
+                                <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
+                                
+                                <div class="inline-receipt printable-receipt" id="receiptContent-${order.firebaseId}">
+                                    <div class="receipt-header">
+                                        <h2>STRUK PEMESANAN</h2>
+                                        <p>https://jamaludin2025.github.io/order.html</p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-info">
+                                        <p><span>Tanggal</span><span>: ${formattedOrderDate}</span></p>
+                                        <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
+                                        <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
+                                        <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
+                                        <p><span>Alamat</span><span>: ${order.deliveryAddress}</span></p>
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-items">
+                                        ${receiptItemsHtml}
+                                    </div>
+                                    <hr class="dashed">
+                                    <div class="receipt-summary">
+                                        <div class="summary-row">
+                                            <span class="label">Subtotal</span>
+                                            <span class="value">Rp ${subtotal.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span class="label">Biaya Kirim</span>
+                                            <span class="value">Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div class="summary-row total">
+                                            <span class="label">Total</span>
+                                            <span class="value">Rp ${order.total.toLocaleString('id-ID')}</span>
+                                        </div>
+                                    </div>
+                                    <div class="receipt-barcode">
+                                        <canvas id="barcodeCanvas-${order.firebaseId}"></canvas>
+                                    </div>
+                                    <div class="receipt-footer">
+                                        <p>Terima Kasih atas Pesanannya</p>
+                                        <p>Kritik dan Saran 089677484948</p>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                    `;
                 });
             }
             historyHtml += `</div>`;
             adminMainContent.innerHTML = historyHtml;
 
+            // Generate barcodes for history tab after content is in DOM
+            historicalOrders.forEach(order => {
+                generateBarcode(`barcodeCanvas-${order.firebaseId}`, order.id);
+            });
+
             document.querySelectorAll('.order-history-list .order-card-summary').forEach(card => {
                 card.addEventListener('click', (e) => {
                     const detailDiv = card.querySelector('.order-card-detail');
                     if (detailDiv) {
-                        detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+                        // Toggle visibility of the detail div
+                        const isVisible = detailDiv.style.display === 'block';
+                        detailDiv.style.display = isVisible ? 'none' : 'block';
                     }
                 });
             });
@@ -945,26 +1249,56 @@
                     const code = decodedText;
                     console.log("Barcode detected and processed: ", code);
                     
-                    const orderExistsAndNotPending = orders.some(order => order.id === code && order.status !== 'Menunggu konfirmasi dari penjual');
+                    const orderToUpdate = orders.find(order => order.id === code);
+                    
+                    if (orderToUpdate) {
+                        let isValidScan = false;
+                        let errorMessage = '';
 
-                    if (!scannedOrderIds.includes(code) && orderExistsAndNotPending) {
-                        scannedOrderIds.push(code);
-                        const li = document.createElement('li');
-                        li.textContent = code;
-                        const removeBtn = document.createElement('button');
-                        removeBtn.classList.add('remove-scanned-item');
-                        removeBtn.textContent = 'X';
-                        removeBtn.addEventListener('click', () => {
-                            scannedOrderIds = scannedOrderIds.filter(item => item !== code);
-                            li.remove();
-                        });
-                        li.appendChild(removeBtn);
-                        scannedItemsUl.appendChild(li);
-                        beepSound.play(); // Mainkan suara setiap kali barcode baru ditambahkan
-                    } else if (scannedOrderIds.includes(code)) {
-                        console.log(`Barcode ${code} sudah ada di daftar.`);
-                    } else if (!orderExistsAndNotPending) {
-                        alert(`Pesanan #${code} tidak ditemukan atau masih menunggu konfirmasi. Hanya pesanan yang sudah diterima yang bisa diproses di sini.`);
+                        if (currentStatusToUpdate === 'Dikemas') {
+                            if (orderToUpdate.status === 'Menunggu konfirmasi dari penjual') {
+                                isValidScan = true;
+                            } else {
+                                errorMessage = `Pesanan #${code} harus berstatus 'Menunggu konfirmasi dari penjual' untuk dapat dikemas. Status saat ini: ${orderToUpdate.status}.`;
+                            }
+                        } else if (currentStatusToUpdate === 'Diantar') {
+                            if (orderToUpdate.status === 'Pesanan sedang disiapkan oleh penjual') {
+                                isValidScan = true;
+                            } else {
+                                errorMessage = `Pesanan #${code} harus berstatus 'Pesanan sedang disiapkan oleh penjual' untuk dapat diantar. Status saat ini: ${orderToUpdate.status}.`;
+                            }
+                        } else if (currentStatusToUpdate === 'Diterima') {
+                            if (orderToUpdate.status === 'Pesanan sedang diantar oleh penjual') {
+                                isValidScan = true;
+                            } else {
+                                errorMessage = `Pesanan #${code} harus berstatus 'Pesanan sedang diantar oleh penjual' untuk dapat diterima. Status saat ini: ${orderToUpdate.status}.`;
+                            }
+                        } else {
+                             errorMessage = "Status yang tidak dikenal. Tidak dapat memproses pemindaian.";
+                        }
+
+                        if (isValidScan && !scannedOrderIds.includes(code)) {
+                            scannedOrderIds.push(code);
+                            const li = document.createElement('li');
+                            li.textContent = code;
+                            const removeBtn = document.createElement('button');
+                            removeBtn.classList.add('remove-scanned-item');
+                            removeBtn.textContent = 'X';
+                            removeBtn.addEventListener('click', () => {
+                                scannedOrderIds = scannedOrderIds.filter(item => item !== code);
+                                li.remove();
+                            });
+                            li.appendChild(removeBtn);
+                            scannedItemsUl.appendChild(li);
+                            beepSound.play(); // Mainkan suara setiap kali barcode baru ditambahkan
+                        } else if (scannedOrderIds.includes(code)) {
+                            console.log(`Barcode ${code} sudah ada di daftar.`);
+                        } else if (errorMessage) {
+                            alert(errorMessage);
+                        }
+
+                    } else {
+                        alert(`Pesanan #${code} tidak ditemukan.`);
                     }
                 },
                 (error) => {
@@ -1008,7 +1342,7 @@
                 } else if (currentStatusToUpdate === 'Diantar') { 
                     newStatus = 'Pesanan sedang diantar oleh penjual';
                 } else if (currentStatusToUpdate === 'Diterima') {
-                    newStatus = 'Pesanan telah diterima pelanggan';
+                    newStatus = 'Pesanan telah diterima pelanggan'; // This will move to history
                 } else {
                     console.warn("Status yang tidak dikenal:", currentStatusToUpdate);
                     alert("Terjadi kesalahan: Status update tidak dikenal.");
@@ -1022,11 +1356,12 @@
                     // Cari pesanan di array `orders` berdasarkan `id`
                     const orderToUpdate = orders.find(order => order.id === orderIdToUpdate);
                     if (orderToUpdate && orderToUpdate.firebaseId) { // Pastikan order ditemukan dan punya firebaseId
-                        const promise = database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus })
+                        const promise = database.ref('orders/' + orderToUpdate.firebaseId).update({ status: newStatus, lastStatusUpdate: new Date().toISOString() })
                             .then(() => {
                                 console.log(`Status pesanan #${orderIdToUpdate} berhasil diupdate menjadi: ${newStatus}`);
                                 // Perbarui status di array 'orders' lokal juga
                                 orderToUpdate.status = newStatus;
+                                orderToUpdate.lastStatusUpdate = new Date().toISOString();
                             })
                             .catch(error => {
                                 console.error(`Gagal mengupdate status pesanan #${orderIdToUpdate}:`, error);
@@ -1054,7 +1389,13 @@
                     }
                    
                     scannedOrderIds = []; // Kosongkan daftar setelah update
-                    renderOrdersAdminPage(); // Refresh halaman admin
+                    // Refresh halaman admin sesuai tab aktif saat ini
+                    const activeTab = document.querySelector('.bottom-nav-admin .nav-item-admin.active');
+                    if (activeTab) {
+                        navigateAdmin(activeTab.dataset.target); 
+                    } else {
+                        renderOrdersAdminPage(); // Fallback
+                    }
                 }).catch(err => {
                     console.error("Terjadi kesalahan saat menunggu semua update selesai:", err);
                     alert("Terjadi kesalahan saat memproses update pesanan.");
@@ -1089,7 +1430,7 @@
             document.querySelector('.confirm-reject').addEventListener('click', () => {
                 const reason = document.getElementById('reject-reason-input').value.trim();
                 if (reason) {
-                    updateOrderStatus(firebaseId, 'Pesanan ditolak oleh penjual', reason);
+                    updateOrderStatus(firebaseId, 'Pesanan ditolak oleh penjual', reason); // Moves to 'Riwayat'
                     overlay.remove();
                 } else {
                     alert('Catatan penolakan tidak boleh kosong.');
@@ -1103,12 +1444,11 @@
 
         // --- New/Modified: Fungsi untuk memperbarui status pesanan di Firebase ---
         function updateOrderStatus(firebaseId, newStatus, rejectionReason = null) {
-            const updates = { status: newStatus };
+            const updates = { status: newStatus, lastStatusUpdate: new Date().toISOString() };
             if (rejectionReason !== null) { // Add rejection reason if provided
                 updates.rejectionReason = rejectionReason;
             } else {
                 // Ensure rejectionReason is removed if status is not 'rejected'
-                // This prevents old rejection messages from lingering
                 updates.rejectionReason = firebase.database.ServerValue.remove();
             }
 
@@ -1124,124 +1464,40 @@
                 });
         }
 
-        // --- New: Fungsi untuk menampilkan modal struk pesanan ---
-        function showReceiptModal(order) {
-            // Hitung subtotal dan biaya kirim jika belum ada di objek order
-            let subtotal = 0;
-            if (order.items && Array.isArray(order.items)) {
-                subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            }
-            const deliveryFee = order.deliveryFee || 0; // Ambil dari order atau default ke 0
-
-            const overlay = document.createElement('div');
-            overlay.classList.add('receipt-modal-overlay');
-            overlay.innerHTML = `
-                <div class="receipt-modal" id="receiptModalContent">
-                    <button class="receipt-modal-close">&times;</button>
-                    <div class="receipt-header">
-                        <h2>STRUK PEMESANAN</h2>
-                        <p>https://jamaludin2025.github.io/order.html</p>
-                    </div>
-                    <hr class="dashed">
-                    <div class="receipt-info">
-                        <p><span>Tanggal</span><span>: ${order.orderDate}</span></p>
-                        <p><span>No. Pesanan</span><span>: #${order.id}</span></p>
-                        <p><span>Pelanggan</span><span>: ${order.customerName}</span></p>
-                        <p><span>Pembayaran</span><span>: ${order.paymentMethod}</span></p>
-                        <p><span>Alamat</span><span>: ${order.deliveryAddress}</span></p>
-                    </div>
-                    <hr class="dashed">
-                    <div class="receipt-items" id="receipt-items-list">
-                        </div>
-                    <hr class="dashed">
-                    <div class="receipt-summary">
-                        <div class="summary-row">
-                            <span class="label">Subtotal</span>
-                            <span class="value">Rp ${subtotal.toLocaleString('id-ID')}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="label">Biaya Kirim</span>
-                            <span class="value">Rp ${deliveryFee.toLocaleString('id-ID')}</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span class="label">Total</span>
-                            <span class="value">Rp ${order.total.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>
-                    <div class="receipt-barcode">
-                        <canvas id="barcodeCanvas"></canvas>
-                    </div>
-                    <div class="receipt-footer">
-                        <p>Terima Kasih atas Pesanannya</p>
-                        <p>Kritik dan Saran 089677484948</p>
-                    </div>
-                </div>
-                <div class="receipt-modal-actions">
-                    <button class="download-button">Unduh Struk</button>
-                    <button class="print-button">Cetak Struk</button>
-                </div>
-            `;
-            appAdminContainer.appendChild(overlay);
-
-            // Populate items
-            const receiptItemsList = overlay.querySelector('#receipt-items-list');
-            if (order.items && Array.isArray(order.items)) {
-                order.items.forEach(item => {
-                    const itemRow = document.createElement('div');
-                    itemRow.classList.add('item-row');
-                    itemRow.innerHTML = `
-                        <span class="item-name">${item.name} x ${item.quantity}</span>
-                        <span class="item-price">Rp ${item.price.toLocaleString('id-ID')}</span>
-                    `;
-                    receiptItemsList.appendChild(itemRow);
-                });
-            }
-
-
-            // Generate barcode - Panggil setelah elemen canvas ada di DOM
-            generateBarcode(order.id);
-
-            // Event Listeners for modal
-            overlay.querySelector('.receipt-modal-close').addEventListener('click', () => {
-                overlay.remove();
-            });
-
-            overlay.querySelector('.download-button').addEventListener('click', () => {
-                downloadReceipt(order.id);
-            });
-
-            overlay.querySelector('.print-button').addEventListener('click', () => {
-                printReceipt();
-            });
-        }
-
         // Fungsi untuk menghasilkan barcode
-        function generateBarcode(orderId) {
-            const canvas = document.getElementById('barcodeCanvas');
-            // Pastikan JsBarcode tersedia
+        function generateBarcode(canvasId, orderId) {
+            const canvas = document.getElementById(canvasId);
+            // Pastikan JsBarcode tersedia dan canvas ada
             if (typeof JsBarcode !== 'undefined' && canvas) {
-                JsBarcode(canvas, orderId, {
-                    format: "CODE128", // Atau format lain yang Anda inginkan
-                    width: 2,
-                    height: 80,
-                    displayValue: false // Jangan tampilkan teks nomor di bawah barcode
-                });
+                try {
+                    JsBarcode(canvas, orderId, {
+                        format: "CODE128", // Atau format lain yang Anda inginkan
+                        width: 2,
+                        height: 60, /* Tinggi sedikit dikurangi agar lebih compact di inline receipt */
+                        displayValue: false // Jangan tampilkan teks nomor di bawah barcode
+                    });
+                } catch (e) {
+                    console.error("Error generating barcode for ID:", orderId, e);
+                    canvas.style.display = 'none'; // Sembunyikan canvas jika gagal
+                }
             } else {
-                console.error("JsBarcode library not loaded or canvas not found.");
+                console.warn(`JsBarcode library not loaded or canvas with ID ${canvasId} not found.`);
                 if (canvas) canvas.style.display = 'none'; // Sembunyikan jika JsBarcode tidak ada atau canvas tidak ditemukan
             }
         }
 
-        // Fungsi untuk mengunduh struk sebagai PNG
-        function downloadReceipt(orderId) {
-            const receiptContent = document.getElementById('receiptModalContent');
-            const receiptActions = receiptContent.nextElementSibling; // Get the actions div
+        // Fungsi untuk mengunduh struk sebagai PNG (MODIFIED)
+        function downloadReceipt(orderId, elementIdToPrint) {
+            const element = document.getElementById(elementIdToPrint);
+            if (!element) {
+                alert("Elemen struk tidak ditemukan untuk diunduh.");
+                return;
+            }
 
-            // Sembunyikan tombol aksi dan tombol tutup modal sementara
-            receiptActions.style.display = 'none';
-            receiptContent.querySelector('.receipt-modal-close').style.display = 'none';
+            // Temporarily add a class to make it printable without affecting current view heavily
+            element.classList.add('printable-receipt'); 
 
-            html2canvas(receiptContent, { 
+            html2canvas(element, { 
                 scale: 2, // Meningkatkan resolusi gambar
                 useCORS: true,
                 backgroundColor: '#ffffff' // Pastikan background putih
@@ -1250,22 +1506,35 @@
                 link.download = `struk_pesanan_${orderId}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-
-                // Tampilkan kembali tombol aksi dan tombol tutup modal
-                receiptActions.style.display = 'flex';
-                receiptContent.querySelector('.receipt-modal-close').style.display = 'block';
             }).catch(err => {
                 console.error("Error generating receipt image:", err);
                 alert("Gagal mengunduh struk. Coba lagi.");
-                 // Tampilkan kembali tombol aksi dan tombol tutup modal jika ada error
-                receiptActions.style.display = 'flex';
-                receiptContent.querySelector('.receipt-modal-close').style.display = 'block';
+            }).finally(() => {
+                // Remove the class after operations are done
+                element.classList.remove('printable-receipt');
             });
         }
 
-        // Fungsi untuk mencetak struk
-        function printReceipt() {
-            window.print();
+        // Fungsi untuk mencetak struk (MODIFIED)
+        function printReceipt(elementIdToPrint) {
+            const element = document.getElementById(elementIdToPrint);
+            if (!element) {
+                alert("Elemen struk tidak ditemukan untuk dicetak.");
+                return;
+            }
+
+            // Temporarily add a class to mark the element for printing
+            element.classList.add('printable-receipt');
+
+            // Set timeout to allow browser to apply print styles before printing
+            setTimeout(() => {
+                window.print();
+                // Remove the class after printing is done (or print dialog is closed)
+                // Using a slight delay to ensure print dialog appears first
+                setTimeout(() => {
+                    element.classList.remove('printable-receipt');
+                }, 500); 
+            }, 50);
         }
 
         // --- Integrasi Firebase (Realtime Database - unchanged logic for listener) ---
@@ -1288,14 +1557,10 @@
                 // Render ulang halaman saat data berubah
                 const activeTab = document.querySelector('.bottom-nav-admin .nav-item-admin.active');
                 if (activeTab) {
-                    if (activeTab.dataset.target === 'orders') {
-                        renderOrdersAdminPage();
-                    } else if (activeTab.dataset.target === 'history') {
-                        renderHistoryAdminPage();
-                    }
+                    navigateAdmin(activeTab.dataset.target);
                 } else {
                     // Fallback if no active tab is found (e.g., initial load)
-                    renderOrdersAdminPage();
+                    navigateAdmin('process'); // Default to 'process'
                 }
             }, (error) => {
                 console.error('Gagal membaca pesanan dari Firebase (Admin):', error);
@@ -1304,7 +1569,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             getOrdersFromFirebase(); // Muat pesanan saat halaman admin dimuat
-            navigateAdmin('orders'); // Tampilkan halaman pesanan secara default
+            navigateAdmin('process'); // Tampilkan halaman proses secara default
         });
     </script>
 </body>
