@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -74,6 +74,7 @@
 
         .bottom-nav .nav-item.active {
             color: #ff6600;
+            font-weight: bold;
         }
 
         .bottom-nav .nav-item img {
@@ -104,10 +105,12 @@
             transform: translateY(-5px);
         }
 
+        /* FIX 1: Product image size on homepage to be square */
         .menu-card img {
             width: 100%;
             height: 150px; /* Atur tinggi sesuai lebar */
             object-fit: cover;
+            aspect-ratio: 1 / 1; /* Make it square */
         }
 
         .menu-card h3 {
@@ -330,6 +333,12 @@
             color: #333;
             font-size: 1.1em;
         }
+        
+        /* FIX 2: Grand total color in cart summary */
+        .cart-summary #grand-total {
+            color: #ff6600;
+        }
+
 
         .cart-summary .action-buttons {
             display: flex;
@@ -389,27 +398,27 @@
 
         /* New: Cancel Order Link */
         .cancel-order-link {
-            color: #dc3545; /* Red for cancel */
+            color: #ff6600; /* Red for cancel */
             font-size: 0.8em;
-            font-weight: normal;
-            text-decoration: underline;
+            font-weight: bold;
+            text-decoration: none;
             cursor: pointer;
             margin-left: 10px; /* Jarak dari nomor pesanan */
             white-space: nowrap; /* Jangan putus baris */
         }
 
-        /* New: Time Display for status */
+        /* FIX 3: Time Display for status - bold and same size as status text */
         .status-time {
-            font-size: 0.8em;
+            font-size: 0.9em; /* Same as the status text */
             color: #888;
             margin-right: 5px; /* Jarak antara jam dan teks status */
-            font-weight: normal;
+            font-weight: bold; /* Make it bold */
         }
 
         /* New: Rejection Reason */
         .rejection-reason {
             color: #dc3545; /* Red for rejection reason */
-            font-style: italic;
+            font-style: none;
             margin-top: 10px;
             padding-top: 8px;
             border-top: 1px dashed #f0f0f0; /* Garis pemisah */
@@ -427,7 +436,7 @@
 
         .order-card-detail .detail-item { /* Untuk meluruskan titik dua */
             display: grid;
-            grid-template-columns: auto 1fr; /* Kolom pertama auto (untuk label+titik dua), kolom kedua sisa ruang */
+            grid-template-columns: 80px 3px 1fr; /* Kolom pertama auto (untuk label+titik dua), kolom kedua sisa ruang */
             gap: 5px; /* Jarak antar kolom */
             align-items: start;
         }
@@ -445,6 +454,43 @@
         .order-card-detail ul li {
             margin-bottom: 5px;
         }
+        
+        /* FIX 4: Styling for order summary within order detail */
+        .order-card-detail .order-summary-detail {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px dashed #ff6600;
+            border-radius: 5px;
+            background-color: #fffaf7;
+        }
+
+        .order-card-detail .order-summary-detail h5 {
+            margin-top: 0;
+            color: #ff6600;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .order-card-detail .order-summary-detail ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .order-card-detail .order-summary-detail ul li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .order-card-detail .order-summary-detail .total-line {
+            font-weight: bold;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
 
         .empty-state {
             text-align: center;
@@ -671,10 +717,11 @@
             margin-right: auto;
         }
 
+        /* FIX 2: Grand total color in payment QR page */
         .payment-qr-content-box .grand-total-display {
             font-size: 1.1em;
             font-weight: bold;
-            color: #ff6600;
+            color: #ff6600; /* Make it orange */
             margin-bottom: 20px; /* Jarak dengan tombol unduh */
             display: block;
         }
@@ -736,6 +783,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 <body>
     <div id="app">
@@ -748,15 +797,15 @@
 
         <nav class="bottom-nav">
             <a href="#" class="nav-item active" data-target="home">
-                <img src="https://via.placeholder.com/24" alt="Beranda">
+                <span class="material-symbols-outlined">menu_book_2</span>
                 <span>Beranda</span>
             </a>
             <a href="#" class="nav-item" data-target="cart">
-                <img src="https://via.placeholder.com/24" alt="Keranjang">
+                <span class="material-symbols-outlined">shopping_cart</span>
                 <span>Keranjang</span>
             </a>
             <a href="#" class="nav-item" data-target="orders">
-                <img src="https://via.placeholder.com/24" alt="Pesanan">
+                <span class="material-symbols-outlined">receipt_long</span>
                 <span>Pesanan</span>
             </a>
         </nav>
@@ -957,6 +1006,7 @@
                 }
             });
 
+            // FIX: Tambahkan 'click' event type secara eksplisit
             modal.querySelector('#increase-qty').addEventListener('click', () => {
                 quantity++;
                 productQtySpan.textContent = quantity;
@@ -1048,13 +1098,13 @@
                                 <img src="${item.imageUrl}" alt="${item.name}">
                                 <div class="item-details">
                                     <h4>${item.name}</h4>
-                                    <p>Rp ${item.price.toLocaleString('id-ID')} x ${item.quantity}</p>
+                                    <p>Rp ${item.price.toLocaleString('id-ID')} x <span id="cart-item-qty-${item.id}">${item.quantity}</span></p>
                                 </div>
                             </div>
                             <div class="cart-item-actions">
                                 <div class="quantity-control">
                                     <button class="decrease-cart-qty" data-id="${item.id}">-</button>
-                                    <span class="cart-item-qty">${item.quantity}</span>
+                                    <span class="cart-item-qty" id="cart-item-display-qty-${item.id}">${item.quantity}</span>
                                     <button class="increase-cart-qty" data-id="${item.id}">+</button>
                                 </div>
                             </div>
@@ -1078,7 +1128,7 @@
             const deleteSelectedButtonDisabled = !hasCheckedItems;
 
             cartSummaryElement.innerHTML = `
-                <h3>Grand Total: <span id="grand-total">Rp ${calculateGrandTotal().toLocaleString('id-ID')}</span></h3>
+                <h3>Total: <span id="grand-total">Rp ${calculateGrandTotal().toLocaleString('id-ID')}</span></h3>
                 <div class="action-buttons">
                     <button id="delete-selected-items" class="delete-selected" ${deleteSelectedButtonDisabled ? 'disabled' : ''}>Hapus</button>
                     <button id="checkout-button" ${checkoutButtonDisabled ? 'disabled' : ''}>Pesan Sekarang</button>
@@ -1090,7 +1140,7 @@
                 checkbox.addEventListener('change', (e) => {
                     const itemId = e.currentTarget.dataset.id;
                     toggleCartItemChecked(itemId);
-                    renderCartPage();
+                    renderCartPage(); // Re-render to update checkbox state and total
                 });
             });
 
@@ -1100,6 +1150,15 @@
                     const item = cart.find(i => i.id === itemId);
                     if (item) {
                         updateCartItemQuantity(itemId, item.quantity + 1);
+                        // Update quantity display directly
+                        document.getElementById(`cart-item-qty-${itemId}`).textContent = item.quantity;
+                        // FIX: Update the quantity span between buttons
+                        document.getElementById(`cart-item-display-qty-${item.id}`).textContent = item.quantity;
+                        document.querySelector('#grand-total').textContent = `Rp ${calculateGrandTotal().toLocaleString('id-ID')}`;
+                        // Re-evaluate button disabled state
+                        const hasCheckedItemsAfterUpdate = cart.filter(item => item.checked).length > 0;
+                        document.getElementById('checkout-button').disabled = !hasCheckedItemsAfterUpdate;
+                        document.getElementById('delete-selected-items').disabled = !hasCheckedItemsAfterUpdate;
                     }
                 });
             });
@@ -1110,9 +1169,20 @@
                     const item = cart.find(i => i.id === itemId);
                     if (item && item.quantity > 1) {
                         updateCartItemQuantity(itemId, item.quantity - 1);
+                        // Update quantity display directly
+                        document.getElementById(`cart-item-qty-${itemId}`).textContent = item.quantity;
+                        // FIX: Update the quantity span between buttons
+                        document.getElementById(`cart-item-display-qty-${item.id}`).textContent = item.quantity;
+                        document.querySelector('#grand-total').textContent = `Rp ${calculateGrandTotal().toLocaleString('id-ID')}`;
+                        // Re-evaluate button disabled state
+                        const hasCheckedItemsAfterUpdate = cart.filter(item => item.checked).length > 0;
+                        document.getElementById('checkout-button').disabled = !hasCheckedItemsAfterUpdate;
+                        document.getElementById('delete-selected-items').disabled = !hasCheckedItemsAfterUpdate;
                     } else if (item && item.quantity === 1) {
                         if (confirm('Kuantitas akan menjadi 0. Hapus item ini dari keranjang?')) {
                             removeFromCart(itemId);
+                            // Re-render the whole cart page to remove the item and update totals
+                            renderCartPage();
                         }
                     }
                 });
@@ -1172,21 +1242,33 @@
                 <div class="order-form">
                     <h2>Lengkapi Detail Pemesanan</h2>
                     <div class="form-group">
-                        <label for="customerName">Nama Pembeli:</label>
+                        <label for="customerName">Nama:</label>
                         <input type="text" id="customerName" placeholder="Masukkan nama lengkap Anda" required>
                     </div>
                     <div class="form-group">
-                        <label for="whatsappNumber">No. WhatsApp:</label>
+                        <label for="whatsappNumber">No. HP:</label>
                         <input type="text" id="whatsappNumber" placeholder="Contoh: 081234567890" required>
-                        <div class="note">Pastikan nomor aktif yang bisa dihubungi.</div>
+                        <div class="note">Pastikan nomor aktif yang dapat dihubungi.</div>
                     </div>
                     <div class="form-group">
-                        <label for="deliveryAddress">Alamat Pengiriman:</label>
-                        <textarea id="deliveryAddress" rows="3" placeholder="Contoh: Jl. Merdeka No. 123, RT 001/RW 002, Kel. Maju Jaya, Kec. Sejahtera, Kota Bahagia" required></textarea>
+                        <label for="kampungName">Kampung/Perum:</label>
+                        <input type="text" id="kampungName" placeholder="Contoh: Kampung Bahagia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rtRw">RT/RW:</label>
+                        <input type="text" id="rtRw" placeholder="Contoh: 001/002" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="desaName">Desa:</label>
+                        <input type="text" id="desaName" placeholder="Contoh: Purwasari" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kecamatanName">Kecamatan:</label>
+                        <input type="text" id="kecamatanName" placeholder="Contoh: Purwasari" required>
                     </div>
 
                     <div class="order-summary-checkout">
-                        <h3>Ringkasan Pesanan Anda</h3>
+                        <h3>Ringkasan Pesanan</h3>
                         <ul>
                             ${orderItemsHtml}
                             <li class="total-line">
@@ -1194,11 +1276,11 @@
                                 <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
                             </li>
                             <li>
-                                <span>Ongkos Kirim:</span>
+                                <span>Ongkos Kirim</span>
                                 <span>Rp ${deliveryFee.toLocaleString('id-ID')}</span>
                             </li>
                             <li class="total-line">
-                                <span>Grand Total:</span>
+                                <span>Total:</span>
                                 <span>Rp ${totalWithDelivery.toLocaleString('id-ID')}</span>
                             </li>
                         </ul>
@@ -1242,10 +1324,13 @@
             document.getElementById('create-order').addEventListener('click', () => {
                 const customerName = document.getElementById('customerName').value;
                 const whatsappNumber = document.getElementById('whatsappNumber').value;
-                const deliveryAddress = document.getElementById('deliveryAddress').value;
+                const kampungName = document.getElementById('kampungName').value;
+                const rtRw = document.getElementById('rtRw').value;
+                const desaName = document.getElementById('desaName').value;
+                const kecamatanName = document.getElementById('kecamatanName').value;
                 const selectedPaymentMethod = document.getElementById('paymentMethod').value;
 
-                if (!customerName || !whatsappNumber || !deliveryAddress || !selectedPaymentMethod || selectedPaymentMethod === '') {
+                if (!customerName || !whatsappNumber || !kampungName || !rtRw || !desaName || !kecamatanName || !selectedPaymentMethod || selectedPaymentMethod === '') {
                     alert('Mohon lengkapi semua data formulir!');
                     return;
                 }
@@ -1263,7 +1348,7 @@
                 const submissionTimestamp = Date.now(); // Timestamp untuk jendela pembatalan
 
                 // Buat pesanan di database
-                placeOrder(newOrderId, customerName, whatsappNumber, deliveryAddress, selectedPaymentMethod, itemsForOrder, orderGrandTotal, submissionTimestamp);
+                placeOrder(newOrderId, customerName, whatsappNumber, kampungName, rtRw, desaName, kecamatanName, selectedPaymentMethod, itemsForOrder, orderGrandTotal, submissionTimestamp);
                 
                 // Kosongkan keranjang setelah pesanan dibuat (hanya item yang dicentang)
                 cart = cart.filter(item => !item.checked);
@@ -1289,7 +1374,7 @@
                 <div class="top-bar">
                     <button class="close-button-qr">X</button>
                 </div>
-                <h3 class="order-success-title">Pesanan Dibuat!</h3> `;
+                <h3 class="order-success-title">Pesanan Berhasil Dibuat!</h3> `;
 
             if (paymentMethod !== 'COD') {
                 paymentContentHtml += `
@@ -1297,7 +1382,7 @@
                         <span class="order-number-label">Nomor Pesanan:</span>
                         <span class="order-number-value">#${orderNumber}</span>
                         <img src="${paymentQRUrl}" alt="Scan untuk Bayar">
-                        <span class="grand-total-display">Total yang harus dibayar: Rp ${grandTotal.toLocaleString('id-ID')}</span>
+                        <span class="grand-total-display">Total: Rp ${grandTotal.toLocaleString('id-ID')}</span>
                         <button id="download-qr-post-order" class="download-qr">Unduh QR Pembayaran</button>
                     </div>
                     <div class="payment-instruction-section">
@@ -1307,9 +1392,11 @@
                             <li>- Masukkan nominal sesuai dengan harga yang tertera.</li>
                         </ul>
                     </div>
-                    <div class="payment-note-section">
+                    <div class="payment-instruction-section">
                         <p class="title">Catatan:</p>
-                        <p>Jika nominal yang diinput kurang dari harga yang tertera, pembeli akan mengembalikannya sebesar 90%.</p>
+                        <ul>
+                        <li>-Jika nominal yang diinput kurang dari harga yang tertera, penjual akan mengembalikannya sebesar 90%.</p>
+                        <ul>
                     </div>
                 `;
             } else {
@@ -1318,7 +1405,7 @@
                         <span class="order-number-label">Nomor Pesanan:</span>
                         <span class="order-number-value">#${orderNumber}</span>
                         <p class="payment-instruction-only">Pembayaran akan dilakukan secara Cash On Delivery (COD) saat pesanan tiba.</p>
-                        <span class="grand-total-display">Total yang harus dibayar: Rp ${grandTotal.toLocaleString('id-ID')}</span>
+                        <span class="grand-total-display">Total: Rp ${grandTotal.toLocaleString('id-ID')}</span>
                     </div>
                 `;
             }
@@ -1359,13 +1446,17 @@
 
 
         // --- Fungsi Pesanan (Diperbarui untuk fitur baru) ---
-        function placeOrder(orderId, customerName, whatsappNumber, deliveryAddress, paymentMethod, items, totalAmount, submissionTimestamp) {
+        function placeOrder(orderId, customerName, whatsappNumber, kampungName, rtRw, desaName, kecamatanName, paymentMethod, items, totalAmount, submissionTimestamp) {
             const now = new Date();
             const newOrder = {
                 id: orderId,
                 customerName: customerName,
                 whatsappNumber: whatsappNumber,
-                deliveryAddress: deliveryAddress,
+                kampungName: kampungName, // Store individual parts
+                rtRw: rtRw,
+                desaName: desaName,
+                kecamatanName: kecamatanName,
+                deliveryAddress: `${kampungName}, ${rtRw}, ${desaName}, ${kecamatanName}`, // Store concatenated for easy display
                 paymentMethod: paymentMethod,
                 items: items,
                 total: totalAmount,
@@ -1397,19 +1488,21 @@
             let ordersHtml = `<div class="order-list">`;
             const now = Date.now();
             
-            // Filter pesanan untuk "aktif" di tab ini
+            // FIX 6: Include rejected orders in the active orders list
             const activeOrders = orders.filter(order => {
-                // Pesanan yang diterima akan hilang setelah besok (artinya hanya tampil hari ini jika statusnya 'diterima')
-                if (order.status === 'Pesanan telah diterima pelanggan') {
-                    const statusUpdateDate = new Date(order.statusUpdatedAt);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Atur ke awal hari ini
-                    statusUpdateDate.setHours(0, 0, 0, 0); // Atur ke awal hari pembaruan status
-                    return statusUpdateDate.getTime() === today.getTime(); // Hanya tampil jika diterima hari ini
+                const statusUpdateDate = new Date(order.statusUpdatedAt);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Atur ke awal hari ini
+                statusUpdateDate.setHours(0, 0, 0, 0); // Atur ke awal hari pembaruan status
+
+                // Orders that are 'received' or 'rejected' should only show for the current day
+                if (order.status === 'Pesanan telah diterima pelanggan' || order.status === 'Pesanan ditolak oleh penjual') {
+                    return statusUpdateDate.getTime() === today.getTime();
                 }
-                // Tampilkan status lain kecuali 'Ditolak' dan 'Dibatalkan oleh pembeli' (karena itu dianggap riwayat)
-                return order.status !== 'Pesanan ditolak oleh penjual' && order.status !== 'Pesanan dibatalkan oleh pembeli';
+                // Other statuses (pending, processing) are always active
+                return order.status !== 'Pesanan dibatalkan oleh pembeli'; // 'Dibatalkan oleh pembeli' always goes to history
             });
+
 
             // Urutkan pesanan aktif dari yang terbaru
             const sortedActiveOrders = [...activeOrders].sort((a, b) => b.submissionTimestamp - a.submissionTimestamp);
@@ -1435,29 +1528,52 @@
                         statusTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     }
 
+                    // Calculate subtotal for the order details summary
+                    let orderSubtotal = 0;
+                    order.items.forEach(item => {
+                        orderSubtotal += item.price * item.quantity;
+                    });
+                    const orderTotalWithDelivery = orderSubtotal + deliveryFee;
+
+
                     ordersHtml += `
                         <div class="order-card-summary" data-firebase-id="${order.firebaseId}">
                             <h4>
                                 Pesanan #${order.id}
                                 ${canCancel ? `<span class="cancel-order-link" data-firebase-id="${order.firebaseId}">Batalkan Pesanan</span>` : ''}
                             </h4>
-                            <p>Status: <span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
-                            ${order.rejectionReason ? `<p class="rejection-reason">Catatan Penjual: ${order.rejectionReason}</p>` : ''}
+                            <p><span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
+                            ${order.rejectionReason ? `<p class="rejection-reason">Alasan: ${order.rejectionReason}</p>` : ''}
                             <div class="order-card-detail" style="display: none;">
-                                <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
-                                <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
-                                <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
-                                <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
-                                <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
-                                <h5>Item Pesanan:</h5>
-                                <ul>
-                    `;
-                    order.items.forEach(item => {
-                        ordersHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
-                    });
-                    ordersHtml += `
-                                </ul>
+                            	<div class="detail-item"><span>Tanggal</span><span>:</span><span> ${order.orderDate}</span></div>
+                                <div class="detail-item"><span>Pelanggan</span><span>:</span><span> ${order.customerName}</span></div>
+                                <div class="detail-item"><span>No. HP</span><span>:</span><span> ${order.whatsappNumber}</span></div>
+                                <div class="detail-item"><span>Alamat</span><span>:</span><span> ${order.deliveryAddress}</span></div>
+                                <div class="detail-item"><span>Pembayaran</span><span>:</span><span> ${order.paymentMethod}</span></div>
+                                
+                                <div class="order-summary-detail">
+                                    <h5>Ringkasan Pesanan:</h5>
+                                    <ul>
+                                        ${order.items.map(item => `
+                                            <li>
+                                                <span>${item.name} x ${item.quantity}</span>
+                                                <span>Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                            </li>
+                                        `).join('')}
+                                        <li class="total-line">
+                                            <span>Subtotal:</span>
+                                            <span>Rp ${orderSubtotal.toLocaleString('id-ID')}</span>
+                                        </li>
+                                        <li>
+                                            <span>Ongkos Kirim</span>
+                                            <span>Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                                        </li>
+                                        <li class="total-line">
+                                            <span>Total:</span>
+                                            <span>Rp ${orderTotalWithDelivery.toLocaleString('id-ID')}</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1523,16 +1639,17 @@
             let historyHtml = `<div class="order-list">`;
 
             const historyOrders = orders.filter(order => {
-                // Pesanan "Diterima" dianggap riwayat jika sudah hari berikutnya
-                if (order.status === 'Pesanan telah diterima pelanggan') {
-                    const statusUpdateDate = new Date(order.statusUpdatedAt);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Set ke awal hari ini
-                    statusUpdateDate.setHours(0, 0, 0, 0); // Set ke awal hari pembaruan status
-                    return statusUpdateDate.getTime() < today.getTime(); // Jika diterima sebelum hari ini
+                const statusUpdateDate = new Date(order.statusUpdatedAt);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Set ke awal hari ini
+                statusUpdateDate.setHours(0, 0, 0, 0); // Set ke awal hari pembaruan status
+
+                // Pesanan "Diterima" dan "Ditolak" dianggap riwayat jika sudah hari berikutnya
+                if (order.status === 'Pesanan telah diterima pelanggan' || order.status === 'Pesanan ditolak oleh penjual') {
+                    return statusUpdateDate.getTime() < today.getTime(); // Jika diterima/ditolak sebelum hari ini
                 }
-                // Pesanan "Ditolak" dan "Dibatalkan oleh pembeli" selalu masuk riwayat
-                return order.status === 'Pesanan ditolak oleh penjual' || order.status === 'Pesanan dibatalkan oleh pembeli';
+                // Pesanan "Dibatalkan oleh pembeli" selalu masuk riwayat
+                return order.status === 'Pesanan dibatalkan oleh pembeli';
             });
 
             // Urutkan riwayat pesanan dari yang terbaru
@@ -1554,26 +1671,48 @@
                         statusTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     }
 
+                    // Calculate subtotal for the order details summary
+                    let orderSubtotal = 0;
+                    order.items.forEach(item => {
+                        orderSubtotal += item.price * item.quantity;
+                    });
+                    const orderTotalWithDelivery = orderSubtotal + deliveryFee;
+
                     historyHtml += `
                         <div class="order-card-summary" data-firebase-id="${order.firebaseId}">
                             <h4>Pesanan #${order.id}</h4>
-                            <p>Status: <span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
-                            ${order.rejectionReason ? `<p class="rejection-reason">Catatan Penjual: ${order.rejectionReason}</p>` : ''}
+                            <p> <span class="status-time">${statusTime ? statusTime + ' ' : ''}</span>${order.status}</p>
+                            ${order.rejectionReason ? `<p class="rejection-reason">Alasan: ${order.rejectionReason}</p>` : ''}
                             <div class="order-card-detail" style="display: none;">
-                                <div class="detail-item"><span>Pembeli</span><span>: ${order.customerName}</span></div>
-                                <div class="detail-item"><span>WA</span><span>: ${order.whatsappNumber}</span></div>
-                                <div class="detail-item"><span>Alamat</span><span>: ${order.deliveryAddress}</span></div>
-                                <div class="detail-item"><span>Pembayaran</span><span>: ${order.paymentMethod}</span></div>
-                                <div class="detail-item"><span>Tanggal</span><span>: ${order.orderDate}</span></div>
-                                <div class="detail-item"><span>Total</span><span>: Rp ${order.total.toLocaleString('id-ID')}</span></div>
-                                <h5>Item Pesanan:</h5>
-                                <ul>
-                    `;
-                    order.items.forEach(item => {
-                        historyHtml += `<li>${item.name} x ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`;
-                    });
-                    historyHtml += `
-                                </ul>
+                            	<div class="detail-item"><span>Tanggal</span><span>:</span><span> ${order.orderDate}</span></div>
+                                <div class="detail-item"><span>Pelanggan</span><span>:</span><span> ${order.customerName}</span></div>
+                                <div class="detail-item"><span>No. HP</span><span>:</span><span> ${order.whatsappNumber}</span></div>
+                                <div class="detail-item"><span>Alamat</span><span>:</span><span> ${order.deliveryAddress}</span></div>
+                                <div class="detail-item"><span>Pembayaran</span><span>:</span><span> ${order.paymentMethod}</span></div>
+                                
+                                <div class="order-summary-detail">
+                                    <h5>Ringkasan Pesanan Anda:</h5>
+                                    <ul>
+                                        ${order.items.map(item => `
+                                            <li>
+                                                <span>${item.name} x ${item.quantity}</span>
+                                                <span>Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                            </li>
+                                        `).join('')}
+                                        <li class="total-line">
+                                            <span>Subtotal:</span>
+                                            <span>Rp ${orderSubtotal.toLocaleString('id-ID')}</span>
+                                        </li>
+                                        <li>
+                                            <span>Ongkos Kirim</span>
+                                            <span>Rp ${deliveryFee.toLocaleString('id-ID')}</span>
+                                        </li>
+                                        <li class="total-line">
+                                            <span>Total:</span>
+                                            <span>Rp ${orderTotalWithDelivery.toLocaleString('id-ID')}</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1604,6 +1743,7 @@
             database.ref('cart').set(cart)
                 .then(() => {
                     console.log('Keranjang berhasil diperbarui di Firebase.');
+                    // Only re-render cart if the cart tab is currently active
                     if (document.querySelector('.bottom-nav .nav-item.active').dataset.target === 'cart') {
                         renderCartPage();
                     }
@@ -1618,6 +1758,7 @@
                 const data = snapshot.val();
                 cart = data ? Object.values(data) : [];
                 console.log('Keranjang dimuat dari Firebase:', cart);
+                // Call renderCartPage only if the cart tab is active
                 if (document.querySelector('.bottom-nav .nav-item.active').dataset.target === 'cart') {
                     renderCartPage();
                 }
@@ -1652,7 +1793,7 @@
                     renderHistoryPage();
                 }
                 // Check dan hapus pesanan yang sudah diterima dan sudah lewat hari
-                checkAndDeleteOldReceivedOrders();
+                checkAndDeleteOldOrders(); // Renamed function
             }, (error) => {
                 console.error('Gagal membaca pesanan dari Firebase (Customer):', error);
             });
@@ -1690,19 +1831,19 @@
             }
         }
 
-        // New: Function to delete old 'Diterima' orders from database
-        function checkAndDeleteOldReceivedOrders() {
+        // FIX 6: Renamed and modified function to delete old 'Diterima' and 'Ditolak' orders from database
+        function checkAndDeleteOldOrders() {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Set to start of today for comparison
 
             orders.forEach(order => {
-                if (order.status === 'Pesanan telah diterima pelanggan' && order.statusUpdatedAt) {
+                if ((order.status === 'Pesanan telah diterima pelanggan' || order.status === 'Pesanan ditolak oleh penjual') && order.statusUpdatedAt) {
                     const statusUpdateDate = new Date(order.statusUpdatedAt);
                     statusUpdateDate.setHours(0, 0, 0, 0); // Set to start of status update day
 
-                    // If the status update date is before today (meaning it was received yesterday or earlier)
+                    // If the status update date is before today (meaning it was received/rejected yesterday or earlier)
                     if (statusUpdateDate.getTime() < today.getTime()) {
-                        console.log(`Deleting old received order: ${order.id} (Received on: ${order.statusUpdatedAt})`);
+                        console.log(`Deleting old order: ${order.id} with status ${order.status} (Updated on: ${order.statusUpdatedAt})`);
                         database.ref('orders/' + order.firebaseId).remove()
                             .then(() => {
                                 console.log(`Order #${order.id} successfully removed from database.`);
