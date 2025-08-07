@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Aplikasi Jadwal Kegiatan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #6366f1;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        
+        .task-card {
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .priority-high {
+            border-left-color: var(--danger);
+        }
+        
+        .priority-medium {
+            border-left-color: var(--warning);
+        }
+        
+        .priority-low {
+            border-left-color: var(--success);
+        }
+        
+        .category-work {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+        
+        .category-personal {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .category-health {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        .category-education {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        
+        .category-other {
+            background-color: rgba(107, 114, 128, 0.1);
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        
+        .main-content {
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        .task-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .task-form.expanded {
+            max-height: 1000px;
+        }
+        
+        .category-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-work {
+            background-color: var(--info);
+            color: white;
+        }
+        
+        .badge-personal {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .badge-health {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .badge-education {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .badge-other {
+            background-color: var(--dark);
+            color: white;
+        }
+        
+        .priority-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .priority-high-dot {
+            background-color: var(--danger);
+        }
+        
+        .priority-medium-dot {
+            background-color: var(--warning);
+        }
+        
+        .priority-low-dot {
+            background-color: var(--success);
+        }
+        
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .calendar-day.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .calendar-day.has-tasks {
+            border: 2px solid var(--primary);
+        }
+        
+        .tab {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+        }
+        
+        .notification-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .notification-panel.show {
+            max-height: 400px;
+        }
+        
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Animation for new tasks */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex min-h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-lg fixed h-full z-10">
+            <div class="p-4 flex justify-between items-center border-b">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-tasks text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">TaskFlow</h1>
+                </div>
+                <button id="toggleSidebar" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <div class="mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-semibold text-gray-800">Pengguna</h2>
+                            <p class="text-xs text-gray-500">Selamat datang kembali!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Menu</h3>
+                    <ul>
+                        <li class="mb-1">
+                            <a href="#all" class="sidebar-nav flex items-center px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                                <i class="fas fa-home w-5 text-center mr-2"></i>
+                                <span>Semua Tugas</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#today" class="sidebar-nav flex items-center px-3 py-2 bg-indigo-50 text-indigo-600 rounded font-medium">
+                                <i class="fas fa-calendar-day w-5 text-center mr-2"></i>
+                                <span>Hari Ini</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#upcoming" class="sidebar-nav flex items-center px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                                <i class="fas fa-calendar-alt w-5 text-center mr-2"></i>
+                                <span>Mendatang</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#completed" class="sidebar-nav flex items-center px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                                <i class="fas fa-check-circle w-5 text-center mr-2"></i>
+                                <span>Selesai</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Kategori</h3>
+                    <ul>
+                        <li class="mb-1">
+                            <a href="#" class="category-filter flex items-center justify-between px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors" data-category="work">
+                                <div class="flex items-center">
+                                    <i class="fas fa-briefcase w-5 text-center mr-2 text-indigo-600"></i>
+                                    <span>Pekerjaan</span>
+                                </div>
+                                <span class="bg-indigo-100 text-indigo-600 text-xs font-semibold px-2 py-0.5 rounded-full" id="workCount">0</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#" class="category-filter flex items-center justify-between px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors" data-category="personal">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user w-5 text-center mr-2 text-emerald-600"></i>
+                                    <span>Pribadi</span>
+                                </div>
+                                <span class="bg-emerald-100 text-emerald-600 text-xs font-semibold px-2 py-0.5 rounded-full" id="personalCount">0</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#" class="category-filter flex items-center justify-between px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors" data-category="health">
+                                <div class="flex items-center">
+                                    <i class="fas fa-heartbeat w-5 text-center mr-2 text-red-600"></i>
+                                    <span>Kesehatan</span>
+                                </div>
+                                <span class="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded-full" id="healthCount">0</span>
+                            </a>
+                        </li>
+                        <li class="mb-1">
+                            <a href="#" class="category-filter flex items-center justify-between px-3 py-2 text-gray-700 rounded hover:bg-indigo-50 hover:text-indigo-600 transition-colors" data-category="education">
+                                <div class="flex items-center">
+                                    <i class="fas fa-graduation-cap w-5 text-center mr-2 text-amber-600"></i>
+                                    <span>Pendidikan</span>
+                                </div>
+                                <span class="bg-amber-100 text-amber-600 text-xs font-semibold px-2 py-0.5 rounded-full" id="educationCount">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-indigo-50 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-lightbulb text-indigo-600"></i>
+                        </div>
+                        <h3 class="font-medium text-indigo-800">Tips</h3>
+                    </div>
+                    <p class="text-xs text-indigo-700">Aktifkan notifikasi untuk mendapatkan pengingat tugas bahkan saat browser ditutup.</p>
+                    <button id="enableNotifications" class="mt-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-1.5 px-3 rounded transition-colors">
+                        Aktifkan Notifikasi
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content flex-1 ml-64">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-6 py-3">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="mr-4 text-gray-500 hover:text-gray-700 lg:hidden">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800">Jadwal Kegiatan</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="searchToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <div id="searchPanel" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-3 hidden">
+                                <div class="relative">
+                                    <input type="text" id="searchInput" placeholder="Cari tugas..." class="w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="relative">
+                            <button id="notificationToggle" class="text-gray-500 hover:text-gray-700 relative">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationDot" class="notification-dot hidden"></span>
+                            </button>
+                            <div id="notificationPanel" class="notification-panel absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-20">
+                                <div class="p-3 bg-indigo-50 border-b">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="font-medium text-indigo-800">Notifikasi</h3>
+                                        <button id="markAllRead" class="text-xs text-indigo-600 hover:text-indigo-800">Tandai semua dibaca</button>
+                                    </div>
+                                </div>
+                                <div id="notificationList" class="max-h-60 overflow-y-auto">
+                                    <div class="p-4 text-center text-gray-500" id="emptyNotifications">
+                                        <i class="fas fa-bell-slash text-gray-300 text-2xl mb-2"></i>
+                                        <p class="text-sm">Belum ada notifikasi</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        
+                        <div class="relative">
+                            <button id="userMenuToggle" class="flex items-center text-gray-700 hover:text-gray-900">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-user text-indigo-600"></i>
+                                </div>
+                                <span class="hidden md:inline-block font-medium">Pengguna</span>
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg p-2 hidden z-20">
+                                <a href="#" id="profileBtn" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                    <i class="fas fa-user-circle mr-2"></i> Profil
+                                </a>
+                                <a href="#" id="settingsBtn" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                    <i class="fas fa-cog mr-2"></i> Pengaturan
+                                </a>
+                                <div class="border-t my-1"></div>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Date Navigation -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Kalender</h3>
+                        <div class="flex space-x-2">
+                            <button id="prevWeek" class="p-1 rounded hover:bg-gray-100">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="nextWeek" class="p-1 rounded hover:bg-gray-100">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="calendarDays" class="flex justify-between overflow-x-auto pb-2">
+                        <!-- Calendar days will be generated here -->
+                    </div>
+                </div>
+                
+                <!-- Task Management -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <div class="flex items-center">
+                            <i class="fas fa-tasks text-indigo-600 mr-2"></i>
+                            <h3 class="text-lg font-semibold text-gray-800">Daftar Tugas</h3>
+                        </div>
+                        <button id="addTaskBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            <span>Tambah Tugas</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Task Form -->
+                    <div id="taskForm" class="task-form border-b">
+                        <div class="p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Tambah Tugas Baru</h4>
+                            <form id="newTaskForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas</label>
+                                        <input type="text" id="taskTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan judul tugas" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                        <select id="taskCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option value="work">Pekerjaan</option>
+                                            <option value="personal">Pribadi</option>
+                                            <option value="health">Kesehatan</option>
+                                            <option value="education">Pendidikan</option>
+                                            <option value="other">Lainnya</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                        <input type="date" id="taskDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Waktu</label>
+                                        <input type="time" id="taskTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prioritas</label>
+                                        <select id="taskPriority" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option value="low">Rendah</option>
+                                            <option value="medium">Sedang</option>
+                                            <option value="high">Tinggi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                    <textarea id="taskDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows="3" placeholder="Masukkan deskripsi tugas (opsional)"></textarea>
+                                </div>
+                                
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="taskReminder" class="mr-2">
+                                        <label for="taskReminder" class="text-sm text-gray-700">Ingatkan saya</label>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="cancelTaskBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg mr-2">Batal</button>
+                                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg">Simpan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Task Tabs -->
+                    <div class="flex border-b">
+                        <div class="tab active px-4 py-3 text-center flex-1" data-tab="all">
+                            <span>Semua</span>
+                        </div>
+                        <div class="tab px-4 py-3 text-center flex-1" data-tab="today">
+                            <span>Hari Ini</span>
+                        </div>
+                        <div class="tab px-4 py-3 text-center flex-1" data-tab="upcoming">
+                            <span>Mendatang</span>
+                        </div>
+                        <div class="tab px-4 py-3 text-center flex-1" data-tab="completed">
+                            <span>Selesai</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Task List -->
+                    <div id="taskList" class="p-4 max-h-96 overflow-y-auto">
+                        <div id="emptyState" class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clipboard-list text-gray-400 text-xl"></i>
+                            </div>
+                            <h4 class="text-gray-500 font-medium mb-2">Belum ada tugas</h4>
+                            <p class="text-gray-400 text-sm">Klik tombol "Tambah Tugas" untuk membuat tugas baru</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-4">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Tugas Selesai</h4>
+                                <p class="text-2xl font-bold text-gray-800" id="completedTasksCount">0</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="completionProgress" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-4">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-clock text-amber-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Tugas Mendatang</h4>
+                                <p class="text-2xl font-bold text-gray-800" id="upcomingTasksCount">0</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Minggu ini: <span id="thisWeekCount" class="font-medium">0</span></span>
+                            <span>Bulan ini: <span id="thisMonthCount" class="font-medium">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-4">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-exclamation text-red-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Prioritas Tinggi</h4>
+                                <p class="text-2xl font-bold text-gray-800" id="highPriorityCount">0</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            <span id="nextHighPriorityTask">Tidak ada tugas prioritas tinggi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Tasks Preview -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Tugas Mendatang</h3>
+                        <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm">Lihat semua</a>
+                    </div>
+                    
+                    <div id="upcomingTasksList" class="space-y-3">
+                        <!-- Upcoming tasks will be displayed here -->
+                        <div class="text-center text-gray-500 py-4" id="emptyUpcoming">
+                            <p>Belum ada tugas mendatang</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Footer -->
+            <footer class="bg-white border-t p-4">
+                <div class="text-center text-gray-500 text-sm">
+                    &copy; 2023 TaskFlow - Aplikasi Jadwal Kegiatan
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Task Detail Modal -->
+    <div id="taskDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div id="taskDetailHeader" class="p-4 bg-indigo-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-indigo-800" id="detailTitle">Detail Tugas</h3>
+                    <button id="closeTaskDetail" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <span id="detailCategoryBadge" class="category-badge mr-2">Kategori</span>
+                        <div class="flex items-center">
+                            <span id="detailPriorityDot" class="priority-indicator"></span>
+                            <span id="detailPriorityText" class="text-sm">Prioritas</span>
+                        </div>
+                    </div>
+                    <h4 id="detailTaskTitle" class="text-xl font-semibold text-gray-800 mb-1">Judul Tugas</h4>
+                    <p id="detailTaskDescription" class="text-gray-600 mb-4">Deskripsi tugas akan ditampilkan di sini.</p>
+                    
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <i class="far fa-calendar mr-2"></i>
+                        <span id="detailDateTime">Tanggal dan Waktu</span>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="editTaskBtn" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-4 rounded-lg flex items-center transition-colors">
+                            <i class="fas fa-edit mr-2"></i>
+                            <span>Edit</span>
+                        </button>
+                        
+                        <button id="deleteTaskBtn" class="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-4 rounded-lg flex items-center transition-colors">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            <span>Hapus</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="detailTaskComplete" class="mr-2 h-5 w-5">
+                            <label for="detailTaskComplete" class="text-gray-700">Tandai sebagai selesai</label>
+                        </div>
+                        
+                        <div class="text-sm text-gray-500" id="detailTaskStatus">
+                            Belum selesai
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-4 bg-indigo-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-indigo-800">Profil Pengguna</h3>
+                    <button id="closeProfileModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <form id="profileForm">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="relative">
+                            <div id="profileImageContainer" class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-3 overflow-hidden">
+                                <img id="profileImage" class="w-full h-full object-cover hidden" alt="Profile">
+                                <i id="profileIcon" class="fas fa-user text-indigo-600 text-2xl"></i>
+                            </div>
+                            <button type="button" id="uploadImageBtn" class="absolute bottom-0 right-0 w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center transition-colors">
+                                <i class="fas fa-camera text-xs"></i>
+                            </button>
+                        </div>
+                        <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+                        <p class="text-sm text-gray-500">Klik ikon kamera untuk mengubah foto</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Pengguna</label>
+                        <input type="text" id="userName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan nama Anda" value="Pengguna">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="userEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan email Anda">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="button" id="cancelProfile" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg mr-2">
+                            Batal
+                        </button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg">
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-4 bg-indigo-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-indigo-800">Pengaturan</h3>
+                    <button id="closeSettingsModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="space-y-4">
+                    <button id="appSettingsBtn" class="w-full text-left px-4 py-3 rounded-lg border hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-mobile-alt text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Aplikasi</h4>
+                                <p class="text-sm text-gray-500">Ubah nama dan ikon aplikasi</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="border-t pt-6 mt-6">
+                    <button id="resetDataBtn" class="w-full text-left px-4 py-3 rounded-lg border border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-trash-alt text-red-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Reset Data</h4>
+                                <p class="text-sm text-gray-500">Menghapus semua data</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Settings Modal -->
+    <div id="appSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-4 bg-indigo-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-indigo-800">Pengaturan Aplikasi</h3>
+                    <button id="closeAppSettingsModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <form id="appSettingsForm">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ikon Aplikasi</label>
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <div id="appIconContainer" class="w-16 h-16 rounded-lg bg-indigo-600 flex items-center justify-center mr-4 overflow-hidden">
+                                    <img id="appIcon" class="w-full h-full object-cover hidden" alt="App Icon">
+                                    <i id="appIconDefault" class="fas fa-tasks text-white text-xl"></i>
+                                </div>
+                                <button type="button" id="uploadAppIconBtn" class="absolute -bottom-1 -right-1 w-6 h-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center transition-colors">
+                                    <i class="fas fa-camera text-xs"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Klik ikon kamera untuk mengubah ikon aplikasi</p>
+                                <p class="text-xs text-gray-500 mt-1">Format: PNG, JPG (Maks. 2MB)</p>
+                            </div>
+                        </div>
+                        <input type="file" id="appIconInput" accept="image/*" class="hidden">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Aplikasi</label>
+                        <input type="text" id="appName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan nama aplikasi" value="TaskFlow">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="button" id="cancelAppSettings" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg mr-2">
+                            Batal
+                        </button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg">
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-4 bg-red-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-red-800">Konfirmasi Reset</h3>
+                    <button id="closeResetModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Reset Semua Data?</h4>
+                        <p class="text-gray-600 text-sm">Tindakan ini tidak dapat dibatalkan. Semua tugas, pengaturan, dan data akan dihapus.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-red-50 border-l-4 border-red-400 p-3 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                Data yang akan dihapus: Semua tugas, notifikasi, profil pengguna, dan pengaturan aplikasi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button id="cancelReset" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg mr-2">
+                        Batal
+                    </button>
+                    <button id="confirmReset" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg">
+                        Ya, Reset Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Permission Modal -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-4 bg-indigo-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-indigo-800">Aktifkan Notifikasi</h3>
+                    <button id="closeNotificationModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-bell text-indigo-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Dapatkan Pengingat Tugas</h4>
+                        <p class="text-align-justify text-gray-600 text-sm">Aktifkan notifikasi untuk mendapatkan pengingat tugas bahkan saat browser ditutup.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                Browser harus tetap berjalan untuk menerima notifikasi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button id="cancelNotification" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg mr-2">
+                        Nanti Saja
+                    </button>
+                    <button id="confirmNotification" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg">
+                        Aktifkan Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the app
+            initApp();
+            
+            // Check notification permission
+            checkNotificationPermission();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Generate calendar days
+            generateCalendarDays();
+            
+            // Load tasks from localStorage
+            loadTasks();
+            
+            // Load profile
+            loadProfile();
+            
+            // Load app settings
+            loadAppSettings();
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Set up notification checking interval (every minute)
+            setInterval(checkTaskNotifications, 60000);
+            
+            // Initial check for notifications
+            checkTaskNotifications();
+        });
+        
+        // Global variables
+        let tasks = [];
+        let notifications = [];
+        let selectedDate = new Date();
+        let activeTab = 'all';
+        
+        // Initialize the app
+        function initApp() {
+            // Set today's date as default for new tasks
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('taskDate').value = formattedDate;
+            
+            // Initialize tasks array from localStorage or empty array
+            tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            
+            // Initialize notifications array from localStorage or empty array
+            notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        }
+        
+        // Check notification permission
+        function checkNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('Browser tidak mendukung notifikasi');
+                return;
+            }
+            
+            if (Notification.permission !== 'granted') {
+                document.getElementById('enableNotifications').classList.remove('hidden');
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+            document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            
+            // Task form toggle
+            document.getElementById('addTaskBtn').addEventListener('click', toggleTaskForm);
+            document.getElementById('cancelTaskBtn').addEventListener('click', toggleTaskForm);
+            
+            // Task form submission
+            document.getElementById('newTaskForm').addEventListener('submit', addTask);
+            
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+            
+            // Sidebar menu navigation
+            document.querySelectorAll('.sidebar-nav').forEach(nav => {
+                nav.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href').substring(1);
+                    switchTab(target);
+                    
+                    // Update active sidebar menu
+                    document.querySelectorAll('.sidebar-nav').forEach(n => {
+                        n.classList.remove('bg-indigo-50', 'text-indigo-600', 'font-medium');
+                        n.classList.add('text-gray-700');
+                    });
+                    this.classList.add('bg-indigo-50', 'text-indigo-600', 'font-medium');
+                    this.classList.remove('text-gray-700');
+                });
+            });
+            
+            // Category filters
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                filter.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const category = this.dataset.category;
+                    filterByCategory(category);
+                });
+            });
+            
+            // Search toggle
+            document.getElementById('searchToggle').addEventListener('click', function() {
+                const searchPanel = document.getElementById('searchPanel');
+                searchPanel.classList.toggle('hidden');
+                if (!searchPanel.classList.contains('hidden')) {
+                    document.getElementById('searchInput').focus();
+                }
+            });
+            
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterTasks(this.value);
+            });
+            
+            // Notification toggle
+            document.getElementById('notificationToggle').addEventListener('click', function() {
+                const notificationPanel = document.getElementById('notificationPanel');
+                notificationPanel.classList.toggle('show');
+            });
+            
+            // Mark all notifications as read
+            document.getElementById('markAllRead').addEventListener('click', markAllNotificationsAsRead);
+            
+            // User menu toggle
+            document.getElementById('userMenuToggle').addEventListener('click', function() {
+                document.getElementById('userMenu').classList.toggle('hidden');
+            });
+            
+            // Calendar navigation
+            document.getElementById('prevWeek').addEventListener('click', navigatePrevWeek);
+            document.getElementById('nextWeek').addEventListener('click', navigateNextWeek);
+            
+            // Close task detail modal
+            document.getElementById('closeTaskDetail').addEventListener('click', closeTaskDetailModal);
+            
+            // Delete task
+            document.getElementById('deleteTaskBtn').addEventListener('click', deleteSelectedTask);
+            
+            // Complete task
+            document.getElementById('detailTaskComplete').addEventListener('change', toggleTaskCompletion);
+            
+            // Enable notifications
+            document.getElementById('enableNotifications').addEventListener('click', showNotificationModal);
+            document.getElementById('confirmNotification').addEventListener('click', requestNotificationPermission);
+            document.getElementById('cancelNotification').addEventListener('click', closeNotificationModal);
+            document.getElementById('closeNotificationModal').addEventListener('click', closeNotificationModal);
+            
+            // Profile management
+            document.getElementById('profileBtn').addEventListener('click', showProfileModal);
+            document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+            document.getElementById('profileForm').addEventListener('submit', updateProfile);
+            document.getElementById('profileImageInput').addEventListener('change', handleProfileImageChange);
+            document.getElementById('uploadImageBtn').addEventListener('click', function() {
+                document.getElementById('profileImageInput').click();
+            });
+            document.getElementById('cancelProfile').addEventListener('click', closeProfileModal);
+            
+            // Settings management
+            document.getElementById('settingsBtn').addEventListener('click', showSettingsModal);
+            document.getElementById('closeSettingsModal').addEventListener('click', closeSettingsModal);
+            document.getElementById('appSettingsBtn').addEventListener('click', showAppSettingsModal);
+            document.getElementById('closeAppSettingsModal').addEventListener('click', closeAppSettingsModal);
+            document.getElementById('appSettingsForm').addEventListener('submit', updateAppSettings);
+            document.getElementById('appIconInput').addEventListener('change', handleAppIconChange);
+            document.getElementById('uploadAppIconBtn').addEventListener('click', function() {
+                document.getElementById('appIconInput').click();
+            });
+            document.getElementById('cancelAppSettings').addEventListener('click', closeAppSettingsModal);
+            document.getElementById('resetDataBtn').addEventListener('click', function() {
+                if (confirm('Apakah Anda yakin ingin mereset semua data? Tindakan ini tidak dapat dibatalkan. Semua tugas, notifikasi, profil, dan pengaturan akan dihapus.')) {
+                    resetAllData();
+                }
+            });
+            document.getElementById('closeResetModal').addEventListener('click', closeResetConfirmModal);
+            document.getElementById('cancelReset').addEventListener('click', closeResetConfirmModal);
+            document.getElementById('confirmReset').addEventListener('click', resetAllData);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#searchToggle') && !e.target.closest('#searchPanel')) {
+                    document.getElementById('searchPanel').classList.add('hidden');
+                }
+                
+                if (!e.target.closest('#notificationToggle') && !e.target.closest('#notificationPanel')) {
+                    document.getElementById('notificationPanel').classList.remove('show');
+                }
+                
+                if (!e.target.closest('#userMenuToggle') && !e.target.closest('#userMenu')) {
+                    document.getElementById('userMenu').classList.add('hidden');
+                }
+            });
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginLeft = '0';
+            } else {
+                mainContent.style.marginLeft = '16rem'; // 64px or 16rem
+            }
+        }
+        
+        // Toggle task form
+        function toggleTaskForm() {
+            const taskForm = document.getElementById('taskForm');
+            taskForm.classList.toggle('expanded');
+            
+            // Reset form if closing
+            if (!taskForm.classList.contains('expanded')) {
+                document.getElementById('newTaskForm').reset();
+                
+                // Set today's date as default
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                document.getElementById('taskDate').value = formattedDate;
+            }
+        }
+        
+        // Add new task
+        function addTask(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const category = document.getElementById('taskCategory').value;
+            const date = document.getElementById('taskDate').value;
+            const time = document.getElementById('taskTime').value;
+            const priority = document.getElementById('taskPriority').value;
+            const description = document.getElementById('taskDescription').value.trim();
+            const reminder = document.getElementById('taskReminder').checked;
+            
+            if (!title || !date || !time) {
+                return;
+            }
+            
+            const task = {
+                id: Date.now(),
+                title: title,
+                category: category,
+                dateTime: `${date}T${time}`,
+                priority: priority,
+                description: description,
+                reminder: reminder,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Add task to array
+            tasks.push(task);
+            
+            // Save to localStorage
+            saveTasks();
+            
+            // Add notification for the task
+            if (reminder) {
+                addNotification({
+                    id: Date.now(),
+                    taskId: task.id,
+                    title: 'Pengingat Tugas',
+                    message: `"${task.title}" dijadwalkan pada ${formatDateTime(task.dateTime)}`,
+                    read: false,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            
+            // Close form and reset
+            toggleTaskForm();
+            
+            // Refresh task list
+            renderTasks();
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Update calendar
+            updateCalendarTaskIndicators();
+        }
+        
+        // Save tasks to localStorage
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Load tasks from localStorage
+        function loadTasks() {
+            tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            renderTasks();
+        }
+        
+        // Render tasks based on active tab
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Filter tasks based on active tab
+            let filteredTasks = [];
+            
+            switch (activeTab) {
+                case 'today':
+                    filteredTasks = getTasksForToday();
+                    break;
+                case 'upcoming':
+                    filteredTasks = getUpcomingTasks();
+                    break;
+                case 'completed':
+                    filteredTasks = tasks.filter(task => task.completed);
+                    break;
+                default:
+                    filteredTasks = tasks;
+            }
+            
+            // Sort tasks by date and priority
+            filteredTasks.sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                
+                const dateA = new Date(a.dateTime);
+                const dateB = new Date(b.dateTime);
+                
+                if (dateA.getTime() !== dateB.getTime()) {
+                    return dateA - dateB;
+                }
+                
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+            
+            // Clear task list except empty state
+            while (taskList.firstChild && taskList.firstChild !== emptyState) {
+                taskList.removeChild(taskList.firstChild);
+            }
+            
+            // Show or hide empty state
+            if (filteredTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                // Add tasks to the list
+                filteredTasks.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    taskList.appendChild(taskElement);
+                });
+            }
+            
+            // Render upcoming tasks preview
+            renderUpcomingTasksPreview();
+            
+            // Update category counts
+            updateCategoryCounts();
+        }
+        
+        // Create task element
+        function createTaskElement(task) {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-card ${task.completed ? 'bg-gray-50' : 'bg-white'} border rounded-lg p-4 mb-3 priority-${task.priority} category-${task.category} fade-in`;
+            taskElement.dataset.id = task.id;
+            
+            const taskDate = new Date(task.dateTime);
+            const now = new Date();
+            const isOverdue = !task.completed && taskDate < now;
+            
+            const formattedDate = formatDateTime(task.dateTime);
+            
+            // Get category display name and badge class
+            const categoryInfo = getCategoryInfo(task.category);
+            
+            taskElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-start">
+                        <input type="checkbox" class="task-checkbox mt-1 mr-3 h-5 w-5" ${task.completed ? 'checked' : ''}>
+                        <div>
+                            <h3 class="text-lg font-medium ${task.completed ? 'completed text-gray-500' : 'text-gray-800'}">${task.title}</h3>
+                            <div class="flex items-center mt-1">
+                                <span class="category-badge badge-${task.category} mr-2">${categoryInfo.name}</span>
+                                <div class="flex items-center">
+                                    <span class="priority-indicator priority-${task.priority}-dot"></span>
+                                    <span class="text-xs text-gray-500">${getPriorityName(task.priority)}</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">
+                                <i class="far fa-clock mr-1"></i>
+                                ${formattedDate}
+                                ${isOverdue ? '<span class="text-red-500 ml-2">Terlambat</span>' : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="view-task text-indigo-600 hover:text-indigo-800">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            taskElement.querySelector('.task-checkbox').addEventListener('change', function(e) {
+                toggleTaskCompletion(task.id, e.target.checked);
+            });
+            
+            taskElement.querySelector('.view-task').addEventListener('click', function() {
+                showTaskDetail(task.id);
+            });
+            
+            return taskElement;
+        }
+        
+        // Get tasks for today
+        function getTasksForToday() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            return tasks.filter(task => {
+                const taskDate = new Date(task.dateTime);
+                return taskDate >= today && taskDate < tomorrow;
+            });
+        }
+        
+        // Get upcoming tasks
+        function getUpcomingTasks() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            return tasks.filter(task => {
+                const taskDate = new Date(task.dateTime);
+                return taskDate >= today && !task.completed;
+            });
+        }
+        
+        // Switch tab
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            // Update active tab styling
+            document.querySelectorAll('.tab').forEach(t => {
+                if (t.dataset.tab === tab) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            
+            // Reset category filter
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                filter.classList.remove('bg-indigo-50', 'text-indigo-600', 'font-medium');
+                filter.classList.add('text-gray-700');
+            });
+            
+            // Render tasks for the selected tab
+            renderTasks();
+        }
+        
+        // Filter by category
+        function filterByCategory(category) {
+            // Update active category styling
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                if (filter.dataset.category === category) {
+                    filter.classList.add('bg-indigo-50', 'text-indigo-600', 'font-medium');
+                    filter.classList.remove('text-gray-700');
+                } else {
+                    filter.classList.remove('bg-indigo-50', 'text-indigo-600', 'font-medium');
+                    filter.classList.add('text-gray-700');
+                }
+            });
+            
+            // Filter tasks by category
+            const filteredTasks = tasks.filter(task => task.category === category);
+            renderFilteredTasks(filteredTasks);
+            
+            // Update tab to show we're in filtered view
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+        }
+        
+        // Filter tasks by search query
+        function filterTasks(query) {
+            if (!query) {
+                renderTasks();
+                return;
+            }
+            
+            query = query.toLowerCase();
+            
+            const filteredTasks = tasks.filter(task => 
+                task.title.toLowerCase().includes(query) || 
+                (task.description && task.description.toLowerCase().includes(query))
+            );
+            
+            renderFilteredTasks(filteredTasks);
+        }
+        
+        // Render filtered tasks
+        function renderFilteredTasks(filteredTasks) {
+            const taskList = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Clear task list except empty state
+            while (taskList.firstChild && taskList.firstChild !== emptyState) {
+                taskList.removeChild(taskList.firstChild);
+            }
+            
+            // Show or hide empty state
+            if (filteredTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.querySelector('h4').textContent = 'Tidak ada hasil';
+                emptyState.querySelector('p').textContent = 'Coba kata kunci lain';
+            } else {
+                emptyState.classList.add('hidden');
+                
+                // Add tasks to the list
+                filteredTasks.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    taskList.appendChild(taskElement);
+                });
+            }
+        }
+        
+        // Generate calendar days
+        function generateCalendarDays() {
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Get the start of the week (Sunday)
+            const startOfWeek = new Date(selectedDate);
+            startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+            
+            // Create 7 days
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+                
+                const isToday = day.getTime() === today.getTime();
+                const isSelected = day.getDate() === selectedDate.getDate() && 
+                                  day.getMonth() === selectedDate.getMonth() && 
+                                  day.getFullYear() === selectedDate.getFullYear();
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'text-center';
+                
+                const dayName = day.toLocaleDateString('id-ID', { weekday: 'short' });
+                const dayNumber = day.getDate();
+                const monthName = day.toLocaleDateString('id-ID', { month: 'short' });
+                
+                dayElement.innerHTML = `
+                    <p class="text-xs text-gray-500 mb-1">${dayName}</p>
+                    <div class="calendar-day ${isToday ? 'bg-indigo-100' : ''} ${isSelected ? 'active' : ''}" data-date="${day.toISOString().split('T')[0]}">
+                        ${dayNumber}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${monthName}</p>
+                `;
+                
+                calendarDays.appendChild(dayElement);
+                
+                // Add click event
+                dayElement.querySelector('.calendar-day').addEventListener('click', function() {
+                    selectDate(this.dataset.date);
+                });
+            }
+            
+            // Update task indicators
+            updateCalendarTaskIndicators();
+        }
+        
+        // Update calendar task indicators
+        function updateCalendarTaskIndicators() {
+            document.querySelectorAll('.calendar-day').forEach(dayElement => {
+                const date = dayElement.dataset.date;
+                
+                // Check if there are tasks for this date
+                const hasTasks = tasks.some(task => {
+                    const taskDate = task.dateTime.split('T')[0];
+                    return taskDate === date;
+                });
+                
+                if (hasTasks) {
+                    dayElement.classList.add('has-tasks');
+                } else {
+                    dayElement.classList.remove('has-tasks');
+                }
+            });
+        }
+        
+        // Select date
+        function selectDate(dateString) {
+            selectedDate = new Date(dateString);
+            
+            // Update calendar UI
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                if (day.dataset.date === dateString) {
+                    day.classList.add('active');
+                } else {
+                    day.classList.remove('active');
+                }
+            });
+            
+            // Filter tasks for the selected date
+            const filteredTasks = tasks.filter(task => {
+                const taskDate = task.dateTime.split('T')[0];
+                return taskDate === dateString;
+            });
+            
+            renderFilteredTasks(filteredTasks);
+        }
+        
+        // Navigate to previous week
+        function navigatePrevWeek() {
+            selectedDate.setDate(selectedDate.getDate() - 7);
+            generateCalendarDays();
+        }
+        
+        // Navigate to next week
+        function navigateNextWeek() {
+            selectedDate.setDate(selectedDate.getDate() + 7);
+            generateCalendarDays();
+        }
+        
+        // Show task detail
+        function showTaskDetail(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (!task) return;
+            
+            // Set task details in modal
+            document.getElementById('detailTaskTitle').textContent = task.title;
+            document.getElementById('detailTaskDescription').textContent = task.description || 'Tidak ada deskripsi';
+            document.getElementById('detailDateTime').textContent = formatDateTime(task.dateTime);
+            document.getElementById('detailTaskComplete').checked = task.completed;
+            
+            // Set task status
+            document.getElementById('detailTaskStatus').textContent = task.completed ? 'Selesai' : 'Belum selesai';
+            
+            // Set category badge
+            const categoryInfo = getCategoryInfo(task.category);
+            const categoryBadge = document.getElementById('detailCategoryBadge');
+            categoryBadge.textContent = categoryInfo.name;
+            categoryBadge.className = `category-badge badge-${task.category}`;
+            
+            // Set priority indicator
+            const priorityDot = document.getElementById('detailPriorityDot');
+            priorityDot.className = `priority-indicator priority-${task.priority}-dot`;
+            
+            document.getElementById('detailPriorityText').textContent = getPriorityName(task.priority);
+            
+            // Set header color based on category
+            const header = document.getElementById('taskDetailHeader');
+            header.className = `p-4 bg-${task.category === 'work' ? 'indigo' : task.category === 'personal' ? 'emerald' : task.category === 'health' ? 'red' : task.category === 'education' ? 'amber' : 'gray'}-50`;
+            
+            // Store task ID for edit/delete operations
+            document.getElementById('taskDetailModal').dataset.taskId = taskId;
+            
+            // Show modal
+            document.getElementById('taskDetailModal').classList.remove('hidden');
+        }
+        
+        // Close task detail modal
+        function closeTaskDetailModal() {
+            document.getElementById('taskDetailModal').classList.add('hidden');
+        }
+        
+        // Delete selected task
+        function deleteSelectedTask() {
+            const taskId = parseInt(document.getElementById('taskDetailModal').dataset.taskId);
+            
+            // Remove task from array
+            tasks = tasks.filter(task => task.id !== taskId);
+            
+            // Save to localStorage
+            saveTasks();
+            
+            // Close modal
+            closeTaskDetailModal();
+            
+            // Refresh task list
+            renderTasks();
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Update calendar
+            updateCalendarTaskIndicators();
+        }
+        
+        // Toggle task completion
+        function toggleTaskCompletion(taskId, completed) {
+            // If called from checkbox in task detail modal
+            if (typeof taskId === 'object') {
+                const id = parseInt(document.getElementById('taskDetailModal').dataset.taskId);
+                completed = document.getElementById('detailTaskComplete').checked;
+                toggleTaskCompletion(id, completed);
+                return;
+            }
+            
+            // Find task in array
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = completed;
+                
+                // Update completion date
+                if (completed) {
+                    tasks[taskIndex].completedAt = new Date().toISOString();
+                } else {
+                    delete tasks[taskIndex].completedAt;
+                }
+                
+                // Save to localStorage
+                saveTasks();
+                
+                // Update UI
+                renderTasks();
+                
+                // Update statistics
+                updateStatistics();
+                
+                // Update task detail modal if open
+                if (!document.getElementById('taskDetailModal').classList.contains('hidden')) {
+                    document.getElementById('detailTaskStatus').textContent = completed ? 'Selesai' : 'Belum selesai';
+                }
+            }
+        }
+        
+        // Update statistics
+        function updateStatistics() {
+            // Completed tasks
+            const completedTasks = tasks.filter(task => task.completed);
+            document.getElementById('completedTasksCount').textContent = completedTasks.length;
+            
+            // Completion progress
+            const completionProgress = tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0;
+            document.getElementById('completionProgress').style.width = `${completionProgress}%`;
+            
+            // Upcoming tasks
+            const upcomingTasks = getUpcomingTasks();
+            document.getElementById('upcomingTasksCount').textContent = upcomingTasks.length;
+            
+            // This week tasks
+            const today = new Date();
+            const endOfWeek = new Date(today);
+            endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+            
+            const thisWeekTasks = upcomingTasks.filter(task => {
+                const taskDate = new Date(task.dateTime);
+                return taskDate <= endOfWeek;
+            });
+            
+            document.getElementById('thisWeekCount').textContent = thisWeekTasks.length;
+            
+            // This month tasks
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            const thisMonthTasks = upcomingTasks.filter(task => {
+                const taskDate = new Date(task.dateTime);
+                return taskDate <= endOfMonth;
+            });
+            
+            document.getElementById('thisMonthCount').textContent = thisMonthTasks.length;
+            
+            // High priority tasks
+            const highPriorityTasks = tasks.filter(task => task.priority === 'high' && !task.completed);
+            document.getElementById('highPriorityCount').textContent = highPriorityTasks.length;
+            
+            // Next high priority task
+            if (highPriorityTasks.length > 0) {
+                highPriorityTasks.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                const nextTask = highPriorityTasks[0];
+                document.getElementById('nextHighPriorityTask').textContent = `${nextTask.title} - ${formatDateTime(nextTask.dateTime)}`;
+            } else {
+                document.getElementById('nextHighPriorityTask').textContent = 'Tidak ada tugas prioritas tinggi';
+            }
+        }
+        
+        // Render upcoming tasks preview
+        function renderUpcomingTasksPreview() {
+            const upcomingTasksList = document.getElementById('upcomingTasksList');
+            const emptyUpcoming = document.getElementById('emptyUpcoming');
+            
+            // Get upcoming tasks (max 3)
+            const upcomingTasks = getUpcomingTasks().slice(0, 3);
+            
+            // Clear list except empty state
+            while (upcomingTasksList.firstChild && upcomingTasksList.firstChild !== emptyUpcoming) {
+                upcomingTasksList.removeChild(upcomingTasksList.firstChild);
+            }
+            
+            // Show or hide empty state
+            if (upcomingTasks.length === 0) {
+                emptyUpcoming.classList.remove('hidden');
+            } else {
+                emptyUpcoming.classList.add('hidden');
+                
+                // Add tasks to the list
+                upcomingTasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `bg-white border rounded-lg p-3 flex justify-between items-center priority-${task.priority}`;
+                    
+                    const taskDate = new Date(task.dateTime);
+                    const now = new Date();
+                    const isToday = taskDate.toDateString() === now.toDateString();
+                    const isTomorrow = new Date(now.setDate(now.getDate() + 1)).toDateString() === taskDate.toDateString();
+                    
+                    let dateText = '';
+                    if (isToday) {
+                        dateText = 'Hari ini';
+                    } else if (isTomorrow) {
+                        dateText = 'Besok';
+                    } else {
+                        dateText = taskDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+                    }
+                    
+                    const timeText = taskDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    
+                    // Get category info
+                    const categoryInfo = getCategoryInfo(task.category);
+                    
+                    taskElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-${task.category === 'work' ? 'indigo' : task.category === 'personal' ? 'emerald' : task.category === 'health' ? 'red' : task.category === 'education' ? 'amber' : 'gray'}-100 flex items-center justify-center mr-3">
+                                <i class="${categoryInfo.icon} text-${task.category === 'work' ? 'indigo' : task.category === 'personal' ? 'emerald' : task.category === 'health' ? 'red' : task.category === 'education' ? 'amber' : 'gray'}-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">${task.title}</h4>
+                                <p class="text-xs text-gray-500">${dateText} - ${timeText}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="priority-indicator priority-${task.priority}-dot"></span>
+                        </div>
+                    `;
+                    
+                    upcomingTasksList.appendChild(taskElement);
+                    
+                    // Add click event to show task detail
+                    taskElement.addEventListener('click', function() {
+                        showTaskDetail(task.id);
+                    });
+                });
+            }
+        }
+        
+        // Update category counts
+        function updateCategoryCounts() {
+            const categories = ['work', 'personal', 'health', 'education'];
+            
+            categories.forEach(category => {
+                const count = tasks.filter(task => task.category === category && !task.completed).length;
+                document.getElementById(`${category}Count`).textContent = count;
+            });
+        }
+        
+        // Check task notifications
+        function checkTaskNotifications() {
+            if (Notification.permission !== 'granted') {
+                return;
+            }
+            
+            const now = new Date();
+            const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000);
+            
+            tasks.forEach(task => {
+                if (task.completed || !task.reminder) return;
+                
+                const taskTime = new Date(task.dateTime);
+                
+                // Notify if task is due within 5 minutes
+                if (taskTime > now && taskTime <= fiveMinutesFromNow) {
+                    // Check if notification was already sent
+                    const notificationSent = notifications.some(n => 
+                        n.taskId === task.id && 
+                        n.type === 'reminder' &&
+                        new Date(n.createdAt) > new Date(now.getTime() - 10 * 60000) // Within last 10 minutes
+                    );
+                    
+                    if (!notificationSent) {
+                        // Send notification
+                        const notification = new Notification('Pengingat Tugas', {
+                            body: `"${task.title}" akan dimulai dalam ${Math.round((taskTime - now) / 60000)} menit`,
+                            icon: 'https://cdn-icons-png.flaticon.com/512/2098/2098402.png'
+                        });
+                        
+                        notification.onclick = function() {
+                            window.focus();
+                            showTaskDetail(task.id);
+                        };
+                        
+                        // Add to notifications
+                        addNotification({
+                            id: Date.now(),
+                            taskId: task.id,
+                            type: 'reminder',
+                            title: 'Pengingat Tugas',
+                            message: `"${task.title}" akan dimulai dalam ${Math.round((taskTime - now) / 60000)} menit`,
+                            read: false,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Add notification
+        function addNotification(notification) {
+            notifications.push(notification);
+            
+            // Save to localStorage
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+            // Update notification UI
+            updateNotificationUI();
+        }
+        
+        // Update notification UI
+        function updateNotificationUI() {
+            const notificationList = document.getElementById('notificationList');
+            const emptyNotifications = document.getElementById('emptyNotifications');
+            const notificationDot = document.getElementById('notificationDot');
+            
+            // Check for unread notifications
+            const hasUnread = notifications.some(n => !n.read);
+            
+            if (hasUnread) {
+                notificationDot.classList.remove('hidden');
+            } else {
+                notificationDot.classList.add('hidden');
+            }
+            
+            // Clear notification list except empty state
+            while (notificationList.firstChild && notificationList.firstChild !== emptyNotifications) {
+                notificationList.removeChild(notificationList.firstChild);
+            }
+            
+            // Show or hide empty state
+            if (notifications.length === 0) {
+                emptyNotifications.classList.remove('hidden');
+            } else {
+                emptyNotifications.classList.add('hidden');
+                
+                // Sort notifications by date (newest first)
+                const sortedNotifications = [...notifications].sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                
+                // Add notifications to the list
+                sortedNotifications.forEach(notification => {
+                    const notificationElement = document.createElement('div');
+                    notificationElement.className = `p-3 border-b ${notification.read ? 'bg-white' : 'bg-indigo-50'}`;
+                    
+                    const timeAgo = formatTimeAgo(notification.createdAt);
+                    
+                    notificationElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium text-gray-800">${notification.title}</h4>
+                                <p class="text-sm text-gray-600">${notification.message}</p>
+                                <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                            </div>
+                            <button class="mark-read text-gray-400 hover:text-gray-600">
+                                <i class="fas ${notification.read ? 'fa-check-circle' : 'fa-circle'}"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    notificationList.appendChild(notificationElement);
+                    
+                    // Add click event to mark as read
+                    notificationElement.querySelector('.mark-read').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleNotificationRead(notification.id);
+                    });
+                    
+                    // Add click event to show related task
+                    notificationElement.addEventListener('click', function() {
+                        if (notification.taskId) {
+                            const task = tasks.find(t => t.id === notification.taskId);
+                            if (task) {
+                                showTaskDetail(task.id);
+                            }
+                        }
+                        
+                        // Mark as read
+                        if (!notification.read) {
+                            toggleNotificationRead(notification.id);
+                        }
+                    });
+                });
+            }
+        }
+        
+        // Toggle notification read status
+        function toggleNotificationRead(notificationId) {
+            const index = notifications.findIndex(n => n.id === notificationId);
+            
+            if (index !== -1) {
+                notifications[index].read = !notifications[index].read;
+                
+                // Save to localStorage
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                
+                // Update UI
+                updateNotificationUI();
+            }
+        }
+        
+        // Mark all notifications as read
+        function markAllNotificationsAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+            // Update UI
+            updateNotificationUI();
+        }
+        
+        // Show notification permission modal
+        function showNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+        
+        // Close notification modal
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+        
+        // Request notification permission
+        function requestNotificationPermission() {
+            Notification.requestPermission().then(function(permission) {
+                if (permission === 'granted') {
+                    // Close modal
+                    closeNotificationModal();
+                    
+                    // Send test notification
+                    const notification = new Notification('Notifikasi Diaktifkan', {
+                        body: 'Anda akan menerima pengingat untuk tugas-tugas Anda',
+                        icon: 'https://cdn-icons-png.flaticon.com/512/2098/2098402.png'
+                    });
+                    
+                    // Hide enable notifications button
+                    document.getElementById('enableNotifications').classList.add('hidden');
+                }
+            });
+        }
+        
+        // Show profile modal
+        function showProfileModal() {
+            // Load current profile data
+            const profile = JSON.parse(localStorage.getItem('userProfile')) || {
+                name: 'Pengguna',
+                email: '',
+                image: null
+            };
+            
+            document.getElementById('userName').value = profile.name;
+            document.getElementById('userEmail').value = profile.email;
+            
+            if (profile.image) {
+                document.getElementById('profileImage').src = profile.image;
+                document.getElementById('profileImage').classList.remove('hidden');
+                document.getElementById('profileIcon').classList.add('hidden');
+            }
+            
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
+        }
+        
+        // Close profile modal
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+        
+        // Handle profile image change
+        function handleProfileImageChange(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    document.getElementById('profileImage').src = imageData;
+                    document.getElementById('profileImage').classList.remove('hidden');
+                    document.getElementById('profileIcon').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Update profile
+        function updateProfile(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const imageElement = document.getElementById('profileImage');
+            const image = imageElement.classList.contains('hidden') ? null : imageElement.src;
+            
+            if (!name) {
+                alert('Nama pengguna tidak boleh kosong');
+                return;
+            }
+            
+            // Save profile data
+            const profile = {
+                name: name,
+                email: email,
+                image: image
+            };
+            
+            localStorage.setItem('userProfile', JSON.stringify(profile));
+            
+            // Update UI
+            updateProfileUI(profile);
+            
+            // Close modal
+            closeProfileModal();
+        }
+        
+        // Update profile UI
+        function updateProfileUI(profile) {
+            // Update sidebar profile
+            const sidebarProfileName = document.querySelector('.sidebar .font-semibold');
+            if (sidebarProfileName) {
+                sidebarProfileName.textContent = profile.name;
+            }
+            
+            // Update header profile
+            const headerProfileName = document.querySelector('#userMenuToggle span');
+            if (headerProfileName) {
+                headerProfileName.textContent = profile.name;
+            }
+            
+            // Update sidebar profile image (yang ada teks "Selamat datang kembali")
+            const sidebarProfileContainer = document.querySelector('.sidebar .w-10.h-10.rounded-full.bg-indigo-100');
+            if (sidebarProfileContainer) {
+                if (profile.image) {
+                    sidebarProfileContainer.innerHTML = `<img src="${profile.image}" alt="Profile" class="w-full h-full object-cover rounded-full">`;
+                    sidebarProfileContainer.className = 'w-10 h-10 rounded-full overflow-hidden';
+                } else {
+                    sidebarProfileContainer.innerHTML = `<i class="fas fa-user text-indigo-600"></i>`;
+                    sidebarProfileContainer.className = 'w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center';
+                }
+            }
+            
+            // Update header profile image (yang di sebelah kanan lonceng notifikasi)
+            const headerProfileContainer = document.querySelector('#userMenuToggle .w-8.h-8.rounded-full.bg-indigo-100');
+            if (headerProfileContainer) {
+                if (profile.image) {
+                    headerProfileContainer.innerHTML = `<img src="${profile.image}" alt="Profile" class="w-full h-full object-cover rounded-full">`;
+                    headerProfileContainer.className = 'w-8 h-8 rounded-full overflow-hidden';
+                } else {
+                    headerProfileContainer.innerHTML = `<i class="fas fa-user text-indigo-600"></i>`;
+                    headerProfileContainer.className = 'w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center';
+                }
+            }
+        }
+        
+        // Load profile on init
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem('userProfile')) || {
+                name: 'Pengguna',
+                email: '',
+                image: null
+            };
+            
+            updateProfileUI(profile);
+        }
+        
+        // Show settings modal
+        function showSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
+        }
+        
+        // Close settings modal
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+        
+        // Show app settings modal
+        function showAppSettingsModal() {
+            // Load current app settings
+            const appSettings = JSON.parse(localStorage.getItem('appSettings')) || {
+                name: 'TaskFlow',
+                icon: null
+            };
+            
+            document.getElementById('appName').value = appSettings.name;
+            
+            if (appSettings.icon) {
+                document.getElementById('appIcon').src = appSettings.icon;
+                document.getElementById('appIcon').classList.remove('hidden');
+                document.getElementById('appIconDefault').classList.add('hidden');
+            } else {
+                document.getElementById('appIcon').classList.add('hidden');
+                document.getElementById('appIconDefault').classList.remove('hidden');
+            }
+            
+            document.getElementById('appSettingsModal').classList.remove('hidden');
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+        
+        // Close app settings modal
+        function closeAppSettingsModal() {
+            document.getElementById('appSettingsModal').classList.add('hidden');
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+        
+        // Handle app icon change
+        function handleAppIconChange(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    document.getElementById('appIcon').src = imageData;
+                    document.getElementById('appIcon').classList.remove('hidden');
+                    document.getElementById('appIconDefault').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Update app settings
+        function updateAppSettings(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('appName').value.trim();
+            const iconElement = document.getElementById('appIcon');
+            const icon = iconElement.classList.contains('hidden') ? null : iconElement.src;
+            
+            if (!name) {
+                alert('Nama aplikasi tidak boleh kosong');
+                return;
+            }
+            
+            // Save app settings
+            const appSettings = {
+                name: name,
+                icon: icon
+            };
+            
+            localStorage.setItem('appSettings', JSON.stringify(appSettings));
+            
+            // Update UI
+            updateAppUI(appSettings);
+            
+            // Close modals
+            closeAppSettingsModal();
+            closeSettingsModal();
+        }
+        
+        // Update app UI
+        function updateAppUI(appSettings) {
+            // Update sidebar app name and icon
+            const sidebarTitle = document.querySelector('.sidebar h1');
+            if (sidebarTitle) {
+                sidebarTitle.textContent = appSettings.name;
+            }
+            
+            const sidebarIcon = document.querySelector('.sidebar .w-8.h-8.rounded-lg.bg-indigo-600');
+            if (sidebarIcon) {
+                if (appSettings.icon) {
+                    sidebarIcon.innerHTML = `<img src="${appSettings.icon}" alt="App Icon" class="w-full h-full object-cover rounded-lg">`;
+                    sidebarIcon.className = 'w-8 h-8 rounded-lg overflow-hidden';
+                } else {
+                    sidebarIcon.innerHTML = `<i class="fas fa-tasks text-white"></i>`;
+                    sidebarIcon.className = 'w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center';
+                }
+            }
+            
+            // Update header title
+            const headerTitle = document.querySelector('header h2');
+            if (headerTitle) {
+                headerTitle.textContent = 'Jadwal Kegiatan';
+            }
+            
+            // Update footer
+            const footer = document.querySelector('footer .text-center');
+            if (footer) {
+                footer.innerHTML = `&copy; 2023 ${appSettings.name} - Aplikasi Jadwal Kegiatan`;
+            }
+        }
+        
+        // Show reset confirmation modal
+        function showResetConfirmModal() {
+            document.getElementById('resetConfirmModal').classList.remove('hidden');
+            document.getElementById('appSettingsModal').classList.add('hidden');
+        }
+        
+        // Close reset confirmation modal
+        function closeResetConfirmModal() {
+            document.getElementById('resetConfirmModal').classList.add('hidden');
+            document.getElementById('appSettingsModal').classList.remove('hidden');
+        }
+        
+        // Reset all data
+        function resetAllData() {
+            // Clear all localStorage data
+            localStorage.removeItem('tasks');
+            localStorage.removeItem('notifications');
+            localStorage.removeItem('userProfile');
+            localStorage.removeItem('appSettings');
+            
+            // Reset global variables
+            tasks = [];
+            notifications = [];
+            
+            // Reset UI to default state
+            const defaultAppSettings = {
+                name: 'TaskFlow',
+                icon: null
+            };
+            
+            const defaultProfile = {
+                name: 'Pengguna',
+                email: '',
+                image: null
+            };
+            
+            updateAppUI(defaultAppSettings);
+            updateProfileUI(defaultProfile);
+            
+            // Refresh task list and statistics
+            renderTasks();
+            updateStatistics();
+            updateCalendarTaskIndicators();
+            updateNotificationUI();
+            
+            // Close settings modal
+            closeSettingsModal();
+            
+            // Show success message
+            alert('Data berhasil direset. Aplikasi telah dikembalikan ke pengaturan awal.');
+        }
+        
+        // Load app settings on init
+        function loadAppSettings() {
+            const appSettings = JSON.parse(localStorage.getItem('appSettings')) || {
+                name: 'TaskFlow',
+                icon: null
+            };
+            
+            updateAppUI(appSettings);
+        }
+        
+        // Helper Functions
+        
+        // Format date and time
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const now = new Date();
+            
+            const isToday = date.toDateString() === now.toDateString();
+            const isTomorrow = new Date(now.setDate(now.getDate() + 1)).toDateString() === date.toDateString();
+            
+            let dateText = '';
+            if (isToday) {
+                dateText = 'Hari ini';
+            } else if (isTomorrow) {
+                dateText = 'Besok';
+            } else {
+                dateText = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }
+            
+            const timeText = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            return `${dateText}, ${timeText}`;
+        }
+        
+        // Format time ago
+        function formatTimeAgo(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHour = Math.floor(diffMin / 60);
+            const diffDay = Math.floor(diffHour / 24);
+            
+            if (diffSec < 60) {
+                return 'Baru saja';
+            } else if (diffMin < 60) {
+                return `${diffMin} menit yang lalu`;
+            } else if (diffHour < 24) {
+                return `${diffHour} jam yang lalu`;
+            } else if (diffDay < 7) {
+                return `${diffDay} hari yang lalu`;
+            } else {
+                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+        }
+        
+        // Get category info
+        function getCategoryInfo(category) {
+            const categories = {
+                work: { name: 'Pekerjaan', icon: 'fas fa-briefcase' },
+                personal: { name: 'Pribadi', icon: 'fas fa-user' },
+                health: { name: 'Kesehatan', icon: 'fas fa-heartbeat' },
+                education: { name: 'Pendidikan', icon: 'fas fa-graduation-cap' },
+                other: { name: 'Lainnya', icon: 'fas fa-folder' }
+            };
+            
+            return categories[category] || categories.other;
+        }
+        
+        // Get priority name
+        function getPriorityName(priority) {
+            const priorities = {
+                high: 'Tinggi',
+                medium: 'Sedang',
+                low: 'Rendah'
+            };
+            
+            return priorities[priority] || 'Normal';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b322e897799ba3',t:'MTc1NDUzMTU2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
