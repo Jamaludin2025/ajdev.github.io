@@ -415,14 +415,14 @@
                 } else {
                     let message = 'Tidak ada voucher';
                     if (currentCharacterFilter !== 'all' && currentStatusFilter !== 'all') {
-                        const statusText = currentStatusFilter === 'marked' ? 'yang sudah ditandai' : 'yang belum ditandai';
+                        const statusText = currentStatusFilter === 'marked' ? 'yang sudah terpilih' : 'yang belum terpilih';
                         message = `Tidak ada voucher dengan ${currentCharacterFilter} Karakter ${statusText}.`;
                     } else if (currentCharacterFilter !== 'all') {
                         message = `Tidak ada voucher dengan ${currentCharacterFilter} Karakter.`;
                     } else if (currentStatusFilter === 'marked') {
-                        message = 'Tidak ada voucher yang sudah ditandai.';
+                        message = 'Tidak ada voucher yang terpilih.';
                     } else if (currentStatusFilter === 'unmarked') {
-                        message = 'Tidak ada voucher yang belum ditandai.';
+                        message = 'Tidak ada voucher yang tersisa.';
                     }
                     
                     listDiv.innerHTML = `
@@ -458,7 +458,7 @@
                 // Add info about total vouchers shown
                 const infoText = filteredVouchers.length > 3 ? 
                     `<div class="text-center py-3 text-gray-500 text-sm border-t border-gray-200 mt-3">
-                        Menampilkan ${filteredVouchers.length} Voucher
+                        Sudah menampilkan ${filteredVouchers.length} voucher.
                     </div>` : '';
                 
                 listDiv.innerHTML = voucherHTML + infoText;
