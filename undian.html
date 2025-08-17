@@ -1105,7 +1105,8 @@
         
         // Buka WhatsApp
         const phoneNumber = currentUserForWhatsApp.phone.replace(/\D/g, '');
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        const formattedPhoneNumber = phoneNumber.replace(/^0/, '62');
+        const whatsappUrl = `https://wa.me/${formattedPhoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
         
         // Tutup modal
