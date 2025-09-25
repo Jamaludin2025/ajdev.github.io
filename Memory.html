@@ -1,9 +1,9 @@
-<!DOCTYPE html
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Test</title>
+    <title>Memory Test by Asep Jamaludin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
@@ -11,10 +11,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* CSS Umum */
+        /* ==================== */
+        /* === CSS Umum === */
+        /* ==================== */
         body {
             font-family: sans-serif;
-            background-color: #f0f2f5;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
             display: flex;
             justify-content: flex-start;
             align-items: center;
@@ -33,8 +35,8 @@
         .main-title {
             font-size: 2em;
             color: #333;
-            margin-top: -20px;
-            margin-bottom: 30px;
+            margin-top: -30px;
+            margin-bottom: 20px;
         }
 
         .title {
@@ -47,7 +49,7 @@
         .test-title {
             font-size: 0.9em;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         /* Tampilan Menu Utama */
@@ -114,11 +116,15 @@
             padding: 20px;
             max-width: 320px;
             margin-bottom: 20px;
-            margin-top: 20px;
+            margin-top: -10px;
             text-align: justify;
             line-height: 1.4;
             color: #666;
             box-sizing: border-box;
+        }
+        
+        .instruction-box p {
+        	margin: 0;
         }
         
         .highlight {
@@ -138,7 +144,7 @@
         }
         
         .input-group input {
-            padding: 8px 18px 8px 18px;
+            padding: 9px 18px 9px 18px;
             border: 1px solid #ddd;
             border-radius: 7px;
             width: 100%;
@@ -173,80 +179,33 @@
         .action-button:hover {
             background-color: #0056b3;
         }
-
-        /* Gaya untuk elemen game */
-        #game-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        
+        /* Gaya Pop-up */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
             width: 100%;
-        }
-
-        .info-container {
-            display: flex;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
             justify-content: center;
             align-items: center;
-            gap: 30px;
-            margin-bottom: 20px;
         }
 
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #555;
-        }
-
-        #number-display {
-            font-size: 3em;
-            font-weight: bold;
-            color: #333;
-            margin: 50px 0;
-        }
-
-        .digit-input-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 300px;
-        }
-
-        .digit-input {
-            width: 40px;
-            height: 40px;
-            font-size: 1.5em;
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 5px;
+        }
+
+        .modal-content button {
+            margin: 5px;
         }
         
-        /* Gaya untuk feedback visual input */
-        .digit-input.correct {
-            border-color: green;
-        }
-
-        .digit-input.incorrect {
-            border-color: red;
-        }
-
-        #result-message {
-            margin-bottom: 1px;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        #correct-answer-display {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: -10px;
-        }
-
         /* Gaya Halaman Hasil */
         #results-view {
             display: flex;
@@ -267,40 +226,40 @@
         .results-header {
             display: flex;
             align-items: center;
-            gap: 7px; /* Jarak antara QR code dan teks */
-            text-align: left; /* Rata kiri untuk seluruh kontainer */
+            gap: 7px;
+            text-align: left;
             margin-bottom: 20px;
-            width: fit-content; /* Lebar sesuai konten */
+            width: fit-content;
         }
         
         .qr-code {
-            width: 50px; /* Ukuran QR code */
+            width: 50px;
             height: 50px;
             border-radius: 5px;
             padding: 5px;
         }
 
         .results-text-container {
-            flex-grow: 1; /* Memastikan teks mengisi sisa ruang */
-            text-align: left; /* Rata kiri teks */
+            flex-grow: 1;
+            text-align: left;
         }
 
         .results-text-container h1 {
             font-size: 1.6em;
-            margin: 0; /* Hapus margin default */
+            margin: 0;
             text-decoration: underline;
         }
         
         .results-text-container h2 {
             font-size: 0.79em;
-            margin: 0; /* Hapus margin default */
+            margin: 0;
             color: #666;
         }
         
         .results-text-container h3 {
             font-size: 0.52em;
             font-weight: normal;
-            margin: 0; /* Hapus margin default */
+            margin: 0;
             color: #007bff;
         }
         
@@ -340,7 +299,7 @@
         #score-grid {
             display: grid;
             grid-template-columns: repeat(5, 30px);
-            gap: 15px; /* Jarak yang diperbarui */
+            gap: 15px;
             margin: 20px auto;
             width: fit-content;
             margin-bottom: 20px;
@@ -396,30 +355,298 @@
             font-size: 2em;
         }
         
-        /* Gaya Pop-up */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-            justify-content: center;
+        /* ==================== */
+        /* === CSS Game Angka === */
+        /* ==================== */
+        #angka-view #game-content {
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            width: 100%;
         }
 
-        .modal-content {
-            background-color: #fefefe;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        #angka-view .info-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        #angka-view .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+        }
+
+        #number-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .digit-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 300px;
+        }
+
+        .digit-input {
+            width: 40px;
+            height: 40px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        
+        /* Gaya untuk feedback visual input */
+        .digit-input.correct {
+            border-color: green;
+        }
+
+        .digit-input.incorrect {
+            border-color: red;
+        }
+
+        #result-message {
+            margin-bottom: 1px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        #correct-answer-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: -10px;
+        }
+        
+        /* ==================== */
+        /* === CSS Game Hewan === */
+        /* ==================== */
+        #hewan-view #game-hewan-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #hewan-view .info-hewan-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        #hewan-view .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+        }
+
+        #hewan-view .hewan-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin: 50px 0;
             text-align: center;
         }
 
-        .modal-content button {
-            margin: 5px;
+        #hewan-view #question-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        #hewan-view .question-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        #hewan-view .options-container-hewan {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #hewan-view .option-button {
+            background-color: #fff;
+            color: black;
+            border: 2px solid #ddd; /* Mengubah warna default border */
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: border-color 0.3s, background-color 0.3s; /* Menambahkan transisi untuk border */
+            min-width: 80px;
+            text-align: center;
+        }
+
+        #hewan-view .option-button:hover {
+            background-color: #f0f2f5;
+        }
+        
+        #hewan-view .option-button.selected {
+            border-color: #007bff; /* Warna border saat dipilih */
+            font-weight: bold
+        }
+        
+        #hewan-view .option-button.correct {
+            border-color: green;
+            font-weight: bold
+        }
+        
+        #hewan-view .option-button.incorrect {
+            border-color: red;
+        }
+
+        #hewan-view .result-message-hewan {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        /* ==================== */
+        /* === CSS Game Kategori === */
+        /* ==================== */
+        #kategori-view #game-kategori-content {
+        	display: flex;
+        	flex-direction: column;
+        	align-items: center;
+        	width: 100%;
+        	max-width: 380px;
+        }
+        
+        #kategori-view .info-kategori-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            width: 100%; 
+        }
+        
+        #kategori-view .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        /* GAYA BARU UNTUK KOTAK KATEGORI UTAMA */
+        #kategori-view #kategori-display {
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #333;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1.5px dashed black;
+            max-width: 320px; 
+            width: 90%;
+            margin: 10px auto 20px auto;
+            text-align: center;
+        }
+        
+        #kategori-view #question-kategori-container {
+        	font-weight: bold;
+        	display: flex;
+        	flex-direction: column;
+        	align-items: center;
+        	width: 100%;
+        	max-width: 320px;
+        	text-align: center;
+        	margin-top: 10px;
+        }
+        
+        #kategori-view .options-kategori-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        #kategori-view .option-button {
+            background-color: #fff;
+            color: black;
+            border: 2px solid #ddd; /* Mengubah warna default border */
+            padding: 10px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: border-color 0.3s, background-color 0.3s; /* Menambahkan transisi untuk border */
+            min-width: 80px;
+            text-align: center;
+        }
+
+        #kategori-view .option-button:hover {
+            background-color: #f0f2f5;
+        }
+        
+        #kategori-view .option-button.selected {
+            border-color: #007bff; /* Biru saat dipilih */
+            font-weight: bold;
+        }
+        
+        #kategori-view .option-button.correct {
+            border-color: green; /* Hijau saat benar */
+            font-weight: bold;
+        }
+        
+        #kategori-view .option-button.incorrect {
+            border-color: red; /* Merah saat salah */
+        }
+        
+        /* GAYA BARU UNTUK SETIAP BARIS KATEGORI MENGGUNAKAN GRID */
+        .kategori-row {
+            display: grid;
+            grid-template-columns: 60px 2px 1fr;
+            text-align: left;
+            line-height: 1.4;
+            padding: 2px 0;
+        }
+        
+        .kategori-label {
+            text-align: left;
+            padding-right: 5px; 
+            white-space: nowrap; 
+        }
+        
+        .kategori-colon {
+            text-align: center;
+        }
+        
+        .kategori-items {
+            padding-left: 5px;
+            font-weight: normal;
+        }
+        
+        #kategori-view .result-message-hewan {
+        	font-weight: bold;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -481,6 +708,88 @@
         </div>
     </div>
 
+    <div id="hewan-view" class="test-view">
+        <h1 class="title">Memory Test - Animals</h1>
+        
+        <div id="intro-hewan-content">
+            <div class="instruction-box">
+                <p>
+                    <span class="highlight"><i class="bi bi-pin-fill"></i> Cara Mengerjakan Tes :</span><br>Dalam tes yang berjumlah 20 soal ini, Anda akan melihat lima kalimat yang ditampilkan secara bergantian selama 2 detik. Pada kalimat keenam muncul pertanyaan mengenai jawaban yang tepat berdasarkan dari lima kalimat yang ditampilkan di awal. Jenis jawaban pada tes ini yaitu pilihan ganda.
+                </p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="hewan-name-input" placeholder="Masukkan nama Anda">
+            </div>
+            <div class="button-container">
+                <button class="action-button" data-target="menu-view"><i class="bi bi-arrow-left-circle"></i> Kembali</button>
+                <button id="start-hewan-button" class="action-button"><i class="bi bi-play-circle"></i> Mulai Tes</button>
+            </div>
+        </div>
+
+        <div id="game-hewan-content" style="display: none;">
+            <div class="info-hewan-container">
+                <span class="info-item"><i class="bi bi-ui-checks"></i> Soal ke <span id="soal-hewan-counter">1</span></span>
+                <span class="info-item"><i class="bi bi-clock-fill"></i> <span id="timer-hewan">3</span>s</span>
+            </div>
+            
+            <div id="hewan-display" class="hewan-display"></div>
+            
+            <div id="question-container" style="display: none;">
+                <p id="question-text" class="question-text"></p>
+                <div id="options-container" class="options-container-hewan"></div>
+            </div>
+            
+            <div id="hewan-result-message" class="result-message-hewan"></div>
+            
+            <div class="button-container">
+                <button id="check-hewan-button" class="action-button" style="display: none;"><i class="bi bi-search"></i> Cek Jawaban</button>
+                <button id="next-hewan-button" class="action-button" style="display: none;">Selanjutnya <i class="bi bi-arrow-right-circle"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="kategori-view" class="test-view">
+        <h1 class="title">Memory Test - Categories</h1>
+        
+        <div id="intro-kategori-content">
+            <div class="instruction-box">
+                <p>
+                    <span class="highlight"><i class="bi bi-pin-fill"></i> Cara Mengerjakan Tes :</span><br>Dalam tes ini, Anda akan melihat serangkaian kalimat yang berisi kategori dan daftar kata-kata. Anda harus mengingat kalimat tersebut dalam waktu yang diberikan. Setelah waktu habis, akan muncul pertanyaan acak mengenai salah satu kalimat yang telah ditampilkan.
+                </p>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="kategori-name-input" placeholder="Masukkan nama Anda">
+            </div>
+            
+            <div class="button-container">
+                <button class="action-button" data-target="menu-view"><i class="bi bi-arrow-left-circle"></i> Kembali</button>
+                <button id="start-kategori-button" class="action-button"><i class="bi bi-play-circle"></i> Mulai Tes</button>
+            </div>
+        </div>
+        
+        <div id="game-kategori-content" style="display: none;">
+            <div class="info-kategori-container">
+                <span class="info-item"><i class="bi bi-ui-checks"></i> Soal ke <span id="soal-kategori-counter">1</span></span>
+                <span class="info-item"><i class="bi bi-clock-fill"></i> <span id="timer-kategori"></span></span>
+            </div>
+            
+            <div id="kategori-display" class="kategori-display"></div>
+            
+            <div id="question-kategori-container" style="display: none;">
+                <p id="question-kategori-text" class="question-text"></p>
+                <div id="options-kategori-container" class="options-kategori-container"></div>
+            </div>
+            
+            <div id="kategori-result-message" class="result-message-hewan"></div>
+            
+            <div class="button-container">
+                <button id="check-kategori-button" class="action-button" style="display: none;"><i class="bi bi-search"></i> Cek Jawaban</button>
+                <button id="next-kategori-button" class="action-button" style="display: none;">Selanjutnya <i class="bi bi-arrow-right-circle"></i></button>
+            </div>
+        </div>
+    </div>
+    
     <div id="results-view" class="test-view">
         <div class="results-header">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://jamaludin2025.github.io/memory-test.html" alt="QR Code" class="qr-code">
@@ -520,32 +829,6 @@
         <button class="action-button" data-target="menu-view"><i class="bi bi-list-task"></i> Kembali ke Menu</button>
     </div>
 
-    <div id="hewan-view" class="test-view">
-        <h1 class="title">Memory Test - Animals</h1>
-        <div class="instruction-box">
-            <p>
-                Dalam tes ini, Anda akan melihat serangkaian gambar hewan. Ingatlah urutan kemunculannya dan ulangi dengan benar.
-            </p>
-        </div>
-        <div class="button-container">
-            <button class="action-button" data-target="menu-view">Kembali</button>
-            <button class="action-button">Mulai</button>
-        </div>
-    </div>
-
-    <div id="kategori-view" class="test-view">
-        <h1 class="title">Memory Test - Categories</h1>
-        <div class="instruction-box">
-            <p>
-                Dalam tes ini, Anda akan melihat gambar-gambar dari berbagai kategori (misalnya, buah-buahan, alat, kendaraan). Ingatlah kategori dari setiap gambar dan susun kembali urutan yang benar.
-            </p>
-        </div>
-        <div class="button-container">
-            <button class="action-button" data-target="menu-view"><i class="bi bi-arrow-left-circle"></i> Kembali</button>
-            <button class="action-button"><i class="bi bi-play-circle"></i> Mulai Tes</button>
-        </div>
-    </div>
-    
     <div id="download-modal" class="modal">
       <div class="modal-content">
         <h3>Pilih Format Unduh</h3>
@@ -554,7 +837,7 @@
         <button id="close-modal" class="action-button" style="background-color: #dc3545;">Tutup</button>
       </div>
     </div>
-
+    
     <script>
         let correctNumber = '';
         let timerInterval;
@@ -564,6 +847,27 @@
         let resultsData = [];
         let resultContainer = null;
         let userName = '';
+
+        // Variabel untuk game hewan
+        let hewanData = [];
+        let currentHewanSoal = 1;
+        let hewanTimerInterval;
+        let currentSentenceIndex = 0;
+        let selectedAnswer = null;
+        let hewanCorrectAnswers = 0;
+        let hewanIncorrectAnswers = 0;
+        let hewanResultsData = [];
+        let hewanUserName = '';
+
+        // Variabel untuk game kategori
+        let kategoriData = [];
+        let currentKategoriSoal = 1;
+        let kategoriTimerInterval;
+        let selectedKategoriAnswer = null;
+        let kategoriCorrectAnswers = 0;
+        let kategoriIncorrectAnswers = 0;
+        let kategoriResultsData = [];
+        let kategoriUserName = '';
 
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.option-card');
@@ -576,7 +880,7 @@
             const gameContent = document.getElementById('game-content');
             const resultsView = document.getElementById('results-view');
             const numberDisplay = document.getElementById('number-display');
-            const infoContainer = document.querySelector('.info-container');
+            const infoContainer = document.querySelector('#angka-view .info-container');
             const timerElement = document.getElementById('timer');
             const soalCounterElement = document.getElementById('soal-counter');
             const inputContainer = document.getElementById('input-container');
@@ -595,6 +899,36 @@
             const closeModalBtn = document.getElementById('close-modal');
             
             const scoreGrid = document.getElementById('score-grid');
+            
+            // Elemen game hewan
+            const startHewanButton = document.getElementById('start-hewan-button');
+            const introHewanContent = document.getElementById('intro-hewan-content');
+            const hewanNameInput = document.getElementById('hewan-name-input');
+            const gameHewanContent = document.getElementById('game-hewan-content');
+            const hewanDisplay = document.getElementById('hewan-display');
+            const timerHewanElement = document.getElementById('timer-hewan');
+            const soalHewanCounterElement = document.getElementById('soal-hewan-counter');
+            const questionContainer = document.getElementById('question-container');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const hewanResultMessage = document.getElementById('hewan-result-message');
+            const checkHewanButton = document.getElementById('check-hewan-button');
+            const nextHewanButton = document.getElementById('next-hewan-button');
+            
+            // Elemen game kategori
+            const startKategoriButton = document.getElementById('start-kategori-button');
+            const introKategoriContent = document.getElementById('intro-kategori-content');
+            const kategoriNameInput = document.getElementById('kategori-name-input');
+            const gameKategoriContent = document.getElementById('game-kategori-content');
+            const kategoriDisplay = document.getElementById('kategori-display');
+            const timerKategoriElement = document.getElementById('timer-kategori');
+            const soalKategoriCounterElement = document.getElementById('soal-kategori-counter');
+            const questionKategoriContainer = document.getElementById('question-kategori-container');
+            const questionKategoriText = document.getElementById('question-kategori-text');
+            const optionsKategoriContainer = document.getElementById('options-kategori-container');
+            const kategoriResultMessage = document.getElementById('kategori-result-message');
+            const checkKategoriButton = document.getElementById('check-kategori-button');
+            const nextKategoriButton = document.getElementById('next-kategori-button');
 
             function showView(viewId) {
                 document.getElementById('menu-view').style.display = 'none';
@@ -604,6 +938,11 @@
                 document.getElementById('results-view').style.display = 'none';
                 document.querySelector('body > .button-container').style.display = 'none';
                 downloadModal.style.display = 'none';
+
+                // Reset game states when switching views
+                clearInterval(timerInterval);
+                clearInterval(hewanTimerInterval);
+                clearInterval(kategoriTimerInterval);
 
                 const targetView = document.getElementById(viewId);
                 if (targetView) targetView.style.display = 'flex';
@@ -622,10 +961,29 @@
                     numberDisplay.textContent = '';
                     resultMessage.textContent = '';
                     correctAnswerDisplay.style.display = 'none';
-                    infoContainer.style.display = 'none';
                     checkButton.style.display = 'none';
                     nextButton.style.display = 'none';
-                    userInfoDiv.textContent = '';
+                    userName = '';
+                }
+                 if (viewId === 'hewan-view') {
+                    introHewanContent.style.display = 'block';
+                    gameHewanContent.style.display = 'none';
+                    currentHewanSoal = 1;
+                    hewanCorrectAnswers = 0;
+                    hewanIncorrectAnswers = 0;
+                    hewanResultsData = [];
+                    soalHewanCounterElement.textContent = currentHewanSoal;
+                    hewanUserName = '';
+                 }
+                 if (viewId === 'kategori-view') {
+                    introKategoriContent.style.display = 'block';
+                    gameKategoriContent.style.display = 'none';
+                    currentKategoriSoal = 1;
+                    kategoriCorrectAnswers = 0;
+                    kategoriIncorrectAnswers = 0;
+                    kategoriResultsData = [];
+                    soalKategoriCounterElement.textContent = currentKategoriSoal;
+                    kategoriUserName = '';
                 }
             }
             
@@ -669,11 +1027,15 @@
 
             function startGame() {
                 if (soalCounter > 20) {
-                    showResults();
+                    showResults('Angka');
                     return;
                 }
                 
                 userName = nameInput.value;
+                if (!userName) {
+                    alert("Silakan masukkan nama Anda terlebih dahulu");
+                    return;
+                }
 
                 introContent.style.display = 'none';
                 gameContent.style.display = 'flex';
@@ -715,7 +1077,6 @@
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
                         numberDisplay.textContent = '';
-                        infoContainer.style.display = 'none';
                         inputContainer.style.display = 'flex';
                         checkButton.style.display = 'block';
                         const digitInputs = document.querySelectorAll('.digit-input');
@@ -739,7 +1100,7 @@
                     resultMessage.style.color = 'green';
                     correctAnswers++;
                 } else {
-                    resultMessage.textContent = 'Jawaban Anda salah.';
+                    resultMessage.textContent = 'Jawaban Anda salah';
                     resultMessage.style.color = 'red';
                     incorrectAnswers++;
                 }
@@ -761,24 +1122,53 @@
                 nextButton.style.display = 'block';
             }
             
-            function showResults() {
+            function showResults(gameType) {
                 gameContent.style.display = 'none';
+                gameHewanContent.style.display = 'none';
+                gameKategoriContent.style.display = 'none';
                 showView('results-view');
                 
-                correctAnswersCount.textContent = 'Jawaban Benar: ' + correctAnswers + ' Soal';
-                incorrectAnswersCount.textContent = 'Jawaban Salah: ' + incorrectAnswers + ' Soal';
+                let answersCount, incorrectsCount, testType, currentResultsData;
+                let nameToDisplay;
                 
-                const nameToDisplay = userName.trim() === '' ? 'Tanpa Nama' : userName;
+                if (gameType === 'Angka') {
+                    answersCount = correctAnswers;
+                    incorrectsCount = incorrectAnswers;
+                    testType = 'Angka';
+                    currentResultsData = resultsData;
+                    nameToDisplay = userName;
+                } else if (gameType === 'Hewan') {
+                    answersCount = hewanCorrectAnswers;
+                    incorrectsCount = hewanIncorrectAnswers;
+                    testType = 'Hewan';
+                    currentResultsData = hewanResultsData;
+                    nameToDisplay = hewanUserName;
+                } else if (gameType === 'Kategori') {
+                    answersCount = kategoriCorrectAnswers;
+                    incorrectsCount = kategoriIncorrectAnswers;
+                    testType = 'Kategori';
+                    currentResultsData = kategoriResultsData;
+                    nameToDisplay = kategoriUserName;
+                }
+                
+                correctAnswersCount.textContent = 'Jawaban Benar: ' + answersCount + ' Soal';
+                incorrectAnswersCount.textContent = 'Jawaban Salah: ' + incorrectsCount + ' Soal';
+                
+                const displayName = nameToDisplay.trim() === '' ? 'Tanpa Nama' : nameToDisplay;
                 const formattedDate = getFormattedDateTime();
                 
+                const angkaIcon = gameType === 'Angka' ? 'bi-check-square' : 'bi-square';
+                const hewanIcon = gameType === 'Hewan' ? 'bi-check-square' : 'bi-square';
+                const kategoriIcon = gameType === 'Kategori' ? 'bi-check-square' : 'bi-square';
+
                 userInfoDiv.innerHTML = `
                     <div class="test-type-options">
-                        <span class="option-item"><i class="bi bi-check-square"></i> Angka</span>
-                        <span class="option-item"><i class="bi bi-square"></i> Hewan</span>
-                        <span class="option-item"><i class="bi bi-square"></i> Kategori</span>
+                        <span class="option-item"><i class="bi ${angkaIcon}"></i> Angka</span>
+                        <span class="option-item"><i class="bi ${hewanIcon}"></i> Hewan</span>
+                        <span class="option-item"><i class="bi ${kategoriIcon}"></i> Kategori</span>
                     </div>
                     <div class="user-details" style="text-align: center; width: 100%;">
-                        <b>${nameToDisplay}</b> | ${formattedDate}
+                        <b>${displayName}</b> | ${formattedDate}
                     </div>
                 `;
 
@@ -787,14 +1177,14 @@
                     const box = document.createElement('div');
                     box.classList.add('score-box');
                     box.textContent = i + 1;
-                    if (resultsData[i] !== undefined) {
-                        if (resultsData[i]) {
+                    if (currentResultsData[i] !== undefined) {
+                        if (currentResultsData[i]) {
                             box.classList.add('correct');
                         } else {
                             box.classList.add('incorrect');
                         }
                     } else {
-                        box.style.backgroundColor = '#ccc';
+                        box.style.backgroundColor = '#f9f9f9';
                     }
                     scoreGrid.appendChild(box);
                 }
@@ -811,24 +1201,25 @@
                 }).then(canvas => {
                     if (format === 'png') {
                         const link = document.createElement('a');
-                        link.download = `Memory Test ${userName.trim() === '' ? 'Tanpa Nama' : userName}.png`;
+                        link.download = `Hasil Memory Test ${userName.trim() === '' ? 'Tanpa Nama' : userName}.png`;
                         link.href = canvas.toDataURL('image/png');
                         link.click();
                     } else if (format === 'pdf') {
                         const { jsPDF } = window.jspdf;
-                        const imgData = canvas.toDataURL('image/jpeg', 1.0); // Use JPEG for better compression
+                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
                         const pdf = new jsPDF('p', 'mm', 'a4');
                         const imgProps = pdf.getImageProperties(imgData);
                         const pdfWidth = pdf.internal.pageSize.getWidth();
                         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
                         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                        pdf.save(`Memory Test ${userName.trim() === '' ? 'Tanpa Nama' : userName}.pdf`);
+                        pdf.save(`Hasil Memory Test ${userName.trim() === '' ? 'Tanpa Nama' : userName}.pdf`);
                     }
                 });
             }
 
             function shareResults() {
-                const shareText = `Saya menyelesaikan Memory Test Angka dengan hasil ${correctAnswers} jawaban benar dan ${incorrectAnswers} jawaban salah! Coba tes ini di ${window.location.href}`;
+                const shareText = `Saya telah menyelesaikan Memory Test Angka dengan hasil ${correctAnswers} jawaban benar dan ${incorrectAnswers} jawaban salah!`;
+                
                 if (navigator.share) {
                     navigator.share({
                         title: 'Hasil Memory Test',
@@ -840,6 +1231,338 @@
                 }
             }
 
+            // =========================
+            // === Logika Game Hewan ===
+            // =========================
+            
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }           
+            
+            function generateHewanData() {
+                const allPairs = [
+                    { animal: 'Ayam', number: '34' },
+                    { animal: 'Ayam', number: '65' },
+                    { animal: 'Bebek', number: '29' },
+                    { animal: 'Bebek', number: '51' },
+                    { animal: 'Anjing', number: '91' },
+                    { animal: 'Anjing', number: '13' },
+                    { animal: 'Kucing', number: '78' },
+                    { animal: 'Kucing', number: '12' },
+                    { animal: 'Kambing', number: '14' },
+                    { animal: 'Kambing', number: '44' },
+                    { animal: 'Sapi', number: '93' },
+                    { animal: 'Sapi', number: '39' },
+                    { animal: 'Burung', number: '10' },
+                    { animal: 'Burung', number: '27' },
+                    { animal: 'Ikan', number: '45' },
+                    { animal: 'Ikan', number: '88' },
+                    { animal: 'Kelinci', number: '67' },
+                    { animal: 'Kelinci', number: '71' },
+                    { animal: 'Angsa', number: '82' },
+                    { animal: 'Angsa', number: '40' },
+                    { animal: 'Gajah', number: '55' },
+                    { animal: 'Gajah', number: '19' },
+                    { animal: 'Singa', number: '21' },
+                    { animal: 'Singa', number: '33' },
+                    { animal: 'Harimau', number: '98' },
+                    { animal: 'Harimau', number: '66' }
+                ];
+                
+                const uniqueAnimals = [];
+                const tempPairs = shuffle(allPairs);
+                const selectedPairs = [];
+                
+                for(const pair of tempPairs) {
+                    if (!uniqueAnimals.includes(pair.animal)) {
+                        selectedPairs.push(pair);
+                        uniqueAnimals.push(pair.animal);
+                    }
+                    if (selectedPairs.length === 5) break;
+                }
+
+                const questionPair = selectedPairs[Math.floor(Math.random() * 5)];
+                
+                let options = selectedPairs.map(p => p.number);
+                options = shuffle(options);
+
+                return {
+                    sentencesData: selectedPairs,
+                    questionData: {
+                        question: `Ada berapa banyak ${questionPair.animal}?`,
+                        options: options,
+                        correctAnswer: questionPair.number
+                    }
+                };
+            }
+
+            function startHewanGame() {
+                if (currentHewanSoal > 20) {
+                    showResults('Hewan');
+                    return;
+                }
+
+                hewanUserName = hewanNameInput.value;
+                if (!hewanUserName) {
+                    alert("Silakan masukkan nama Anda terlebih dahulu");
+                    return;
+                }
+
+                introHewanContent.style.display = 'none';
+                gameHewanContent.style.display = 'flex';
+                hewanResultMessage.textContent = '';
+                questionContainer.style.display = 'none';
+                checkHewanButton.style.display = 'none';
+                nextHewanButton.style.display = 'none';
+                currentSentenceIndex = 0;
+                hewanData = generateHewanData();
+                soalHewanCounterElement.textContent = currentHewanSoal;
+
+                displayHewanSentence();
+            }
+            
+            function displayHewanSentence() {
+                if (currentSentenceIndex < 5) {
+                    const currentPair = hewanData.sentencesData[currentSentenceIndex];
+                    hewanDisplay.textContent = `${currentPair.number} ${currentPair.animal}`;
+                    hewanDisplay.style.display = 'block';
+                    let timeLeft = 0;
+                    timerHewanElement.textContent = timeLeft;
+                    hewanTimerInterval = setInterval(() => {
+                        timeLeft--;
+                        timerHewanElement.textContent = timeLeft;
+                        if (timeLeft <= 0) {
+                            clearInterval(hewanTimerInterval);
+                            currentSentenceIndex++;
+                            setTimeout(displayHewanSentence, 1000);
+                        }
+                    }, 1000);
+                } else {
+                    showHewanQuestion();
+                }
+            }
+
+            function showHewanQuestion() {
+                hewanDisplay.style.display = 'none';
+                questionContainer.style.display = 'block';
+                
+                const question = hewanData.questionData;
+                questionText.textContent = question.question;
+                optionsContainer.innerHTML = '';
+                
+                const optionLabels = ['A', 'B', 'C', 'D', 'E'];
+                
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-button');
+                    button.setAttribute('data-answer', option);
+                    button.textContent = `${optionLabels[index]}. ${option}`;
+                    button.addEventListener('click', () => {
+                        const allButtons = document.querySelectorAll('.option-button');
+                        allButtons.forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                        selectedAnswer = button.getAttribute('data-answer');
+                        checkHewanButton.style.display = 'block';
+                    });
+                    optionsContainer.appendChild(button);
+                });
+            }
+
+            function checkHewanAnswer() {
+                const question = hewanData.questionData;
+                const allButtons = document.querySelectorAll('.option-button');
+                const isCorrect = (selectedAnswer === question.correctAnswer);
+                hewanResultsData.push(isCorrect);
+                
+                allButtons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.getAttribute('data-answer') === question.correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (btn.classList.contains('selected')) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (isCorrect) {
+                    hewanResultMessage.textContent = 'Jawaban Anda benar';
+                    hewanResultMessage.style.color = 'green';
+                    hewanCorrectAnswers++;
+                } else {
+                    hewanResultMessage.textContent = `Jawaban Anda salah`;
+                    hewanResultMessage.style.color = 'red';
+                    hewanIncorrectAnswers++;
+                }
+                
+                checkHewanButton.style.display = 'none';
+                nextHewanButton.style.display = 'block';
+            }
+            
+            function nextHewanQuestion() {
+                currentHewanSoal++;
+                selectedAnswer = null;
+                startHewanGame();
+            }
+
+            // =========================
+            // === Logika Game Kategori ===
+            // =========================
+            const kategoriSentences = {
+                // Perbaiki kapitalisasi dan ejaan
+                'Bunga': ['Soka', 'Larat', 'Flamboyan', 'Yasmin', 'Dahlia'],
+                'Perkakas': ['Wajan', 'Jarum', 'Kikir', 'Cangkul', 'Palu'],
+                'Burung': ['Itik', 'Elang', 'Walet', 'Tekukur', 'Nuri'],
+                'Kesenian': ['Quartet', 'Arca', 'Opera', 'Ukiran', 'Gamelan'],
+                'Binatang': ['Rusa', 'Musang', 'Beruang', 'Harimau', 'Zebra']
+            };
+            
+            // FUNGSI BARU UNTUK MEMBANGUN STRUKTUR GRID KATEGORI
+            function buildKategoriGridHTML() {
+                let html = '';
+                for (const category in kategoriSentences) {
+                    const items = kategoriSentences[category].join(', ');
+                    html += `
+                        <div class="kategori-row">
+                            <span class="kategori-label">${category}</span>
+                            <span class="kategori-colon">:</span>
+                            <span class="kategori-items">${items}</span>
+                        </div>
+                    `;
+                }
+                return html;
+            }
+            
+            function startKategoriGame() {
+                 if (currentKategoriSoal > 20) {
+                    showResults('Kategori');
+                    return;
+                }
+                
+                kategoriUserName = kategoriNameInput.value;
+                if (!kategoriUserName) {
+                    alert("Silakan masukkan nama Anda terlebih dahulu");
+                    return;
+                }
+
+                introKategoriContent.style.display = 'none';
+                gameKategoriContent.style.display = 'flex';
+                kategoriResultMessage.textContent = '';
+                questionKategoriContainer.style.display = 'none';
+                checkKategoriButton.style.display = 'none';
+                nextKategoriButton.style.display = 'none';
+                soalKategoriCounterElement.textContent = currentKategoriSoal;
+
+                // Cek jika ini soal 1 atau 11, mulai fase tampilan 3 menit
+                if (currentKategoriSoal === 1 || currentKategoriSoal === 11) {
+                    showKategoriSentencesFor3Minutes();
+                } else {
+                    showKategoriQuestion();
+                }
+            }
+
+            function showKategoriSentencesFor3Minutes() {
+                kategoriDisplay.style.display = 'block';
+                timerKategoriElement.style.display = 'inline-block';
+                
+                let totalTimeLeft = 0;
+                
+                // MENGGUNAKAN INNERHTML DENGAN STRUKTUR GRID BARU
+                kategoriDisplay.innerHTML = buildKategoriGridHTML();
+                timerKategoriElement.textContent = `${totalTimeLeft} s`;
+                
+                kategoriTimerInterval = setInterval(() => {
+                    totalTimeLeft--;
+                    timerKategoriElement.textContent = `${totalTimeLeft} s`;
+                    
+                    if (totalTimeLeft <= 0) {
+                        clearInterval(kategoriTimerInterval);
+                        kategoriDisplay.innerHTML = ''; // Ganti textContent = ''
+                        showKategoriQuestion();
+                    }
+                }, 1000);
+            }
+            
+            function showKategoriQuestion() {
+                 kategoriDisplay.style.display = 'none';
+                 timerKategoriElement.style.display = 'block';
+                 questionKategoriContainer.style.display = 'block';
+                 
+                 const categories = Object.keys(kategoriSentences);
+                 const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+                 const words = kategoriSentences[randomCategory];
+                 const randomWord = words[Math.floor(Math.random() * words.length)];
+                 const firstLetter = randomWord.charAt(0);
+
+                 questionKategoriText.textContent = `Kata yang berawalan dari huruf "${firstLetter}" adalah?`;
+                 
+                 const options = ['Bunga', 'Perkakas', 'Burung', 'Kesenian', 'Binatang'];
+                 const optionLabels = ['A', 'B', 'C', 'D', 'E'];
+                 optionsKategoriContainer.innerHTML = '';
+                 
+                 options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-button');
+                    button.setAttribute('data-answer', option);
+                    button.textContent = `${optionLabels[index]}. ${option}`;
+                    button.addEventListener('click', () => {
+                        const allButtons = document.querySelectorAll('#options-kategori-container .option-button');
+                        allButtons.forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                        selectedKategoriAnswer = button.getAttribute('data-answer');
+                        checkKategoriButton.style.display = 'block';
+                    });
+                    optionsKategoriContainer.appendChild(button);
+                 });
+                 
+                 kategoriData.questionData = {
+                     // Mengambil kategori asli dari object, bukan versi kapital
+                     correctAnswer: randomCategory 
+                 };
+            }
+            
+            function checkKategoriAnswer() {
+                 // Perlu disesuaikan untuk mencocokkan kapitalisasi yang benar
+                 const correctAnswer = kategoriData.questionData.correctAnswer;
+                 // Asumsi selectedKategoriAnswer selalu dalam huruf kapital, kita cocokkan dengan nilai yang sesuai.
+                 const isCorrect = (selectedKategoriAnswer.toUpperCase() === correctAnswer.toUpperCase()); 
+                 kategoriResultsData.push(isCorrect);
+                 
+                 const allButtons = document.querySelectorAll('#options-kategori-container .option-button');
+                 allButtons.forEach(btn => {
+                     btn.disabled = true;
+                     if (btn.getAttribute('data-answer').toUpperCase() === correctAnswer.toUpperCase()) {
+                         btn.classList.add('correct');
+                     } else if (btn.classList.contains('selected')) {
+                         btn.classList.add('incorrect');
+                     }
+                 });
+                 
+                 if (isCorrect) {
+                     kategoriResultMessage.textContent = 'Jawaban Anda benar';
+                     kategoriResultMessage.style.color = 'green';
+                     kategoriCorrectAnswers++;
+                 } else {
+                     kategoriResultMessage.textContent = `Jawaban Anda salah`;
+                     kategoriResultMessage.style.color = 'red';
+                     kategoriIncorrectAnswers++;
+                 }
+                 
+                 checkKategoriButton.style.display = 'none';
+                 nextKategoriButton.style.display = 'block';
+            }
+            
+            function nextKategoriQuestion() {
+                 currentKategoriSoal++;
+                 selectedKategoriAnswer = null;
+                 startKategoriGame();
+            }
+
+            // ======================
+            // === Event Listeners ===
+            // ======================
             cards.forEach(card => {
                 card.addEventListener('click', () => {
                     const targetId = card.getAttribute('data-target');
@@ -853,6 +1576,14 @@
                 soalCounter++;
                 startGame();
             });
+
+            startHewanButton.addEventListener('click', startHewanGame);
+            checkHewanButton.addEventListener('click', checkHewanAnswer);
+            nextHewanButton.addEventListener('click', nextHewanQuestion);
+            
+            startKategoriButton.addEventListener('click', startKategoriGame);
+            checkKategoriButton.addEventListener('click', checkKategoriAnswer);
+            nextKategoriButton.addEventListener('click', nextKategoriQuestion);
 
             downloadIcon.addEventListener('click', () => {
                 downloadModal.style.display = 'flex';
